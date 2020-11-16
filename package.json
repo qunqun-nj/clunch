@@ -1,0 +1,25 @@
+{
+  "name": "clunch",
+  "version": "0.0.0-alpha",
+  "description": "📊📈🎉The Progressive JavaScript Interactive Picture Framework.",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/hai2007/clunch.git"
+  },
+  "keywords": [
+    "javascript",
+    "framework",
+    "picture",
+    "chart"
+  ],
+  "author": "hai2007",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/hai2007/clunch/issues"
+  },
+  "homepage": "https://github.com/hai2007/clunch#readme"
+}
