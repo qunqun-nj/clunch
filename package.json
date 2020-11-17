@@ -1,10 +1,20 @@
 {
   "name": "clunch",
-  "version": "0.0.0-alpha",
+  "version": "0.1.0-alpha.0",
   "description": "📊📈🎉The Progressive JavaScript Interactive Picture Framework.",
-  "main": "index.js",
+  "main": "dist/clunch.min.js",
+  "typings": "types/index.d.ts",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "start": "npm install && npm run dev",
+    "dev": "rollup --config rollup.config.js -i ./src/entry.js -o ./dist/clunch.js --watch",
+    "dev:core": "rollup --config rollup.config.js -i ./src/entry.core.js -o ./dist/clunch.core.js --watch",
+    "build": "npm run rollup && npm run uglifyjs && cuf --config ./cuf.config.js",
+    "rollup": "npm run rollup:core && npm run rollup:clunch",
+    "rollup:clunch": "rollup --config rollup.config.js -i ./src/entry.js -o ./dist/clunch.js",
+    "rollup:core": "rollup --config rollup.config.js -i ./src/entry.core.js -o ./dist/clunch.core.js",
+    "uglifyjs": "npm run uglifyjs:core && npm run uglifyjs:clunch",
+    "uglifyjs:clunch": "uglifyjs ./dist/clunch.js -m -o ./dist/clunch.min.js",
+    "uglifyjs:core": "uglifyjs ./dist/clunch.core.js -m -o ./dist/clunch.core.min.js"
   },
   "repository": {
     "type": "git",
@@ -21,5 +31,19 @@
   "bugs": {
     "url": "https://github.com/hai2007/clunch/issues"
   },
-  "homepage": "https://github.com/hai2007/clunch#readme"
+  "homepage": "https://github.com/hai2007/clunch#readme",
+  "devDependencies": {
+    "@babel/core": "^7.12.3",
+    "@babel/preset-env": "^7.12.1",
+    "@rollup/plugin-babel": "^5.2.1",
+    "cuf": "^1.2.0",
+    "rollup": "^2.33.2",
+    "rollup-plugin-commonjs": "^10.1.0",
+    "rollup-plugin-node-resolve": "^5.2.0",
+    "uglify-js": "^3.11.6"
+  },
+  "dependencies": {
+    "@hai2007/algorithm": "^0.1.1",
+    "@hai2007/tool": "^0.2.0"
+  }
 }

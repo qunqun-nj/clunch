@@ -3,3 +3,8 @@
 .project
 node_modules
 .vscode
+docs
+src
+.editorconfig
+cuf.config.js
+rollup.config.js
