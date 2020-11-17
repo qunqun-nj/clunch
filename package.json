@@ -1,6 +1,6 @@
 {
   "name": "clunch",
-  "version": "0.1.0-alpha.0",
+  "version": "0.1.0-alpha.1",
   "description": "📊📈🎉The Progressive JavaScript Interactive Picture Framework.",
   "main": "dist/clunch.min.js",
   "typings": "types/index.d.ts",

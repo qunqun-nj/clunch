@@ -4,12 +4,12 @@
  *
  * author hai2007
  *
- * version 0.1.0-alpha.0
+ * version 0.1.0-alpha.1
  *
  * Copyright (c) 2020 hai2007 走一步，再走一步。
  * Released under the MIT license
  *
- * Date:Tue Nov 17 2020 11:24:21 GMT+0800 (GMT+08:00)
+ * Date:Tue Nov 17 2020 12:14:25 GMT+0800 (GMT+08:00)
  */
 (function () {
   'use strict';
