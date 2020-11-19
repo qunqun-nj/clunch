@@ -5,6 +5,7 @@ node_modules
 .vscode
 docs
 src
+test
 .editorconfig
 cuf.config.js
 rollup.config.js
