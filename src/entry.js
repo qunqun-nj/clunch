@@ -1,5 +1,4 @@
-let Clunch = {};
-
+import Clunch from './core/index';
 
 // 对外暴露调用接口
 

@@ -26,7 +26,7 @@ module.exports = {
  * clunch.js${item.length > 1 ? " <" + item[1] + "> " : " "}- ${pkg.description}
  * ${pkg.repository.url}
  *
- * author ${pkg.author}
+ * author ${pkg.author} < https://hai2007.gitee.io/sweethome >
  *
  * version ${pkg.version}
  *
