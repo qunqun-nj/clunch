@@ -15,8 +15,12 @@ module.exports = {
         [
             ['clunch.core.js', 'core'],
             ['clunch.core.min.js', 'core'],
+            ['clunch-template.core.js', 'core@template'],
+            ['clunch-template.core.min.js', 'core@template'],
             ['clunch.js'],
-            ['clunch.min.js']
+            ['clunch.min.js'],
+            ['clunch-template.js', '@template'],
+            ['clunch-template.min.js', '@template']
         ].forEach(item => {
 
             let filePath = path.join(rootPath, "./dist/" + item[0]);

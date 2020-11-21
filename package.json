@@ -9,12 +9,16 @@
     "dev": "rollup --config rollup.config.js -i ./src/entry.js -o ./dist/clunch.js --watch",
     "dev:core": "rollup --config rollup.config.js -i ./src/entry.core.js -o ./dist/clunch.core.js --watch",
     "build": "npm run rollup && npm run uglifyjs && cuf --config ./cuf.config.js",
-    "rollup": "npm run rollup:core && npm run rollup:clunch",
+    "rollup": "npm run rollup:core && npm run rollup:clunch && npm run rollup:core@template && npm run rollup:clunch@template",
     "rollup:clunch": "rollup --config rollup.config.js -i ./src/entry.js -o ./dist/clunch.js",
+    "rollup:clunch@template": "rollup --config rollup.config.js -i ./src/entry-template.js -o ./dist/clunch-template.js",
     "rollup:core": "rollup --config rollup.config.js -i ./src/entry.core.js -o ./dist/clunch.core.js",
-    "uglifyjs": "npm run uglifyjs:core && npm run uglifyjs:clunch",
+    "rollup:core@template": "rollup --config rollup.config.js -i ./src/entry-template.core.js -o ./dist/clunch-template.core.js",
+    "uglifyjs": "npm run uglifyjs:core && npm run uglifyjs:clunch && npm run uglifyjs:core@template && npm run uglifyjs:clunch@template",
     "uglifyjs:clunch": "uglifyjs ./dist/clunch.js -m -o ./dist/clunch.min.js",
-    "uglifyjs:core": "uglifyjs ./dist/clunch.core.js -m -o ./dist/clunch.core.min.js"
+    "uglifyjs:clunch@template": "uglifyjs ./dist/clunch-template.js -m -o ./dist/clunch-template.min.js",
+    "uglifyjs:core": "uglifyjs ./dist/clunch.core.js -m -o ./dist/clunch.core.min.js",
+    "uglifyjs:core@template": "uglifyjs ./dist/clunch-template.core.js -m -o ./dist/clunch-template.core.min.js"
   },
   "repository": {
     "type": "git",
@@ -43,7 +47,7 @@
     "uglify-js": "^3.11.6"
   },
   "dependencies": {
-    "@hai2007/algorithm": "^0.1.1",
-    "@hai2007/tool": "^0.2.0"
+    "@hai2007/algorithm": "^0.3.0",
+    "@hai2007/tool": "^0.3.0"
   }
 }

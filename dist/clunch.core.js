@@ -9,7 +9,7 @@
  * Copyright (c) 2020 hai2007 走一步，再走一步。
  * Released under the MIT license
  *
- * Date:Fri Nov 20 2020 22:20:34 GMT+0800 (GMT+08:00)
+ * Date:Sun Nov 22 2020 01:22:45 GMT+0800 (GMT+08:00)
  */
 (function () {
   'use strict';
@@ -50,6 +50,11 @@
 
 
   Clunch.prototype.$destroy = function () {};
+
+  Clunch.prototype.$$templateCompiler = function (template) {
+    throw new Error('Sorry, setting template property is not supported at this time : \n' + template);
+  }; // 对外暴露调用接口
+
 
   if ((typeof module === "undefined" ? "undefined" : _typeof(module)) === "object" && _typeof(module.exports) === "object") {
     module.exports = Clunch;
