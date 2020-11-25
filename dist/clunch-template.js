@@ -1,5 +1,5 @@
 /*!
- * clunch.js <@template> - 📊📈🎉The Progressive JavaScript Interactive Picture Framework.
+ * clunch.js <@template> - 🎨 The Progressive JavaScript Interactive Picture Framework.
  * git+https://github.com/hai2007/clunch.git
  *
  * author hai2007 < https://hai2007.gitee.io/sweethome >
@@ -9,7 +9,7 @@
  * Copyright (c) 2020 hai2007 走一步，再走一步。
  * Released under the MIT license
  *
- * Date:Sun Nov 22 2020 01:22:45 GMT+0800 (GMT+08:00)
+ * Date:Wed Nov 25 2020 18:02:02 GMT+0800 (GMT+08:00)
  */
 (function () {
   'use strict';
@@ -54,7 +54,9 @@
   var $RegExp = {
     // 空白字符:http://www.w3.org/TR/css3-selectors/#whitespace
     blankReg: new RegExp("[\\x20\\t\\r\\n\\f]"),
-    blanksReg: /^[\x20\t\r\n\f]{0,}$/
+    blanksReg: /^[\x20\t\r\n\f]{0,}$/,
+    // 标志符
+    identifier: /^[a-zA-Z_$][0-9a-zA-Z_$]{0,}$/
   };
 
   var toString = Object.prototype.toString;

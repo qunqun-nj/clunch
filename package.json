@@ -1,7 +1,7 @@
 {
   "name": "clunch",
   "version": "0.1.0-alpha.1",
-  "description": "📊📈🎉The Progressive JavaScript Interactive Picture Framework.",
+  "description": "🎨 The Progressive JavaScript Interactive Picture Framework.",
   "main": "dist/clunch.min.js",
   "typings": "types/index.d.ts",
   "scripts": {
@@ -47,7 +47,7 @@
     "uglify-js": "^3.11.6"
   },
   "dependencies": {
-    "@hai2007/algorithm": "^0.3.0",
-    "@hai2007/tool": "^0.3.0"
+    "@hai2007/algorithm": "^0.4.2",
+    "@hai2007/tool": "^0.3.1"
   }
 }

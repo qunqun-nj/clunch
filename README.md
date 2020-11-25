@@ -1,5 +1,7 @@
-# clunch
-📊📈🎉The Progressive JavaScript Interactive Picture Framework.
+# clunch - 🎨 The Progressive JavaScript Interactive Picture Framework.
+
+<p align="center"><a href="https://hai2007.gitee.io/clunch/" target="_blank">
+<img width="400" src="./clunch.png" alt="image2D logo"></a></p>
 
 - 项目研发中，敬请期待！
 
