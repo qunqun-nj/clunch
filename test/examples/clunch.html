@@ -4,17 +4,26 @@
 <head>
     <meta charset="UTF-8">
     <title>clunch.js - 用例测试</title>
-    <script src="../../dist/clunch.js"></script>
+    <script src="../../dist/clunch-template.js"></script>
     <link rel="shortcut icon" href="../../clunch.png">
 </head>
 
 <body>
 
-    <div id="root"></div>
+    <div id="root">
+        <arc></arc>
+    </div>
 
     <script>
 
-        // todo
+        window.clunch = new Clunch({
+            el: document.getElementById('root'),
+            data() {
+                return {
+
+                };
+            }
+        });
 
     </script>
 

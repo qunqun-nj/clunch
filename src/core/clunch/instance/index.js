@@ -23,4 +23,10 @@ lifecycleMixin(Clunch);
 updateMixin(Clunch);
 drawerMixin(Clunch);
 
+// 初始化方法
+// （主要是内部使用，和创建的对象无关的初始化）
+
+// 记录挂载的组件
+Clunch.prototype.__defineSerirs={};
+
 export default Clunch;

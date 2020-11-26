@@ -10,8 +10,17 @@ module.exports = {
         filename: 'dist/clunch-doc@v' + pkg.version + '.js',
         chunkFilename: 'dist/clunch-doc@v' + pkg.version + '-bundle[name].js'
     },
+    resolve: {
+        alias: {
+            'clunch': require('path').resolve('../dist/clunch.template.js')
+        }
+    },
     module: {
         rules: [{
+            test: /\.clunch$/,
+            exclude: /node_modules/,
+            loader: ['../loader.js']
+        }, {
             test: /\.iCrush$/,
             loader: ['icrush-loader'],
             exclude: /node_modules/
