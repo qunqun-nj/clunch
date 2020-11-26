@@ -1,5 +1,7 @@
 import Clunch from './clunch/instance/index';
 import { isElement } from '@hai2007/tool/type';
+import resize from './clunch/observe/resize';
+import aopRender from './clunch/vnode/AOP-render';
 
 // 挂载一些静态方法
 import initGlobalApi from './clunch/global-api/index';
@@ -29,6 +31,12 @@ Clunch.prototype.$mount = function (el) {
 
     this.$$lifecycle('beforeMount');
 
+    // 如果我们没有在初始化对象的时候传递render（template也算传递了）
+    // 那么我们在每次挂载的时候都会使用挂载地的内容进行组合
+    if (!this.__renderFlag) {
+        this.__render = aopRender(this.$$templateCompiler(el.innerHTML), this.__defineSerirs);
+    }
+
     // 一切正确以后，记录新的挂载结点
     this.__el = el;
 
@@ -37,6 +45,9 @@ Clunch.prototype.$mount = function (el) {
     this.__canvas = el.getElementsByTagName('canvas')[0];
 
     // todo
+
+    // 挂载后以后，启动画布大小监听
+    resize(this);
 
     // 挂载完毕以后，同步标志
     this._isMounted = true;

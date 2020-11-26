@@ -6,7 +6,21 @@ import xhtmlToJson from '@hai2007/algorithm/xhtmlToJson.js';
 
 export default function (template) {
 
-    // todo
-    console.log(xhtmlToJson(template));
+    let xhtmlJson = xhtmlToJson("<clunch>" + template + "</clunch>");
+
+    return (function doit(pNode) {
+
+        let temp = [];
+        for (let i = 0; i < pNode.childNodes.length; i++) {
+            let node = xhtmlJson[pNode.childNodes[i]];
+            temp.push({
+                attr: node.attrs,
+                children: doit(node)
+            });
+        }
+
+        return temp;
+
+    })(xhtmlJson[0]);
 
 };

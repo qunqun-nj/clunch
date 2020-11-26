@@ -5,4 +5,6 @@
 
 export default function (initRender, series) {
 
+    console.log(initRender, series);
+
 };

@@ -11,7 +11,7 @@ import watcher from '../observe/watcher';
 function Clunch(options) {
 
     if (!(this instanceof Clunch)) {
-        console.error('[Clunch error]: Clunch is a constructor and should be called with the `new` keyword');
+        console.error('Clunch is a constructor and should be called with the `new` keyword');
         return;
     }
 
@@ -68,6 +68,7 @@ drawerMixin(Clunch);
 
 // 初始化方法
 // （主要是内部使用，和创建的对象无关的初始化）
+// 需要特别注意的是，原型上的东西会在所有对象上面共享
 
 // 记录挂载的组件
 Clunch.prototype.__defineSerirs = {};

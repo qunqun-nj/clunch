@@ -9,7 +9,7 @@
  * Copyright (c) 2020 hai2007 走一步，再走一步。
  * Released under the MIT license
  *
- * Date:Thu Nov 26 2020 16:23:28 GMT+0800 (GMT+08:00)
+ * Date:Thu Nov 26 2020 17:53:07 GMT+0800 (GMT+08:00)
  */
 (function () {
   'use strict';
@@ -894,6 +894,13 @@
     return inputArray[inputArray.length - 1].apply(this, methodServers);
   }
 
+  // 对来自标签字符串的分析结果进行进一步处理
+  // 包括一些校对等比较复杂的业务处理和错误提示
+  // （处理render参数或者最终的组件对象）
+  function aopRender (initRender, series) {
+    console.log(initRender, series);
+  }
+
   function initMixin(Clunch) {
     // 对对象进行初始化
     Clunch.prototype.$$init = function (options) {
@@ -914,7 +921,21 @@
       for (var _key in this.__data) {
         isValidKey(_key);
         this[_key] = this.__data[_key];
-      }
+      } // 记录是否传递了render或template
+      // 这里的登记是为了后续重新挂载的时候判断是否需要重置render
+
+
+      this.__renderFlag = !!options.render || !!options.template; // 如果render存在，结合当前信息获取真正的render
+      // 为什么传递的render不是真正的？
+      // 这是为了方便用户使用，用户写的render建立简单，后续初始化的时候，结合所有信息，再获取完整的
+
+      if (!!options.render) {
+        this.__render = aopRender(options.render, this.__defineSerirs);
+      } // 如果没有render，再看看有没有传递template
+      // 因此render优先级明显高于template
+      else if (!!options.template) {
+          this.__render = aopRender(this.$$templateCompiler(options.template), this.__defineSerirs);
+        }
     };
   }
 
@@ -971,7 +992,7 @@
 
   function Clunch(options) {
     if (!(this instanceof Clunch)) {
-      console.error('[Clunch error]: Clunch is a constructor and should be called with the `new` keyword');
+      console.error('Clunch is a constructor and should be called with the `new` keyword');
       return;
     } // 对生命周期钩子进行预处理
 
@@ -1008,9 +1029,26 @@
   initMixin(Clunch);
   lifecycleMixin(Clunch);
   // （主要是内部使用，和创建的对象无关的初始化）
+  // 需要特别注意的是，原型上的东西会在所有对象上面共享
   // 记录挂载的组件
 
   Clunch.prototype.__defineSerirs = {};
+
+  // 监听画布大小改变
+  function resize (that) {
+    try {
+      that.__resizeObserver = new ResizeObserver(function () {
+        // todo
+        console.log('1');
+      }); // 监听
+
+      that.__resizeObserver.observe(that.__el);
+    } catch (e) {
+      // 如果浏览器不支持此接口
+      console.info(e);
+      console.error('ResizeObserver undefined!');
+    }
+  }
 
   function compileSeries (series) {
     var temp = serviceFactory(series); // 校对属性
@@ -1079,13 +1117,21 @@
       return;
     }
 
-    this.$$lifecycle('beforeMount'); // 一切正确以后，记录新的挂载结点
+    this.$$lifecycle('beforeMount'); // 如果我们没有在初始化对象的时候传递render（template也算传递了）
+    // 那么我们在每次挂载的时候都会使用挂载地的内容进行组合
+
+    if (!this.__renderFlag) {
+      this.__render = aopRender(this.$$templateCompiler(el.innerHTML), this.__defineSerirs);
+    } // 一切正确以后，记录新的挂载结点
+
 
     this.__el = el; // 初始化添加画布
 
     el.innerHTML = '<canvas>非常抱歉，您的浏览器不支持canvas!</canvas>';
     this.__canvas = el.getElementsByTagName('canvas')[0]; // todo
-    // 挂载完毕以后，同步标志
+    // 挂载后以后，启动画布大小监听
+
+    resize(this); // 挂载完毕以后，同步标志
 
     this._isMounted = true;
     this.$$lifecycle('mounted');
@@ -1565,8 +1611,20 @@
   // (render生成器)
 
   function compileTemplate (template) {
-    // todo
-    console.log(xhtmlToJson(template));
+    var xhtmlJson = xhtmlToJson("<clunch>" + template + "</clunch>");
+    return function doit(pNode) {
+      var temp = [];
+
+      for (var i = 0; i < pNode.childNodes.length; i++) {
+        var node = xhtmlJson[pNode.childNodes[i]];
+        temp.push({
+          attr: node.attrs,
+          children: doit(node)
+        });
+      }
+
+      return temp;
+    }(xhtmlJson[0]);
   }
 
   var arc = ['number', "json", "string", "color", function ($number, $json, $string, $color) {

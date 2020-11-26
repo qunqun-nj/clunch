@@ -11,13 +11,46 @@
 <body>
 
     <div id="root">
-        <arc></arc>
+        <arc cx='50vw' cy='50vh' radius='50vmin'></arc>
+        <group c-for='value in dataList'>
+            <text c-bind:x='value' c-bind:y='value' c-bind:content='value' fill-color='red'></text>
+            <circle c-bind:cx='value' c-bind:cy='value' c-bind:radius='value'></circle>
+        </group>
     </div>
+
+    <!--
+
+        render(未aop):[{
+            arc:{
+                attr:{
+                    cx:'50vw',cy:'50vh',radius:'50vmin'
+                }
+            }
+        },{
+            group:{
+                attr:{
+                    "c-for":"value in dataList"
+                },
+                children:[{
+                    text:{
+                        attr:{...}
+                    }
+                },{
+                    circle:{
+                        attr:{...}
+                    }
+                }]
+            }
+        }]
+
+     -->
 
     <script>
 
         window.clunch = new Clunch({
             el: document.getElementById('root'),
+
+            // template:"<arc cx='50vw' cy='50vh' radius='50vmin'></arc>",
 
             /**
              * 方法
@@ -61,7 +94,8 @@
                 return {
                     flag: 2,
                     dot_: $dot,
-                    _tree_: $tree
+                    _tree_: $tree,
+                    dataList: [100, 200, 300]
                 };
             }],
 
@@ -124,6 +158,12 @@
         });
 
         console.log(window.clunch);
+
+        // Clunch.series('ui-demo',['any',function($any){
+        //     return {};
+        // }]);
+        // window.clunch1=new Clunch({});
+
 
     </script>
 
