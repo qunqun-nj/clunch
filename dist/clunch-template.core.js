@@ -9,7 +9,7 @@
  * Copyright (c) 2020 hai2007 走一步，再走一步。
  * Released under the MIT license
  *
- * Date:Thu Nov 26 2020 15:32:19 GMT+0800 (GMT+08:00)
+ * Date:Thu Nov 26 2020 16:23:28 GMT+0800 (GMT+08:00)
  */
 (function () {
   'use strict';
@@ -29,18 +29,6 @@
 
     return _typeof(obj);
   }
-
-  function Clunch(options) {
-    if (!(this instanceof Clunch)) {
-      console.error('[Clunch error]: Clunch is a constructor and should be called with the `new` keyword');
-      return;
-    } // todo
-
-  } // 在对象上挂载最基础的一些功能
-  // （主要是内部使用，和创建的对象无关的初始化）
-  // 记录挂载的组件
-
-  Clunch.prototype.__defineSerirs = {};
 
   /**
    * 判断一个值是不是Object。
@@ -99,9 +87,46 @@
     return type === '[object Function]' || type === '[object AsyncFunction]' || type === '[object GeneratorFunction]' || type === '[object Proxy]';
   }
 
+  /**
+   * 判断一个值是不是一个朴素的'对象'
+   * 所谓"纯粹的对象"，就是该对象是通过"{}"或"new Object"创建的
+   *
+   * @param {*} value 需要判断类型的值
+   * @returns {boolean} 如果是朴素的'对象'返回true，否则返回false
+   */
+
+  function _isPlainObject (value) {
+    if (value === null || _typeof(value) !== 'object' || getType(value) != '[object Object]') {
+      return false;
+    } // 如果原型为null
+
+
+    if (Object.getPrototypeOf(value) === null) {
+      return true;
+    }
+
+    var proto = value;
+
+    while (Object.getPrototypeOf(proto) !== null) {
+      proto = Object.getPrototypeOf(proto);
+    }
+
+    return Object.getPrototypeOf(value) === proto;
+  }
+
+  var domTypeHelp = function domTypeHelp(types, value) {
+    return value !== null && _typeof(value) === 'object' && types.indexOf(value.nodeType) > -1 && !_isPlainObject(value);
+  };
   var isString = _isString;
 
   var isFunction = _isFunction;
+  var isArray = function isArray(input) {
+    return Array.isArray(input);
+  };
+
+  var isElement = function isElement(input) {
+    return domTypeHelp([1, 9, 11], input);
+  };
 
   //当前正在运动的动画的tick函数堆栈
   var $timers = []; //唯一定时器的定时间隔
@@ -235,6 +260,14 @@
   var REGEXP = {
     // 空白字符:http://www.w3.org/TR/css3-selectors/#whitespace
     "whitespace": "[\\x20\\t\\r\\n\\f]"
+  }; // 判断是否是一个合法的方法名或变量名
+
+  var isValidKey = function isValidKey(key) {
+    // 判断是不是_或者$开头的
+    // 这两个内部预留了
+    if (/^[_$]/.test(key)) {
+      console.warn('The beginning of _ or $ is not allowed：' + key);
+    }
   };
 
   /**
@@ -828,6 +861,124 @@
     return inputArray[inputArray.length - 1].apply(this, methodServers);
   }
 
+  function initMixin(Clunch) {
+    // 对对象进行初始化
+    Clunch.prototype.$$init = function (options) {
+      this.__options = options; // 需要双向绑定的数据
+
+      this.__data = isArray(options.data) ? serviceFactory(options.data) : isFunction(options.data) ? options.data() : options.data; // 记录状态
+
+      this._isMounted = false;
+      this._isDestroyed = false; // 挂载方法
+
+      for (var key in options.methods) {
+        // 由于key的特殊性，注册前需要进行校验
+        isValidKey(key);
+        this[key] = isArray(options.methods[key]) ? serviceFactory(options.methods[key]) : options.methods[key];
+      } // 挂载数据
+
+
+      for (var _key in this.__data) {
+        isValidKey(_key);
+        this[_key] = this.__data[_key];
+      }
+    };
+  }
+
+  function lifecycleMixin(Clunch) {
+    // 生命周期调用钩子
+    // 整个过程，进行到对应时期，都需要调用一下这里对应的钩子
+    // 整合在一起的目的是方便维护
+    Clunch.prototype.$$lifecycle = function (callbackName) {
+      // beforeCreate，对象创建前
+      if (isFunction(callbackName)) {
+        callbackName();
+      } else {
+        if ([// 对象创建完毕
+        'created', // 对象和页面关联前、后
+        'beforeMount', 'mounted', // 对象和页面解关联前、后
+        'beforeUnmount', 'unmounted', // 数据改动前、后
+        'beforeUpdate', 'updated', // 画布大小改变导致的重绘前、后
+        'beforeResize', 'resized', // 销毁组件
+        'beforeDestroy', 'destroyed'].indexOf(callbackName) > -1 && isFunction(this.__options[callbackName])) {
+          this.__options[callbackName].call(this);
+        }
+      }
+
+      return this;
+    };
+  }
+
+  // 监听数据改变
+  function watcher (that) {
+    var _loop = function _loop(key) {
+      var value = that.__data[key];
+      that[key] = value; // 针对data进行拦截，后续对data的数据添加不会自动监听了
+      // this.__data的数据是初始化以后的，后续保持不变，方便组件被重新使用（可能的设计，当前预留一些余地）
+      // 当前对象数据会和方法一样直接挂载在根节点
+
+      Object.defineProperty(that, key, {
+        get: function get() {
+          return value;
+        },
+        set: function set(newValue) {
+          value = newValue;
+          that.$$lifecycle('beforeUpdate'); // 数据改变，触发更新
+          // todo
+
+          that.$$lifecycle('updated');
+        }
+      });
+    };
+
+    for (var key in that.__data) {
+      _loop(key);
+    }
+  }
+
+  function Clunch(options) {
+    if (!(this instanceof Clunch)) {
+      console.error('[Clunch error]: Clunch is a constructor and should be called with the `new` keyword');
+      return;
+    } // 对生命周期钩子进行预处理
+
+
+    ['beforeCreate', 'created', 'beforeMount', 'mounted', 'beforeUnmount', 'unmounted', 'beforeUpdate', 'updated', 'beforeResize', 'resized', 'beforeDestroy', 'destroyed'].forEach(function (item) {
+      if (isArray(options[item])) {
+        options[item] = serviceFactory(options[item]);
+      }
+    });
+    this.$$lifecycle(options.beforeCreate); // 创建对象
+
+    this.$$init(options); // 对象创建好了以后，启动监听
+
+    /**
+     * 由于wactch监听的源头来自options
+     * 如果监听在钩子created之后进行
+     * 会导致此钩子设置的数据可能被监听函数忽略
+     * 因此，我们这里就提前了此操作
+     * 避免出现意料之外的错误
+     */
+
+    watcher(this);
+    this.$$lifecycle('created'); // 如果初始化创建的时候没有传递el
+    // 表示开始的时候不需要挂载
+    // 可以后续主动挂载
+
+    if (isElement(options.el)) {
+      // 挂载
+      this.$mount(options.el);
+    }
+  } // 在对象上挂载最基础的一些功能
+
+
+  initMixin(Clunch);
+  lifecycleMixin(Clunch);
+  // （主要是内部使用，和创建的对象无关的初始化）
+  // 记录挂载的组件
+
+  Clunch.prototype.__defineSerirs = {};
+
   function compileSeries (series) {
     var temp = serviceFactory(series); // 校对属性
 
@@ -876,7 +1027,37 @@
   initGlobalApi(Clunch); // 挂载的意思是Clunch对象和页面关联起来
   // 这样挂载了，才会真的绘制
 
-  Clunch.prototype.$mount = function (el) {}; // 解挂的意思是Clunch对象和页面解除关联
+  Clunch.prototype.$mount = function (el) {
+    if (this._isDestroyed) {
+      // 已经销毁的组件不能重新挂载
+      console.warn('The clunch has been destroyed!');
+      return;
+    }
+
+    if (this._isMounted) {
+      // 已经挂载的组件需要主动解挂后才能再次进行挂载
+      console.warn('The clunch is already mounted!');
+      return;
+    }
+
+    if (!isElement(el)) {
+      // 如果挂载结点不正确，自然不能挂载
+      console.warn('Mount node does not exist!');
+      return;
+    }
+
+    this.$$lifecycle('beforeMount'); // 一切正确以后，记录新的挂载结点
+
+    this.__el = el; // 初始化添加画布
+
+    el.innerHTML = '<canvas>非常抱歉，您的浏览器不支持canvas!</canvas>';
+    this.__canvas = el.getElementsByTagName('canvas')[0]; // todo
+    // 挂载完毕以后，同步标志
+
+    this._isMounted = true;
+    this.$$lifecycle('mounted');
+    return this;
+  }; // 解挂的意思是Clunch对象和页面解除关联
   // 后续绘制会停止，不过计算不会
   // 你可以重新挂载
 

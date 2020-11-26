@@ -18,12 +18,112 @@
 
         window.clunch = new Clunch({
             el: document.getElementById('root'),
-            data() {
-                return {
 
+            /**
+             * 方法
+            */
+
+
+            methods: {
+
+                // 格式0
+                doit0() {
+                    console.log('0');
+                },
+
+                // 格式1
+                doit1: ['$move', function ($move) {
+                    return function () {
+                        console.warn($move);
+                        console.log('1');
+                    };
+                }]
+            },
+
+            /**
+             * 数据格式
+             */
+
+            //  格式0
+            // data:{
+            //     flag:0
+            // },
+
+            //  格式1
+            // data() {
+            //     return {
+            //         flag:1
+            //     };
+            // },
+
+            // 格式2
+            data: ['$dot', '$tree', function ($dot, $tree) {
+                return {
+                    flag: 2,
+                    dot_: $dot,
+                    _tree_: $tree
                 };
-            }
+            }],
+
+            /**
+             * 生命周期
+            */
+            beforeCreate: ['$tree', function ($tree) {
+                return function () {
+                    // debugger
+                    console.log('beforeCreate');
+                };
+            }],
+            created: function () {
+                console.log('created');
+            },
+            beforeMount: [function () {
+                return function () {
+                    console.log('beforeMount');
+                };
+            }],
+            mounted: function () {
+                console.log('mounted');
+            },
+            beforeUnmount: function () {
+                console.log('beforeUnmount');
+            },
+            unmounted: function () {
+                console.log('unmounted');
+            },
+            beforeUpdate: function () {
+                console.log('beforeUpdate');
+            },
+            updated: function () {
+                console.log('updated');
+            },
+            beforeResize: ['$tree', function ($tree) {
+                return function () {
+                    debugger
+                    console.log('beforeResize');
+                };
+            }],
+            resized: ['$tree', function ($tree) {
+                return function () {
+                    debugger
+                    console.log('resized');
+                };
+            }],
+            beforeDestroy: ['$tree', function ($tree) {
+                return function () {
+                    debugger
+                    console.log('beforeDestroy');
+                };
+            }],
+            destroyed: ['$tree', function ($tree) {
+                return function () {
+                    debugger
+                    console.log('destroyed');
+                };
+            }]
         });
+
+        console.log(window.clunch);
 
     </script>
 

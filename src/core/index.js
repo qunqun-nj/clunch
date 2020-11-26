@@ -1,4 +1,5 @@
 import Clunch from './clunch/instance/index';
+import { isElement } from '@hai2007/tool/type';
 
 // 挂载一些静态方法
 import initGlobalApi from './clunch/global-api/index';
@@ -8,6 +9,41 @@ initGlobalApi(Clunch);
 // 这样挂载了，才会真的绘制
 Clunch.prototype.$mount = function (el) {
 
+    if (this._isDestroyed) {
+        // 已经销毁的组件不能重新挂载
+        console.warn('The clunch has been destroyed!');
+        return;
+    }
+
+    if (this._isMounted) {
+        // 已经挂载的组件需要主动解挂后才能再次进行挂载
+        console.warn('The clunch is already mounted!');
+        return;
+    }
+
+    if (!isElement(el)) {
+        // 如果挂载结点不正确，自然不能挂载
+        console.warn('Mount node does not exist!');
+        return;
+    }
+
+    this.$$lifecycle('beforeMount');
+
+    // 一切正确以后，记录新的挂载结点
+    this.__el = el;
+
+    // 初始化添加画布
+    el.innerHTML = '<canvas>非常抱歉，您的浏览器不支持canvas!</canvas>';
+    this.__canvas = el.getElementsByTagName('canvas')[0];
+
+    // todo
+
+    // 挂载完毕以后，同步标志
+    this._isMounted = true;
+
+    this.$$lifecycle('mounted');
+
+    return this;
 };
 
 // 解挂的意思是Clunch对象和页面解除关联

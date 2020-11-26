@@ -6,7 +6,7 @@
   "typings": "types/index.d.ts",
   "scripts": {
     "start": "npm install && npm run dev",
-    "dev": "rollup --config rollup.config.js -i ./src/entry.js -o ./dist/clunch.js --watch",
+    "dev": "rollup --config rollup.config.js -i ./src/entry-template.js -o ./dist/clunch-template.js --watch",
     "dev:core": "rollup --config rollup.config.js -i ./src/entry.core.js -o ./dist/clunch.core.js --watch",
     "build": "npm run rollup && npm run uglifyjs && cuf --config ./cuf.config.js",
     "rollup": "npm run rollup:core && npm run rollup:clunch && npm run rollup:core@template && npm run rollup:clunch@template",
