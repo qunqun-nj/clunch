@@ -7,8 +7,7 @@ export default function (that) {
 
         that.__resizeObserver = new ResizeObserver(() => {
 
-            // todo
-            console.log('1');
+           that.$$updateWithSize();
 
         });
 

@@ -45,7 +45,8 @@ Clunch.prototype.$mount = function (el) {
     el.innerHTML = '<canvas>非常抱歉，您的浏览器不支持canvas!</canvas>';
     this.__canvas = el.getElementsByTagName('canvas')[0];
 
-    // todo
+    // 触发数据改变更新
+    this.$$updateWithData();
 
     // 挂载后以后，启动画布大小监听
     resize(this);

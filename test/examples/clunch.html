@@ -139,27 +139,33 @@
             updated: function () {
                 console.log('updated');
             },
+            beforeDraw: function () {
+                console.log('beforeDraw');
+            },
+            drawed: function () {
+                console.log('drawed');
+            },
             beforeResize: ['$tree', function ($tree) {
                 return function () {
-                    debugger
+                    // debugger
                     console.log('beforeResize');
                 };
             }],
             resized: ['$tree', function ($tree) {
                 return function () {
-                    debugger
+                    // debugger
                     console.log('resized');
                 };
             }],
             beforeDestroy: ['$tree', function ($tree) {
                 return function () {
-                    debugger
+                    // debugger
                     console.log('beforeDestroy');
                 };
             }],
             destroyed: ['$tree', function ($tree) {
                 return function () {
-                    debugger
+                    // debugger
                     console.log('destroyed');
                 };
             }]

@@ -19,12 +19,8 @@ export default function (that) {
             set(newValue) {
                 value = newValue;
 
-                that.$$lifecycle('beforeUpdate');
-
                 // 数据改变，触发更新
-                // todo
-
-                that.$$lifecycle('updated');
+                that.$$updateWithData();
 
             }
         });

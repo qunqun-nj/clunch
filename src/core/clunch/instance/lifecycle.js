@@ -28,8 +28,11 @@ export function lifecycleMixin(Clunch) {
                 // 数据改动前、后
                 'beforeUpdate', 'updated',
 
-                // 画布大小改变导致的重绘前、后
+                // 画布大小改变前、后
                 'beforeResize', 'resized',
+
+                // 画布重新绘制前、后
+                'beforeDraw','drawed',
 
                 // 销毁组件
                 'beforeDestroy', 'destroyed'

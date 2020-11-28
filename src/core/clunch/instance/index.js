@@ -1,7 +1,6 @@
 import { initMixin } from './init';
 import { lifecycleMixin } from './lifecycle';
 import { updateMixin } from './update';
-import { drawerMixin } from './drawer';
 import { isArray, isElement } from '@hai2007/tool/type';
 import serviceFactory from '../../service/index';
 import watcher from '../observe/watcher';
@@ -64,7 +63,6 @@ function Clunch(options) {
 initMixin(Clunch);
 lifecycleMixin(Clunch);
 updateMixin(Clunch);
-drawerMixin(Clunch);
 
 // 初始化方法
 // （主要是内部使用，和创建的对象无关的初始化）

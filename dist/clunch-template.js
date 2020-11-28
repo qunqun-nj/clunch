@@ -9,7 +9,7 @@
  * Copyright (c) 2020 hai2007 走一步，再走一步。
  * Released under the MIT license
  *
- * Date:Sat Nov 28 2020 17:14:00 GMT+0800 (GMT+08:00)
+ * Date:Sat Nov 28 2020 18:48:21 GMT+0800 (GMT+08:00)
  */
 (function () {
   'use strict';
@@ -1066,14 +1066,39 @@
         'created', // 对象和页面关联前、后
         'beforeMount', 'mounted', // 对象和页面解关联前、后
         'beforeUnmount', 'unmounted', // 数据改动前、后
-        'beforeUpdate', 'updated', // 画布大小改变导致的重绘前、后
-        'beforeResize', 'resized', // 销毁组件
+        'beforeUpdate', 'updated', // 画布大小改变前、后
+        'beforeResize', 'resized', // 画布重新绘制前、后
+        'beforeDraw', 'drawed', // 销毁组件
         'beforeDestroy', 'destroyed'].indexOf(callbackName) > -1 && isFunction(this.__options[callbackName])) {
           this.__options[callbackName].call(this);
         }
       }
 
       return this;
+    };
+  }
+
+  // 数据更新或画布改变需要进行的更新处理方法
+  function updateMixin(Clunch) {
+    // 重新绘制画布
+    Clunch.prototype.$$updateView = function () {
+      this.$$lifecycle('beforeDraw'); // todo
+
+      this.$$lifecycle('drawed');
+    }; // 画布大小改变的时候，更新
+
+
+    Clunch.prototype.$$updateWithSize = function () {
+      this.$$lifecycle('beforeResize'); // todo
+
+      this.$$lifecycle('resized');
+    }; // 数据改变的时候，需要重新计算需要绘制的具体图形
+
+
+    Clunch.prototype.$$updateWithData = function () {
+      this.$$lifecycle('beforeUpdate'); // todo
+
+      this.$$lifecycle('updated');
     };
   }
 
@@ -1090,11 +1115,9 @@
           return value;
         },
         set: function set(newValue) {
-          value = newValue;
-          that.$$lifecycle('beforeUpdate'); // 数据改变，触发更新
-          // todo
+          value = newValue; // 数据改变，触发更新
 
-          that.$$lifecycle('updated');
+          that.$$updateWithData();
         }
       });
     };
@@ -1142,6 +1165,7 @@
 
   initMixin(Clunch);
   lifecycleMixin(Clunch);
+  updateMixin(Clunch); // 初始化方法
   // （主要是内部使用，和创建的对象无关的初始化）
   // 需要特别注意的是，原型上的东西会在所有对象上面共享
   // 记录挂载的组件
@@ -1152,8 +1176,7 @@
   function resize (that) {
     try {
       that.__resizeObserver = new ResizeObserver(function () {
-        // todo
-        console.log('1');
+        that.$$updateWithSize();
       }); // 监听
 
       that.__resizeObserver.observe(that.__el);
@@ -1243,8 +1266,9 @@
     this.__el = el; // 初始化添加画布
 
     el.innerHTML = '<canvas>非常抱歉，您的浏览器不支持canvas!</canvas>';
-    this.__canvas = el.getElementsByTagName('canvas')[0]; // todo
-    // 挂载后以后，启动画布大小监听
+    this.__canvas = el.getElementsByTagName('canvas')[0]; // 触发数据改变更新
+
+    this.$$updateWithData(); // 挂载后以后，启动画布大小监听
 
     resize(this); // 挂载完毕以后，同步标志
 
