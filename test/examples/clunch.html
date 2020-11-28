@@ -11,11 +11,19 @@
 <body>
 
     <div id="root">
-        <arc cx='50vw' cy='50vh' radius='50vmin'></arc>
+        <arc cx='50vw' cy='50vh' radius1='50vmin' radius2='0' deg='10deg'></arc>
         <group c-for='value in dataList'>
             <text c-bind:x='value' c-bind:y='value' c-bind:content='value' fill-color='red'></text>
             <circle c-bind:cx='value' c-bind:cy='value' c-bind:radius='value'></circle>
         </group>
+        <path c-if='true'>
+            1
+            <move-to x='10' y='10'></move-to>
+            2
+            <line-to x='100' y='100'></line-to>
+            3
+        </path>
+        <text x='50vw' y='50vh'>文字</text>
     </div>
 
     <!--

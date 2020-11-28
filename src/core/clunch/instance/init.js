@@ -42,13 +42,14 @@ export function initMixin(Clunch) {
         // 为什么传递的render不是真正的？
         // 这是为了方便用户使用，用户写的render建立简单，后续初始化的时候，结合所有信息，再获取完整的
         if (!!options.render) {
-            this.__render = aopRender(options.render, this.__defineSerirs);
+            this.__renderAOP = aopRender(options.render, this.__defineSerirs);
         }
 
         // 如果没有render，再看看有没有传递template
         // 因此render优先级明显高于template
         else if (!!options.template) {
-            this.__render = aopRender(this.$$templateCompiler(options.template), this.__defineSerirs);
+            this.__renderOptions = this.$$templateCompiler(options.template);
+            this.__renderAOP = aopRender(this.__renderOptions, this.__defineSerirs);
         }
 
     };

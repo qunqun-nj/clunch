@@ -9,7 +9,7 @@
  * Copyright (c) 2020 hai2007 走一步，再走一步。
  * Released under the MIT license
  *
- * Date:Thu Nov 26 2020 17:53:07 GMT+0800 (GMT+08:00)
+ * Date:Sat Nov 28 2020 17:14:00 GMT+0800 (GMT+08:00)
  */
 (function () {
   'use strict';
@@ -894,11 +894,124 @@
     return inputArray[inputArray.length - 1].apply(this, methodServers);
   }
 
-  // 对来自标签字符串的分析结果进行进一步处理
   // 包括一些校对等比较复杂的业务处理和错误提示
   // （处理render参数或者最终的组件对象）
+
   function aopRender (initRender, series) {
-    console.log(initRender, series);
+    return function doit(renders, pName) {
+      var temp = [];
+
+      for (var i = 0; i < renders.length; i++) {
+        var render = renders[i];
+
+        if (pName || render.name in series) {
+          var aopRender = {
+            name: render.name,
+            attrs: {},
+            events: []
+          };
+          var curSeries = pName ? {
+            // 组件子属性
+            attrs: series[pName].subAttrs[render.name]
+          } : // 如果是单一的组件
+          series[render.name]; // 属性预处理
+          // 主要是需要把类似c-bind:x='index'或c-for='(value,index) in datalist'和x='10'解除差异
+          // 这样的好吃是或许判断起来容易
+          // 而且数据改变的时候，一些计算可以在此次提前完成
+
+          for (var attrKey in render.attrs) {
+            // 对c-bind:attrKey一类进行处理
+            if (/^c\-bind\:/.test(attrKey)) {
+              render.attrs[attrKey.replace(/^c\-bind\:/, '')] = {
+                isBind: true,
+                express: render.attrs[attrKey]
+              };
+            } // c-on:eventName@regionName
+            else if (/^c\-on\:/.test(attrKey)) {
+                var eventsArray = (attrKey.replace(/^c\-on\:/, '') + "@default").split('@');
+                aopRender.events.push({
+                  event: eventsArray[0],
+                  region: eventsArray[1],
+                  method: render.attrs[attrKey]
+                });
+              } // c-for="(value,key) in dataList"
+              else if ('c-for' == attrKey) {
+                  var flag = /^ {0,}\(/.test(render.attrs[attrKey]);
+
+                  var _temp = flag ? // 格式：(value,key) in dataList
+                  /^ {0,}\( {0,}([0-9a-zA-Z_$]+) {0,}, {0,}([0-9a-zA-Z_$]+) {0,}\) {1,}in {1,}([^ ]+) {0,}$/.exec(render.attrs[attrKey]) : // 格式：value in dataList
+                  /^ {0,}([0-9a-zA-Z_$]+) {1,}in {1,}([^ ]+) {0,}$/.exec(render.attrs[attrKey]);
+
+                  aopRender['c-for'] = {
+                    key: flag ? _temp[2] : null,
+                    value: _temp[1],
+                    data: flag ? _temp[3] : _temp[2]
+                  };
+                } // c-if='flag'
+                else if ('c-if' == attrKey) {
+                    aopRender['c-if'] = render.attrs[attrKey];
+                  } // 默认就是普通属性
+                  else {
+                      render.attrs[attrKey] = {
+                        isBind: false,
+                        express: render.attrs[attrKey]
+                      };
+                    }
+          } // 校对预定义规则的属性
+
+
+          for (var _attrKey in curSeries.attrs) {
+            var curAttrs = curSeries.attrs[_attrKey]; // 对于必输项，如果没有输入，应该直接报错
+
+            if (curAttrs.required && !(_attrKey in render.attrs)) {
+              throw new Error('attrs.' + _attrKey + " is required for series " + render.name + "!");
+            } // 添加定义的属性
+
+
+            aopRender.attrs[_attrKey] = {
+              animation: curAttrs.animation,
+              type: curAttrs.type,
+              value: _attrKey in render.attrs ? render.attrs[_attrKey] : {
+                isBind: false,
+                express: curAttrs["default"]
+              }
+            };
+          } // 划分孩子结点和子组件
+
+
+          var children_temp = [],
+              subRender_temp = [],
+              text_temp = []; // 因为render可能是人收到写的，孩子结点不一定有，需要判断一下
+
+          if (render.children) {
+            // 开始区分是独立的子节点还是当前组件的子组件
+            // 文字比较特殊，提前初步记录在当前结点
+            for (var _i = 0; _i < render.children.length; _i++) {
+              // 文字
+              if (isString(render.children[_i])) {
+                text_temp.push(render.children[_i]);
+              } // 如果这个组件存在于当前组件的子属性中，就应该是子组件
+              else if (curSeries.subAttrs && render.children[_i].name in curSeries.subAttrs) {
+                  subRender_temp.push(render.children[_i]);
+                } // 独立的子组件
+                else {
+                    children_temp.push(render.children[_i]);
+                  }
+            }
+          }
+
+          aopRender.children = doit(children_temp);
+          aopRender.subAttrs = doit(subRender_temp, render.name);
+          aopRender.text = text_temp;
+          temp.push(aopRender);
+        } // 如果组件没有被注册，给出提示并忽略，因为可能是写出了
+        else {
+            console.error('Series ' + render.name + ' is not defined!');
+          }
+      }
+
+      return temp;
+    }(initRender);
   }
 
   function initMixin(Clunch) {
@@ -930,11 +1043,12 @@
       // 这是为了方便用户使用，用户写的render建立简单，后续初始化的时候，结合所有信息，再获取完整的
 
       if (!!options.render) {
-        this.__render = aopRender(options.render, this.__defineSerirs);
+        this.__renderAOP = aopRender(options.render, this.__defineSerirs);
       } // 如果没有render，再看看有没有传递template
       // 因此render优先级明显高于template
       else if (!!options.template) {
-          this.__render = aopRender(this.$$templateCompiler(options.template), this.__defineSerirs);
+          this.__renderOptions = this.$$templateCompiler(options.template);
+          this.__renderAOP = aopRender(this.__renderOptions, this.__defineSerirs);
         }
     };
   }
@@ -1121,7 +1235,8 @@
     // 那么我们在每次挂载的时候都会使用挂载地的内容进行组合
 
     if (!this.__renderFlag) {
-      this.__render = aopRender(this.$$templateCompiler(el.innerHTML), this.__defineSerirs);
+      this.__renderOptions = this.$$templateCompiler(el.innerHTML);
+      this.__renderAOP = aopRender(this.__renderOptions, this.__defineSerirs);
     } // 一切正确以后，记录新的挂载结点
 
 
@@ -1146,6 +1261,31 @@
 
 
   Clunch.prototype.$destroy = function () {};
+  /**
+   *
+   * >>> 总入口 <<<
+   *
+   * -------------------------------
+   *
+   * 【特别说明】
+   *
+   * 对于this.XXX的属性或方法，有如下规定：
+   *  _ 和 __ 开头的表示资源，前者表示外界可以查看作为判断依据的（但不可以修改），后者为完全内部使用
+   *  $ 和 $$ 开头的表示函数，前者表示外界可以调用的，后者表示内部使用
+   *
+   * 此外，对外暴露的方法的参数，如果是 __ 开头的，表示外部调用的时候应该忽略此参数
+   *
+   * -------------------------------
+   *
+   */
+  // 添加特殊的分组组件
+
+
+  Clunch.series('group', [function () {
+    return {
+      attrs: {}
+    };
+  }]);
 
   var $RegExp = {
     // 空白字符:http://www.w3.org/TR/css3-selectors/#whitespace
@@ -1617,10 +1757,16 @@
 
       for (var i = 0; i < pNode.childNodes.length; i++) {
         var node = xhtmlJson[pNode.childNodes[i]];
-        temp.push({
-          attr: node.attrs,
-          children: doit(node)
-        });
+
+        if (node.type == 'tag') {
+          temp.push({
+            name: node.name,
+            attrs: node.attrs,
+            children: doit(node)
+          });
+        } else {
+          temp.push(node.content.trim());
+        }
       }
 
       return temp;

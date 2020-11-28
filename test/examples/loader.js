@@ -1,6 +1,6 @@
 const loader = require('../../loader');
 
-loader(`
+var temp=loader(`
     <div>
         <h2>标题</h2>
         <p>
@@ -9,3 +9,5 @@ loader(`
         by hai2007
     </div>
 `);
+
+console.log(temp);

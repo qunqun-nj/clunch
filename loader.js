@@ -11,10 +11,15 @@ module.exports = function loader(template) {
         let temp = [];
         for (let i = 0; i < pNode.childNodes.length; i++) {
             let node = xhtmlJson[pNode.childNodes[i]];
-            temp.push({
-                attr: node.attrs,
-                children: doit(node)
-            });
+            if (node.type == 'tag') {
+                temp.push({
+                    name: node.name,
+                    attrs: node.attrs,
+                    children: doit(node)
+                });
+            } else {
+                temp.push(node.content.trim());
+            }
         }
 
         return temp;

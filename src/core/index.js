@@ -34,7 +34,8 @@ Clunch.prototype.$mount = function (el) {
     // 如果我们没有在初始化对象的时候传递render（template也算传递了）
     // 那么我们在每次挂载的时候都会使用挂载地的内容进行组合
     if (!this.__renderFlag) {
-        this.__render = aopRender(this.$$templateCompiler(el.innerHTML), this.__defineSerirs);
+        this.__renderOptions = this.$$templateCompiler(el.innerHTML);
+        this.__renderAOP = aopRender(this.__renderOptions, this.__defineSerirs);
     }
 
     // 一切正确以后，记录新的挂载结点
@@ -87,5 +88,12 @@ Clunch.prototype.$destroy = function () {
  * -------------------------------
  *
  */
+
+// 添加特殊的分组组件
+Clunch.series('group', [function () {
+    return {
+        attrs: {}
+    };
+}]);
 
 export default Clunch;
