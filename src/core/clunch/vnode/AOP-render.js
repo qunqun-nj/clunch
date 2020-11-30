@@ -17,7 +17,8 @@ export default function (initRender, series) {
                 let aopRender = {
                     name: render.name,
                     attrs: {},
-                    events: []
+                    events: [],
+                    scope: {}
                 };
 
                 let curSeries = pName ? {
