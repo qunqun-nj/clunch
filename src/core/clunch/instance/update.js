@@ -37,14 +37,17 @@ export function updateMixin(Clunch) {
         };
 
         let renderSeries = [], that = this;
-        (function doit(renderAOP, pScope) {
+        (function doit(renderAOP, pScope, isSubAttrs) {
+
+            // 如果当前计算的是某个父组件的子属性组件，应该返回
+            let subRenderSeries = [];
 
             for (let i = 0; i < renderAOP.length; i++) {
 
                 // 继承scope
                 for (let scopeKey in pScope) {
                     if (!(scopeKey in renderAOP[i].scope)) {
-                        renderAOP[i].scope = pScope[scopeKey];
+                        renderAOP[i].scope[scopeKey] = pScope[scopeKey];
                     }
                 }
 
@@ -59,7 +62,7 @@ export function updateMixin(Clunch) {
                     for (let forKey in data_for) {
                         renderAOP[i].scope[that, cFor.value] = data_for[forKey];
                         if (cFor.key != null) renderAOP[i].scope[that, cFor.key] = forKey;
-                        renderSeries.push(doit([renderAOP[i]]), {});
+                        doit([renderAOP[i]], {}, false);
                     }
 
                     continue;
@@ -69,13 +72,49 @@ export function updateMixin(Clunch) {
                 // c-if
                 // 如果c-if是false，就不用当前的就可以略过了
                 if ('c-if' in renderAOP[i] && !evalExpress(that, renderAOP[i]['c-if'], renderAOP[i].scope)) continue;
+                delete renderAOP[i]['c-if'];
 
-                // todo
-                console.log(renderAOP[i]);
+                // 计算子组件
+                doit(renderAOP[i].children, renderAOP[i].scope, false);
+
+                // group只是包裹，因此，组件本身不需要被统计
+                if (renderAOP[i].name != 'group') {
+
+                    let seriesItem = {
+                        name: renderAOP[i].name,
+                        attr: {},
+                        subAttr: [],
+                        subText: renderAOP[i].text
+                    };
+
+                    // 计算属性
+                    for (let attrKey in renderAOP[i].attrs) {
+                        let oralAttrValue = renderAOP[i].attrs[attrKey];
+                        seriesItem.attr[attrKey] = {
+                            animation: oralAttrValue.animation,
+                            type: oralAttrValue.type,
+
+                            // 这里是根据是通过双向绑定还是写死的来区分
+
+                            value: oralAttrValue.value.isBind ? evalExpress(that, oralAttrValue.value.express, renderAOP[i].scope) : oralAttrValue.value.express
+                        };
+                    }
+
+                    // 计算子属性组件
+                    seriesItem.subAttr = doit(renderAOP[i].subAttrs, renderAOP[i].scope, true);
+
+                    // 计算完毕以后，根据情况存放好
+                    if (isSubAttrs) subRenderSeries.push(seriesItem);
+                    else renderSeries.push(seriesItem);
+                }
 
             }
 
-        })(this.__renderAOP, {});
+            return subRenderSeries;
+        })
+
+            // 分别表示：当前需要计算的AOP数组、父scope、是否是每个组件的子组件
+            (this.__renderAOP, {}, false);
 
         this.__renderSeries = renderSeries;
 
