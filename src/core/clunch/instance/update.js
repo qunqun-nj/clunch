@@ -95,13 +95,18 @@ export function updateMixin(Clunch) {
                             type: oralAttrValue.type,
 
                             // 这里是根据是通过双向绑定还是写死的来区分
-
                             value: oralAttrValue.value.isBind ? evalExpress(that, oralAttrValue.value.express, renderAOP[i].scope) : oralAttrValue.value.express
                         };
                     }
 
                     // 计算子属性组件
                     seriesItem.subAttr = doit(renderAOP[i].subAttrs, renderAOP[i].scope, true);
+
+                    // 登记事件
+                    for (let j = 0; j < renderAOP[i].events.length; j++) {
+                        let event = renderAOP[i].events[j];
+                        that.__events[event.event][renderSeries.length + "@" + event.region] = that[event.method];
+                    }
 
                     // 计算完毕以后，根据情况存放好
                     if (isSubAttrs) subRenderSeries.push(seriesItem);
@@ -116,7 +121,13 @@ export function updateMixin(Clunch) {
             // 分别表示：当前需要计算的AOP数组、父scope、是否是每个组件的子组件
             (this.__renderAOP, {}, false);
 
+        // 数据改变动画应该在这里提供，目前没有
+
+        // 更新数据
         this.__renderSeries = renderSeries;
+
+        // 触发重绘
+        this.$$updateView();
 
         this.$$lifecycle('updated');
     };

@@ -9,7 +9,7 @@
  * Copyright (c) 2020 hai2007 走一步，再走一步。
  * Released under the MIT license
  *
- * Date:Tue Dec 01 2020 10:13:37 GMT+0800 (GMT+08:00)
+ * Date:Wed Dec 02 2020 20:55:40 GMT+0800 (GMT+08:00)
  */
 (function () {
   'use strict';
@@ -1729,7 +1729,13 @@
             } // 计算子属性组件
 
 
-            seriesItem.subAttr = doit(renderAOP[i].subAttrs, renderAOP[i].scope, true); // 计算完毕以后，根据情况存放好
+            seriesItem.subAttr = doit(renderAOP[i].subAttrs, renderAOP[i].scope, true); // 登记事件
+
+            for (var j = 0; j < renderAOP[i].events.length; j++) {
+              var event = renderAOP[i].events[j];
+              that.__events[event.event][renderSeries.length + "@" + event.region] = that[event.method];
+            } // 计算完毕以后，根据情况存放好
+
 
             if (isSubAttrs) subRenderSeries.push(seriesItem);else renderSeries.push(seriesItem);
           }
@@ -1737,9 +1743,13 @@
 
         return subRenderSeries;
       })( // 分别表示：当前需要计算的AOP数组、父scope、是否是每个组件的子组件
-      this.__renderAOP, {}, false);
+      this.__renderAOP, {}, false); // 数据改变动画应该在这里提供，目前没有
+      // 更新数据
 
-      this.__renderSeries = renderSeries;
+
+      this.__renderSeries = renderSeries; // 触发重绘
+
+      this.$$updateView();
       this.$$lifecycle('updated');
     };
   }
