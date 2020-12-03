@@ -1,4 +1,7 @@
 import { evalExpress } from '@hai2007/algorithm/value';
+import animation from '@hai2007/tool/animation';
+import { isFunction } from '@hai2007/tool/type';
+import calcDeepSeries from '../../../tool/calcDeepSeries';
 
 // 数据更新或画布改变需要进行的更新处理方法
 
@@ -24,7 +27,16 @@ export function updateMixin(Clunch) {
 
     // 数据改变的时候，需要重新计算需要绘制的具体图形
     Clunch.prototype.$$updateWithData = function () {
-        this.$$lifecycle('beforeUpdate');
+
+        // 准备计算前一些初始化判断
+        if (isFunction(this.__observeWatcher.stop)) {
+            this.__observeWatcher.stop();
+        }
+
+        // 如果上次数据改变没有结束，这次不应该触发数据改变前钩子
+        else {
+            this.$$lifecycle('beforeUpdate');
+        }
 
         // 记录事件
         // 这样监听到canvas画布上事件的时候就知道如何触发更具体的事件
@@ -37,12 +49,15 @@ export function updateMixin(Clunch) {
         };
 
         let renderSeries = [], that = this;
-        (function doit(renderAOP, pScope, isSubAttrs) {
+        (function doit(renderAOP, pScope, isSubAttrs, pid) {
 
             // 如果当前计算的是某个父组件的子属性组件，应该返回
             let subRenderSeries = [];
 
             for (let i = 0; i < renderAOP.length; i++) {
+
+                // 在一些特殊情况下，id应该由用户指定，在这里修改校对即可
+                let id = pid + renderAOP[i].index;
 
                 // 继承scope
                 for (let scopeKey in pScope) {
@@ -62,7 +77,7 @@ export function updateMixin(Clunch) {
                     for (let forKey in data_for) {
                         renderAOP[i].scope[that, cFor.value] = data_for[forKey];
                         if (cFor.key != null) renderAOP[i].scope[that, cFor.key] = forKey;
-                        doit([renderAOP[i]], {}, false);
+                        doit([renderAOP[i]], {}, false, id + "for" + forKey + "-");
                     }
 
                     continue;
@@ -75,7 +90,7 @@ export function updateMixin(Clunch) {
                 delete renderAOP[i]['c-if'];
 
                 // 计算子组件
-                doit(renderAOP[i].children, renderAOP[i].scope, false);
+                doit(renderAOP[i].children, renderAOP[i].scope, false, id + "-");
 
                 // group只是包裹，因此，组件本身不需要被统计
                 if (renderAOP[i].name != 'group') {
@@ -84,7 +99,8 @@ export function updateMixin(Clunch) {
                         name: renderAOP[i].name,
                         attr: {},
                         subAttr: [],
-                        subText: renderAOP[i].text
+                        subText: renderAOP[i].text,
+                        id
                     };
 
                     // 计算属性
@@ -100,7 +116,7 @@ export function updateMixin(Clunch) {
                     }
 
                     // 计算子属性组件
-                    seriesItem.subAttr = doit(renderAOP[i].subAttrs, renderAOP[i].scope, true);
+                    seriesItem.subAttr = doit(renderAOP[i].subAttrs, renderAOP[i].scope, true, id + "-");
 
                     // 登记事件
                     for (let j = 0; j < renderAOP[i].events.length; j++) {
@@ -118,18 +134,35 @@ export function updateMixin(Clunch) {
             return subRenderSeries;
         })
 
-            // 分别表示：当前需要计算的AOP数组、父scope、是否是每个组件的子组件
-            (this.__renderAOP, {}, false);
+            // 分别表示：当前需要计算的AOP数组、父scope、是否是每个组件的子组件、父ID
+            (this.__renderAOP, {}, false, "");
 
-        // 数据改变动画应该在这里提供，目前没有
+        // 如果没有前置数据，根本不需要动画效果
+        if (!this.__renderSeries) {
 
-        // 更新数据
-        this.__renderSeries = renderSeries;
+            this.__renderSeries = renderSeries;
+            this.$$updateView();
+            this.$$lifecycle('updated');
 
-        // 触发重绘
-        this.$$updateView();
+            return;
+        }
 
-        this.$$lifecycle('updated');
+        let calcDeepSeriesFun = calcDeepSeries(this.__renderSeries, renderSeries);
+
+        // 数据改变动画
+        this.__observeWatcher.stop = animation(deep => {
+
+            this.__renderSeries = calcDeepSeriesFun(deep);
+            this.$$updateView();
+
+        }, 500, deep => {
+            if (deep == 1) {
+                // 说明动画进行完毕以后停止的，我们需要触发'更新完毕'钩子
+                this.__observeWatcher.stop = null;
+                this.$$lifecycle('updated');
+            }
+        });
+
     };
 
 };

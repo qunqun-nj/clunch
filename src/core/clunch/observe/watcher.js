@@ -19,9 +19,19 @@ export default function (that) {
             set(newValue) {
                 value = newValue;
 
-                // 数据改变，触发更新
-                that.$$updateWithData();
+                if (!that.__observeWatcher.flag) {
+                    window.setTimeout(() => {
 
+                        // 数据改变，触发更新
+                        that.$$updateWithData();
+                        that.__observeWatcher.flag = false;
+
+                    }, 0);
+                }
+
+                // 如果在一次数据改变中，已经有了前置的数据改变，当前的就可以忽略处理了
+                // （延迟0秒可以推迟到本次修改全部执行完毕再进行）
+                that.__observeWatcher.flag = true;
             }
         });
 

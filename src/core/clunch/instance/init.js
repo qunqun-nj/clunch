@@ -52,6 +52,12 @@ export function initMixin(Clunch) {
             this.__renderAOP = aopRender(this.__renderOptions, this.__defineSerirs);
         }
 
+        // 数据改变需要的初始化辅助参数
+        this.__observeWatcher = {
+            flag: false,
+            stop: null
+        };
+
     };
 
 };

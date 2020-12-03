@@ -7,6 +7,9 @@ import { isString } from '@hai2007/tool/type';
 
 export default function (initRender, series) {
 
+    // 唯一序列号
+    let seriesNumber = 0;
+
     return (function doit(renders, pName) {
 
         let temp = [];
@@ -18,7 +21,8 @@ export default function (initRender, series) {
                     name: render.name,
                     attrs: {},
                     events: [],
-                    scope: {}
+                    scope: {},
+                    index: seriesNumber++
                 };
 
                 let curSeries = pName ? {

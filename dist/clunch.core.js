@@ -9,7 +9,7 @@
  * Copyright (c) 2020 hai2007 走一步，再走一步。
  * Released under the MIT license
  *
- * Date:Wed Dec 02 2020 20:55:40 GMT+0800 (GMT+08:00)
+ * Date:Thu Dec 03 2020 20:38:32 GMT+0800 (GMT+08:00)
  */
 (function () {
   'use strict';
@@ -898,6 +898,8 @@
   // （处理render参数或者最终的组件对象）
 
   function aopRender (initRender, series) {
+    // 唯一序列号
+    var seriesNumber = 0;
     return function doit(renders, pName) {
       var temp = [];
 
@@ -909,7 +911,8 @@
             name: render.name,
             attrs: {},
             events: [],
-            scope: {}
+            scope: {},
+            index: seriesNumber++
           };
           var curSeries = pName ? {
             // 组件子属性
@@ -1050,7 +1053,13 @@
       else if (!!options.template) {
           this.__renderOptions = this.$$templateCompiler(options.template);
           this.__renderAOP = aopRender(this.__renderOptions, this.__defineSerirs);
-        }
+        } // 数据改变需要的初始化辅助参数
+
+
+      this.__observeWatcher = {
+        flag: false,
+        stop: null
+      };
     };
   }
 
@@ -1645,6 +1654,93 @@
     return path[0];
   }; // 获取
 
+  var calcDeepValue = function calcDeepValue(oldValue, newValue, deep) {
+    // 首先，参与动画,而且值不一样
+    if (newValue.animation && oldValue.value != newValue.value) {
+      switch (newValue.type) {
+        // 数字类型
+        case 'number':
+          {
+            return {
+              type: newValue.type,
+              animation: true,
+              value: (newValue.value - oldValue.value) * deep + oldValue.value
+            };
+          }
+      }
+    }
+
+    return newValue;
+  };
+
+  function calcDeepSeries (oldRenderSeries, newRenderSeries) {
+    var linkIdToIndex = {};
+
+    for (var index = 0; index < oldRenderSeries.length; index++) {
+      var subLinkIdToIndex = {};
+
+      for (var subIndex = 0; subIndex < oldRenderSeries[index].subAttr.length; subIndex++) {
+        subLinkIdToIndex[oldRenderSeries[index].subAttr[subIndex].id] = subIndex;
+      }
+
+      linkIdToIndex[oldRenderSeries[index].id] = {
+        index: index,
+        subLinkIdToIndex: subLinkIdToIndex
+      };
+    }
+
+    return function (deep) {
+      if (deep == 1) return newRenderSeries;
+      var renderSeries = [];
+
+      for (var i = 0; i < newRenderSeries.length; i++) {
+        // 如果在旧的存在对照的
+        if (newRenderSeries[i].id in linkIdToIndex) {
+          // 对应的旧组件
+          var oldSeries = oldRenderSeries[linkIdToIndex[newRenderSeries[i].id].index];
+          var attr = {}; // 先计算属性
+
+          for (var attrKey in oldSeries.attr) {
+            attr[attrKey] = calcDeepValue(oldSeries.attr[attrKey], newRenderSeries[i].attr[attrKey], deep);
+          }
+
+          var subAttr = []; // 计算是子组件
+
+          for (var j = 0; j < newRenderSeries[i].subAttr.length; j++) {
+            if (newRenderSeries[i].subAttr[j].id in linkIdToIndex[newRenderSeries[i].id].subLinkIdToIndex) {
+              var oldSubSeries = oldSeries.subAttr[linkIdToIndex[newRenderSeries[i].id].subLinkIdToIndex[newRenderSeries[i].subAttr[j].id]];
+              var subSeriesAttr = {}; // 计算子组件属性
+
+              for (var subSeriesAttrKey in oldSubSeries.attr) {
+                subSeriesAttr[subSeriesAttrKey] = calcDeepValue(oldSubSeries.attr[subSeriesAttrKey], newRenderSeries[i].subAttr[j].attr[subSeriesAttrKey], deep);
+              }
+
+              subAttr.push({
+                id: oldSubSeries.id,
+                name: oldSubSeries.name,
+                subText: oldSubSeries.subText,
+                subAttr: [],
+                attr: subSeriesAttr
+              });
+            } else {
+              subAttr.push(newRenderSeries[i].subAttr[j]);
+            }
+          }
+
+          renderSeries.push({
+            id: newRenderSeries[i].id,
+            name: newRenderSeries[i].name,
+            subText: newRenderSeries[i].subText,
+            subAttr: subAttr,
+            attr: attr
+          });
+        }
+      }
+
+      return renderSeries;
+    };
+  }
+
   function updateMixin(Clunch) {
     // 重新绘制画布
     Clunch.prototype.$$updateView = function () {
@@ -1662,8 +1758,17 @@
 
 
     Clunch.prototype.$$updateWithData = function () {
-      this.$$lifecycle('beforeUpdate'); // 记录事件
+      var _this = this;
+
+      // 准备计算前一些初始化判断
+      if (isFunction(this.__observeWatcher.stop)) {
+        this.__observeWatcher.stop();
+      } // 如果上次数据改变没有结束，这次不应该触发数据改变前钩子
+      else {
+          this.$$lifecycle('beforeUpdate');
+        } // 记录事件
       // 这样监听到canvas画布上事件的时候就知道如何触发更具体的事件
+
 
       this.__events = {
         click: {},
@@ -1675,12 +1780,14 @@
       var renderSeries = [],
           that = this;
 
-      (function doit(renderAOP, pScope, isSubAttrs) {
+      (function doit(renderAOP, pScope, isSubAttrs, pid) {
         // 如果当前计算的是某个父组件的子属性组件，应该返回
         var subRenderSeries = [];
 
         for (var i = 0; i < renderAOP.length; i++) {
-          // 继承scope
+          // 在一些特殊情况下，id应该由用户指定，在这里修改校对即可
+          var id = pid + renderAOP[i].index; // 继承scope
+
           for (var scopeKey in pScope) {
             if (!(scopeKey in renderAOP[i].scope)) {
               renderAOP[i].scope[scopeKey] = pScope[scopeKey];
@@ -1697,7 +1804,7 @@
             for (var forKey in data_for) {
               renderAOP[i].scope[(cFor.value)] = data_for[forKey];
               if (cFor.key != null) renderAOP[i].scope[(cFor.key)] = forKey;
-              doit([renderAOP[i]], {}, false);
+              doit([renderAOP[i]], {}, false, id + "for" + forKey + "-");
             }
 
             continue;
@@ -1708,14 +1815,15 @@
           if ('c-if' in renderAOP[i] && !evalExpress(that, renderAOP[i]['c-if'], renderAOP[i].scope)) continue;
           delete renderAOP[i]['c-if']; // 计算子组件
 
-          doit(renderAOP[i].children, renderAOP[i].scope, false); // group只是包裹，因此，组件本身不需要被统计
+          doit(renderAOP[i].children, renderAOP[i].scope, false, id + "-"); // group只是包裹，因此，组件本身不需要被统计
 
           if (renderAOP[i].name != 'group') {
             var seriesItem = {
               name: renderAOP[i].name,
               attr: {},
               subAttr: [],
-              subText: renderAOP[i].text
+              subText: renderAOP[i].text,
+              id: id
             }; // 计算属性
 
             for (var attrKey in renderAOP[i].attrs) {
@@ -1729,7 +1837,7 @@
             } // 计算子属性组件
 
 
-            seriesItem.subAttr = doit(renderAOP[i].subAttrs, renderAOP[i].scope, true); // 登记事件
+            seriesItem.subAttr = doit(renderAOP[i].subAttrs, renderAOP[i].scope, true, id + "-"); // 登记事件
 
             for (var j = 0; j < renderAOP[i].events.length; j++) {
               var event = renderAOP[i].events[j];
@@ -1742,15 +1850,31 @@
         }
 
         return subRenderSeries;
-      })( // 分别表示：当前需要计算的AOP数组、父scope、是否是每个组件的子组件
-      this.__renderAOP, {}, false); // 数据改变动画应该在这里提供，目前没有
-      // 更新数据
+      })( // 分别表示：当前需要计算的AOP数组、父scope、是否是每个组件的子组件、父ID
+      this.__renderAOP, {}, false, ""); // 如果没有前置数据，根本不需要动画效果
 
 
-      this.__renderSeries = renderSeries; // 触发重绘
+      if (!this.__renderSeries) {
+        this.__renderSeries = renderSeries;
+        this.$$updateView();
+        this.$$lifecycle('updated');
+        return;
+      }
 
-      this.$$updateView();
-      this.$$lifecycle('updated');
+      var calcDeepSeriesFun = calcDeepSeries(this.__renderSeries, renderSeries); // 数据改变动画
+
+      this.__observeWatcher.stop = animation(function (deep) {
+        _this.__renderSeries = calcDeepSeriesFun(deep);
+
+        _this.$$updateView();
+      }, 500, function (deep) {
+        if (deep == 1) {
+          // 说明动画进行完毕以后停止的，我们需要触发'更新完毕'钩子
+          _this.__observeWatcher.stop = null;
+
+          _this.$$lifecycle('updated');
+        }
+      });
     };
   }
 
@@ -1767,9 +1891,19 @@
           return value;
         },
         set: function set(newValue) {
-          value = newValue; // 数据改变，触发更新
+          value = newValue;
 
-          that.$$updateWithData();
+          if (!that.__observeWatcher.flag) {
+            window.setTimeout(function () {
+              // 数据改变，触发更新
+              that.$$updateWithData();
+              that.__observeWatcher.flag = false;
+            }, 0);
+          } // 如果在一次数据改变中，已经有了前置的数据改变，当前的就可以忽略处理了
+          // （延迟0秒可以推迟到本次修改全部执行完毕再进行）
+
+
+          that.__observeWatcher.flag = true;
         }
       });
     };
