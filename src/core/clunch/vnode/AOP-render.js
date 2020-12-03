@@ -1,6 +1,32 @@
 
 import { isString } from '@hai2007/tool/type';
 
+let calcValue = (type, express) => {
+
+    switch (type) {
+
+        // boolean
+        case 'boolean': {
+            return express == 'true' ? true : false;
+        }
+
+        // 数字
+        case 'number': {
+
+            // 角度
+            if (/deg$/.test(express)) return (0 - -express.replace(/deg$/, '')) / 180 * Math.PI;
+
+            // 弧度
+            if (/pi$/.test(express)) return (0 - -express.replace(/pi$/, '')) * Math.PI;
+
+            return +express;
+        }
+    }
+
+    return express;
+
+};
+
 // 对来自标签字符串的分析结果进行进一步处理
 // 包括一些校对等比较复杂的业务处理和错误提示
 // （处理render参数或者最终的组件对象）
@@ -83,7 +109,7 @@ export default function (initRender, series) {
                     else {
                         render.attrs[attrKey] = {
                             isBind: false,
-                            express: render.attrs[attrKey],
+                            express: render.attrs[attrKey]
                         };
                     }
 
@@ -108,6 +134,11 @@ export default function (initRender, series) {
                             express: curAttrs.default
                         }
                     };
+
+                    // 类型校对和特殊计算
+                    if (!aopRender.attrs[attrKey].value.isBind) {
+                        aopRender.attrs[attrKey].value.express = calcValue(aopRender.attrs[attrKey].type, aopRender.attrs[attrKey].value.express);
+                    }
 
                 }
 

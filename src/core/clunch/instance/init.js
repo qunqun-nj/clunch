@@ -58,6 +58,13 @@ export function initMixin(Clunch) {
             stop: null
         };
 
+        // 画笔参数
+        this.__painter = null;
+        this._width = 0;
+        this._height = 0;
+        this._min = 0;
+        this._max = 0;
+
     };
 
 };

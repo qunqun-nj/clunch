@@ -6,12 +6,18 @@
     <title>clunch.js - 用例测试</title>
     <script src="../../dist/clunch-template.js"></script>
     <link rel="shortcut icon" href="../../clunch.png">
+    <style>
+        #root {
+            width: 100vw;
+            height: 400px;
+        }
+    </style>
 </head>
 
 <body>
 
     <div id="root">
-        <arc cx='50vw' cy='50vh' radius1='50vmin' radius2='0' deg='10deg'></arc>
+        <arc c-bind:cx='_width*0.5' c-bind:cy='_height*0.5' c-bind:radius1='_min*0.5' radius2='100' deg='120deg'></arc>
         <group c-for='value in dataList'>
             <text c-bind:x='value' c-bind:y='value' c-bind:content='value' fill-color='red'></text>
             <circle c-bind:cx='value' c-on:click='doit0' c-bind:cy='value' c-bind:radius='value'></circle>
@@ -23,7 +29,7 @@
             <line-to x='100' y='100'></line-to>
             3
         </path>
-        <text x='50vw' y='50vh'>文字</text>
+        <text c-bind:x='_width*0.5' c-bind:y='_height*0.5'>文字</text>
     </div>
 
     <!--
@@ -103,7 +109,7 @@
                     flag: 2,
                     dot_: $dot,
                     _tree_: $tree,
-                    dataList: [100, 200, 300]
+                    dataList: [10, 20, 30]
                 };
             }],
 

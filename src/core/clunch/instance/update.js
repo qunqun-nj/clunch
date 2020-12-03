@@ -2,6 +2,8 @@ import { evalExpress } from '@hai2007/algorithm/value';
 import animation from '@hai2007/tool/animation';
 import { isFunction } from '@hai2007/tool/type';
 import calcDeepSeries from '../../../tool/calcDeepSeries';
+import painter from '../../painter/index';
+import getStyle from '../../../tool/get-style';
 
 // 数据更新或画布改变需要进行的更新处理方法
 
@@ -9,9 +11,41 @@ export function updateMixin(Clunch) {
 
     // 重新绘制画布
     Clunch.prototype.$$updateView = function () {
+
+        // 如果没有挂载
+        if (!this._isMounted) return;
+
         this.$$lifecycle('beforeDraw');
 
-        // todo
+        for (let i = 0; i < this.__renderSeries.length; i++) {
+            let attr = {
+                _subTexts: this.__renderSeries[i].subText,
+                _subAttr: []
+            };
+
+            // 属性
+            for (let attrKey in this.__renderSeries[i].attr) {
+                attr[attrKey] = this.__renderSeries[i].attr[attrKey].value
+            }
+
+            // 子组件
+            for (let j = 0; j < this.__renderSeries[i].subAttr.length; j++) {
+                let subSeries = {
+                    series: this.__renderSeries[i].subAttr[j].name,
+                    attr: {}
+                };
+
+                // 子组件属性
+                for (let subSeriesAttrKey in this.__renderSeries[i].subAttr[j].attr) {
+                    subSeries.attr[subSeriesAttrKey] = this.__renderSeries[i].subAttr[j].attr[subSeriesAttrKey];
+                }
+
+                attr._subAttr.push(subSeries);
+            }
+
+            // 绘制
+            this.__defineSerirs[this.__renderSeries[i].name].link(this.__painter, attr);
+        }
 
         this.$$lifecycle('drawed');
     };
@@ -20,13 +54,24 @@ export function updateMixin(Clunch) {
     Clunch.prototype.$$updateWithSize = function () {
         this.$$lifecycle('beforeResize');
 
-        // todo
+        let width = this.__el.clientWidth - ((getStyle(this.__el, 'padding-left') + "").replace('px', '')) - ((getStyle(this.__el, 'padding-right') + "").replace('px', ''));
+        let height = this.__el.clientHeight - ((getStyle(this.__el, 'padding-top') + "").replace('px', '')) - ((getStyle(this.__el, 'padding-bottom') + "").replace('px', ''));
+
+        // 更新画布
+        this.__painter = painter(this.__canvas, width, height);
+        this._width = width;
+        this._height = height;
+        this._max = width > height ? width : height;
+        this._min = width < height ? width : height;
+
+        // 重新计算
+        this.$$updateWithData(true);
 
         this.$$lifecycle('resized');
     };
 
     // 数据改变的时候，需要重新计算需要绘制的具体图形
-    Clunch.prototype.$$updateWithData = function () {
+    Clunch.prototype.$$updateWithData = function (noAnimation) {
 
         // 准备计算前一些初始化判断
         if (isFunction(this.__observeWatcher.stop)) {
@@ -138,7 +183,7 @@ export function updateMixin(Clunch) {
             (this.__renderAOP, {}, false, "");
 
         // 如果没有前置数据，根本不需要动画效果
-        if (!this.__renderSeries) {
+        if (!this.__renderSeries || noAnimation) {
 
             this.__renderSeries = renderSeries;
             this.$$updateView();

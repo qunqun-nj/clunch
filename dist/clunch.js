@@ -9,7 +9,7 @@
  * Copyright (c) 2020 hai2007 走一步，再走一步。
  * Released under the MIT license
  *
- * Date:Thu Dec 03 2020 20:38:32 GMT+0800 (GMT+08:00)
+ * Date:Thu Dec 03 2020 23:05:16 GMT+0800 (GMT+08:00)
  */
 (function () {
   'use strict';
@@ -894,8 +894,30 @@
     return inputArray[inputArray.length - 1].apply(this, methodServers);
   }
 
+  var calcValue = function calcValue(type, express) {
+    switch (type) {
+      // boolean
+      case 'boolean':
+        {
+          return express == 'true' ? true : false;
+        }
+      // 数字
+
+      case 'number':
+        {
+          // 角度
+          if (/deg$/.test(express)) return (0 - -express.replace(/deg$/, '')) / 180 * Math.PI; // 弧度
+
+          if (/pi$/.test(express)) return (0 - -express.replace(/pi$/, '')) * Math.PI;
+          return +express;
+        }
+    }
+
+    return express;
+  }; // 对来自标签字符串的分析结果进行进一步处理
   // 包括一些校对等比较复杂的业务处理和错误提示
   // （处理render参数或者最终的组件对象）
+
 
   function aopRender (initRender, series) {
     // 唯一序列号
@@ -979,7 +1001,11 @@
                 isBind: false,
                 express: curAttrs["default"]
               }
-            };
+            }; // 类型校对和特殊计算
+
+            if (!aopRender.attrs[_attrKey].value.isBind) {
+              aopRender.attrs[_attrKey].value.express = calcValue(aopRender.attrs[_attrKey].type, aopRender.attrs[_attrKey].value.express);
+            }
           } // 划分孩子结点和子组件
 
 
@@ -1059,7 +1085,13 @@
       this.__observeWatcher = {
         flag: false,
         stop: null
-      };
+      }; // 画笔参数
+
+      this.__painter = null;
+      this._width = 0;
+      this._height = 0;
+      this._min = 0;
+      this._max = 0;
     };
   }
 
@@ -1453,7 +1485,7 @@
     throw new Error('Unrecognized expression : [' + expressArray.toString() + "]");
   }
 
-  function calcValue (target, expressArray, scope) {
+  function calcValue$1 (target, expressArray, scope) {
     var value = expressArray[0] in scope ? scope[expressArray[0]] : target[expressArray[0]];
 
     for (var i = 1; i < expressArray.length; i++) {
@@ -1606,7 +1638,7 @@
       else {
           var lastIndex = newExpressArray.lastIndexOf(']');
           var tempPath = doit3(newExpressArray.slice(0, lastIndex + 1));
-          path = [evalValue([calcValue(target, tempPath, scope)].concat(_toConsumableArray(newExpressArray.slice(lastIndex + 1))))];
+          path = [evalValue([calcValue$1(target, tempPath, scope)].concat(_toConsumableArray(newExpressArray.slice(lastIndex + 1))))];
         }
 
     return path;
@@ -1741,23 +1773,384 @@
     };
   }
 
+  // 点（x,y）围绕中心（cx,cy）旋转deg度
+  var rotate = function rotate(cx, cy, deg, x, y) {
+    var cos = Math.cos(deg),
+        sin = Math.sin(deg);
+    return [+((x - cx) * cos - (y - cy) * sin + cx).toFixed(7), +((x - cx) * sin + (y - cy) * cos + cy).toFixed(7)];
+  }; // r1和r2，内半径和外半径
+  // beginA起点弧度，rotateA旋转弧度式
+
+
+  function arc (beginA, rotateA, cx, cy, r1, r2, doback) {
+    // 有了前置的判断，这里可以省略了
+    // if (rotateA > Math.PI * 2) rotateA = Math.PI * 2;
+    // if (rotateA < -Math.PI * 2) rotateA = -Math.PI * 2;
+    // 保证逆时针也是可以的
+    if (rotateA < 0) {
+      beginA += rotateA;
+      rotateA *= -1;
+    }
+
+    var temp = [],
+        p; // 内部
+
+    p = rotate(0, 0, beginA, r1, 0);
+    temp[0] = p[0];
+    temp[1] = p[1];
+    p = rotate(0, 0, rotateA, p[0], p[1]);
+    temp[2] = p[0];
+    temp[3] = p[1]; // 外部
+
+    p = rotate(0, 0, beginA, r2, 0);
+    temp[4] = p[0];
+    temp[5] = p[1];
+    p = rotate(0, 0, rotateA, p[0], p[1]);
+    temp[6] = p[0];
+    temp[7] = p[1];
+    doback(beginA, beginA + rotateA, temp[0] + cx, temp[1] + cy, temp[4] + cx, temp[5] + cy, temp[2] + cx, temp[3] + cy, temp[6] + cx, temp[7] + cy, (r2 - r1) * 0.5);
+  }
+
+  var initText = function initText(painter, config, x, y, deg) {
+    painter.beginPath();
+    painter.translate(x, y);
+    painter.rotate(deg);
+    painter.font = config['font-size'] + "px " + config['font-family'];
+    return painter;
+  }; // 画弧统一设置方法
+
+  var initArc = function initArc(painter, config, cx, cy, r1, r2, beginDeg, deg) {
+    if (r1 > r2) {
+      var temp = r1;
+      r1 = r2;
+      r2 = temp;
+    }
+
+    beginDeg = beginDeg % (Math.PI * 2); // 当|deg|>=2π的时候都认为是一个圆环
+    // 为什么不取2π比较，是怕部分浏览器浮点不精确，同时也是为了和svg保持一致
+
+    if (deg >= Math.PI * 1.999999 || deg <= -Math.PI * 1.999999) {
+      deg = Math.PI * 2;
+    } else {
+      deg = deg % (Math.PI * 2);
+    }
+
+    arc(beginDeg, deg, cx, cy, r1, r2, function (beginA, endA, begInnerX, begInnerY, begOuterX, begOuterY, endInnerX, endInnerY, endOuterX, endOuterY, r) {
+      if (r < 0) r = -r;
+      painter.beginPath();
+      painter.moveTo(begInnerX, begInnerY);
+      painter.arc( // (圆心x，圆心y，半径，开始角度，结束角度，true逆时针/false顺时针)
+      cx, cy, r1, beginA, endA, false); // 结尾
+
+      if (config["arc-end-cap"] != 'round') painter.lineTo(endOuterX, endOuterY);else painter.arc((endInnerX + endOuterX) * 0.5, (endInnerY + endOuterY) * 0.5, r, endA - Math.PI, endA, true);
+      painter.arc(cx, cy, r2, endA, beginA, true); // 开头
+
+      if (config["arc-start-cap"] != 'round') painter.lineTo(begInnerX, begInnerY);else painter.arc((begInnerX + begOuterX) * 0.5, (begInnerY + begOuterY) * 0.5, r, beginA, beginA - Math.PI, true);
+    });
+    if (config["arc-start-cap"] == 'butt') painter.closePath();
+    return painter;
+  }; // 画圆统一设置方法
+
+  var initCircle = function initCircle(painter, cx, cy, r) {
+    painter.beginPath();
+    painter.moveTo(cx + r, cy);
+    painter.arc(cx, cy, r, 0, Math.PI * 2);
+    return painter;
+  }; // 画矩形统一设置方法
+
+  var initRect = function initRect(painter, x, y, width, height) {
+    painter.beginPath();
+    painter.rect(x, y, width, height);
+    return painter;
+  };
+
+  // 线性渐变
+  var linearGradient = function linearGradient(painter, x0, y0, x1, y1) {
+    var gradient = painter.createLinearGradient(x0, y0, x1, y1);
+    var enhanceGradient = {
+      "value": function value() {
+        return gradient;
+      },
+      "addColorStop": function addColorStop(stop, color) {
+        gradient.addColorStop(stop, color);
+        return enhanceGradient;
+      }
+    };
+    return enhanceGradient;
+  }; // 环形渐变
+
+  var radialGradient = function radialGradient(painter, cx, cy, r) {
+    var gradient = painter.createRadialGradient(cx, cy, 0, cx, cy, r);
+    var enhanceGradient = {
+      "value": function value() {
+        return gradient;
+      },
+      "addColorStop": function addColorStop(stop, color) {
+        gradient.addColorStop(stop, color);
+        return enhanceGradient;
+      }
+    };
+    return enhanceGradient;
+  };
+
+  function painter (canvas, width, height) {
+    // 获取canvas2D画笔
+    var painter = canvas.getContext("2d"); //  如果画布隐藏或大小为0
+
+    if (width == 0 || height == 0) throw new Error('Canvas is hidden or size is zero!'); // 设置显示大小
+
+    canvas.style.width = width + "px";
+    canvas.style.height = height + "px"; // 设置画布大小（画布大小设置为显示的二倍，使得显示的时候更加清晰）
+
+    canvas.setAttribute('width', width * 2);
+    canvas.setAttribute('height', height * 2); // 通过缩放实现模糊问题
+
+    painter.scale(2, 2); // 默认配置canvas2D对象已经存在的属性
+
+    painter.textBaseline = 'middle';
+    painter.textAlign = 'left'; // 默认配置不应该有canvas2D对象已经存在的属性
+    // 这里是为了简化或和svg统一接口而自定义的属性
+
+    var config = {
+      "font-size": "16",
+      // 文字大小
+      "font-family": "sans-serif",
+      // 字体
+      "arc-start-cap": "butt",
+      // 弧开始闭合方式
+      "arc-end-cap": "butt" // 弧结束闭合方式
+
+    }; // 配置生效方法
+
+    var useConfig = function useConfig(key, value) {
+      /**
+       * -----------------------------
+       * 特殊的设置开始
+       * -----------------------------
+       */
+      if (key == 'lineDash') {
+        painter.setLineDash(value);
+      }
+      /**
+       * -----------------------------
+       * 常规的配置开始
+       * -----------------------------
+       */
+      // 如果已经存在默认配置中，说明只需要缓存起来即可
+      else if (config[key]) {
+          config[key] = value;
+        } // 其它情况直接生效即可
+        else {
+            painter[key] = value;
+          }
+    }; // 画笔
+
+
+    var enhancePainter = {
+      // 属性设置或获取
+      "config": function config() {
+        if (arguments.length === 1) {
+          if (_typeof(arguments[0]) !== 'object') return painter[arguments[0]];
+
+          for (var key in arguments[0]) {
+            useConfig(key, arguments[0][key]);
+          }
+        } else if (arguments.length === 2) {
+          useConfig(arguments[0], arguments[1]);
+        }
+
+        return enhancePainter;
+      },
+      // 文字
+      "fillText": function fillText(text, x, y, deg) {
+        painter.save();
+        initText(painter, config, x, y, deg || 0).fillText(text, 0, 0);
+        painter.restore();
+        return enhancePainter;
+      },
+      "strokeText": function strokeText(text, x, y, deg) {
+        painter.save();
+        initText(painter, config, x, y, deg || 0).strokeText(text, 0, 0);
+        painter.restore();
+        return enhancePainter;
+      },
+      "fullText": function fullText(text, x, y, deg) {
+        painter.save();
+        initText(painter, config, x, y, deg || 0);
+        painter.fillText(text, 0, 0);
+        painter.strokeText(text, 0, 0);
+        painter.restore();
+        return enhancePainter;
+      },
+      // 路径
+      "beginPath": function beginPath() {
+        painter.beginPath();
+        return enhancePainter;
+      },
+      "closePath": function closePath() {
+        painter.closePath();
+        return enhancePainter;
+      },
+      "moveTo": function moveTo(x, y) {
+        painter.moveTo(x, y);
+        return enhancePainter;
+      },
+      "lineTo": function lineTo(x, y) {
+        painter.lineTo(x, y);
+        return enhancePainter;
+      },
+      "arc": function arc(x, y, r, beginDeg, deg) {
+        painter.arc(x, y, r, beginDeg, beginDeg + deg, deg < 0);
+        return enhancePainter;
+      },
+      "fill": function fill() {
+        painter.fill();
+        return enhancePainter;
+      },
+      "stroke": function stroke() {
+        painter.stroke();
+        return enhancePainter;
+      },
+      "full": function full() {
+        painter.fill();
+        painter.stroke();
+        return enhancePainter;
+      },
+      "save": function save() {
+        painter.save();
+        return enhancePainter;
+      },
+      "restore": function restore() {
+        painter.restore();
+        return enhancePainter;
+      },
+      // 路径 - 贝塞尔曲线
+      "quadraticCurveTo": function quadraticCurveTo(cpx, cpy, x, y) {
+        painter.quadraticCurveTo(cpx, cpy, x, y);
+        return enhancePainter;
+      },
+      "bezierCurveTo": function bezierCurveTo(cp1x, cp1y, cp2x, cp2y, x, y) {
+        painter.bezierCurveTo(cp1x, cp1y, cp2x, cp2y, x, y);
+        return enhancePainter;
+      },
+      // 弧
+      "fillArc": function fillArc(cx, cy, r1, r2, beginDeg, deg) {
+        initArc(painter, config, cx, cy, r1, r2, beginDeg, deg).fill();
+        return enhancePainter;
+      },
+      "strokeArc": function strokeArc(cx, cy, r1, r2, beginDeg, deg) {
+        initArc(painter, config, cx, cy, r1, r2, beginDeg, deg).stroke();
+        return enhancePainter;
+      },
+      "fullArc": function fullArc(cx, cy, r1, r2, beginDeg, deg) {
+        initArc(painter, config, cx, cy, r1, r2, beginDeg, deg);
+        painter.fill();
+        painter.stroke();
+        return enhancePainter;
+      },
+      // 圆形
+      "fillCircle": function fillCircle(cx, cy, r) {
+        initCircle(painter, cx, cy, r).fill();
+        return enhancePainter;
+      },
+      "strokeCircle": function strokeCircle(cx, cy, r) {
+        initCircle(painter, cx, cy, r).stroke();
+        return enhancePainter;
+      },
+      "fullCircle": function fullCircle(cx, cy, r) {
+        initCircle(painter, cx, cy, r);
+        painter.fill();
+        painter.stroke();
+        return enhancePainter;
+      },
+      // 矩形
+      "fillRect": function fillRect(x, y, width, height) {
+        initRect(painter, x, y, width, height).fill();
+        return enhancePainter;
+      },
+      "strokeRect": function strokeRect(x, y, width, height) {
+        initRect(painter, x, y, width, height).stroke();
+        return enhancePainter;
+      },
+      "fullRect": function fullRect(x, y, width, height) {
+        initRect(painter, x, y, width, height);
+        painter.fill();
+        painter.stroke();
+        return enhancePainter;
+      },
+
+      /**
+      * 渐变
+      * -------------
+      */
+      //  线性渐变
+      "createLinearGradient": function createLinearGradient(x0, y0, x1, y1) {
+        return linearGradient(painter, x0, y0, x1, y1);
+      },
+      // 环形渐变
+      "createRadialGradient": function createRadialGradient(cx, cy, r) {
+        return radialGradient(painter, cx, cy, r);
+      }
+    };
+    return enhancePainter;
+  }
+
   function updateMixin(Clunch) {
     // 重新绘制画布
     Clunch.prototype.$$updateView = function () {
-      this.$$lifecycle('beforeDraw'); // todo
+      // 如果没有挂载
+      if (!this._isMounted) return;
+      this.$$lifecycle('beforeDraw');
+
+      for (var i = 0; i < this.__renderSeries.length; i++) {
+        var attr = {
+          _subTexts: this.__renderSeries[i].subText,
+          _subAttr: []
+        }; // 属性
+
+        for (var attrKey in this.__renderSeries[i].attr) {
+          attr[attrKey] = this.__renderSeries[i].attr[attrKey].value;
+        } // 子组件
+
+
+        for (var j = 0; j < this.__renderSeries[i].subAttr.length; j++) {
+          var subSeries = {
+            series: this.__renderSeries[i].subAttr[j].name,
+            attr: {}
+          }; // 子组件属性
+
+          for (var subSeriesAttrKey in this.__renderSeries[i].subAttr[j].attr) {
+            subSeries.attr[subSeriesAttrKey] = this.__renderSeries[i].subAttr[j].attr[subSeriesAttrKey];
+          }
+
+          attr._subAttr.push(subSeries);
+        } // 绘制
+
+
+        this.__defineSerirs[this.__renderSeries[i].name].link(this.__painter, attr);
+      }
 
       this.$$lifecycle('drawed');
     }; // 画布大小改变的时候，更新
 
 
     Clunch.prototype.$$updateWithSize = function () {
-      this.$$lifecycle('beforeResize'); // todo
+      this.$$lifecycle('beforeResize');
+      var width = this.__el.clientWidth - (getStyle(this.__el, 'padding-left') + "").replace('px', '') - (getStyle(this.__el, 'padding-right') + "").replace('px', '');
+      var height = this.__el.clientHeight - (getStyle(this.__el, 'padding-top') + "").replace('px', '') - (getStyle(this.__el, 'padding-bottom') + "").replace('px', ''); // 更新画布
 
+      this.__painter = painter(this.__canvas, width, height);
+      this._width = width;
+      this._height = height;
+      this._max = width > height ? width : height;
+      this._min = width < height ? width : height; // 重新计算
+
+      this.$$updateWithData(true);
       this.$$lifecycle('resized');
     }; // 数据改变的时候，需要重新计算需要绘制的具体图形
 
 
-    Clunch.prototype.$$updateWithData = function () {
+    Clunch.prototype.$$updateWithData = function (noAnimation) {
       var _this = this;
 
       // 准备计算前一些初始化判断
@@ -1854,7 +2247,7 @@
       this.__renderAOP, {}, false, ""); // 如果没有前置数据，根本不需要动画效果
 
 
-      if (!this.__renderSeries) {
+      if (!this.__renderSeries || noAnimation) {
         this.__renderSeries = renderSeries;
         this.$$updateView();
         this.$$lifecycle('updated');
@@ -1967,7 +2360,8 @@
 
       that.__resizeObserver.observe(that.__el);
     } catch (e) {
-      // 如果浏览器不支持此接口
+      that.$$updateWithSize(); // 如果浏览器不支持此接口
+
       console.info(e);
       console.error('ResizeObserver undefined!');
     }
@@ -2097,7 +2491,7 @@
     };
   }]);
 
-  var arc = ['number', "json", "string", "color", function ($number, $json, $string, $color) {
+  var arc$1 = ['number', "json", "string", "color", function ($number, $json, $string, $color) {
     return {
       attrs: {
         'fill-color': $color('black'),
@@ -2528,7 +2922,7 @@
     throw new Error('Sorry, setting template property is not supported in the current environment : \n' + template);
   }; // 挂载内置组件
   Clunch.series({
-    arc: arc,
+    arc: arc$1,
     circle: circle,
     path: path,
     "polar-ruler": polarRuler,
