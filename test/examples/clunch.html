@@ -19,10 +19,10 @@
     <div id="root">
         <arc c-bind:cx='_width*0.5' c-bind:cy='_height*0.5' c-bind:radius1='_min*0.5' radius2='100' deg='120deg'></arc>
         <group c-for='value in dataList'>
-            <text c-bind:x='value' c-bind:y='value' c-bind:content='value' fill-color='red'></text>
-            <circle c-bind:cx='value' c-on:click='doit0' c-bind:cy='value' c-bind:radius='value'></circle>
+            <circle c-bind:cx='value' c-on:click='doit0' c-bind:cy='value' radius='10'></circle>
+            <text c-bind:x='value+20' c-bind:y='value' c-bind:content='value' fill-color='red'></text>
         </group>
-        <path c-if='true'>
+        <path>
             1
             <move-to x='10' y='10'></move-to>
             2
@@ -74,8 +74,8 @@
             methods: {
 
                 // 格式0
-                doit0() {
-                    console.log('0');
+                doit0(target) {
+                    console.log(target);
                 },
 
                 // 格式1
@@ -109,7 +109,7 @@
                     flag: 2,
                     dot_: $dot,
                     _tree_: $tree,
-                    dataList: [10, 20, 30]
+                    dataList: [10, 100, 50]
                 };
             }],
 

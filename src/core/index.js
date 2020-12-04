@@ -1,7 +1,8 @@
 import Clunch from './clunch/instance/index';
-import { isElement } from '@hai2007/tool/type';
+import { isElement, isFunction } from '@hai2007/tool/type';
 import resize from './clunch/observe/resize';
 import aopRender from './clunch/vnode/AOP-render';
+import { bind } from '../tool/event';
 
 // 挂载一些静态方法
 import initGlobalApi from './clunch/global-api/index';
@@ -47,6 +48,38 @@ Clunch.prototype.$mount = function (el) {
 
     // 触发数据改变更新
     this.$$updateWithData();
+
+    // 添加区域交互
+    ['click', 'dblclick', 'mousemove', 'mousedown', 'mouseup'].forEach(eventName => {
+        bind(this.__canvas, eventName, event => {
+
+            let region = this.__regionManager.getRegion(event);
+            if (region) {
+                let regionSplit = region[0].split('::');
+                let doback = this.__events[eventName][regionSplit[0]];
+                if (isFunction(doback)) {
+                    let regionNameSplit = regionSplit[0].split('@');
+
+                    let curSeires = this.__renderSeries[regionNameSplit[0]];
+
+                    // 整理属性信息
+                    let attr = {};
+                    for (let attrKey in curSeires.attr) {
+                        attr[attrKey] = curSeires.attr[attrKey].value;
+                    }
+
+                    // 调用回调
+                    doback.call(this, {
+                        series: curSeires.name,
+                        region: regionNameSplit[1],
+                        subRegion: regionSplit[1],
+                        attr
+                    });
+                }
+            }
+
+        });
+    });
 
     // 挂载后以后，启动画布大小监听
     resize(this);

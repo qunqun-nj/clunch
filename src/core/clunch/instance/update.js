@@ -17,6 +17,9 @@ export function updateMixin(Clunch) {
 
         this.$$lifecycle('beforeDraw');
 
+        // 清楚区域信息
+        this.__regionManager.erase();
+
         for (let i = 0; i < this.__renderSeries.length; i++) {
             let attr = {
                 _subTexts: this.__renderSeries[i].subText,
@@ -45,6 +48,19 @@ export function updateMixin(Clunch) {
 
             // 绘制
             this.__defineSerirs[this.__renderSeries[i].name].link(this.__painter, attr);
+
+            // 记录区域
+            let region = this.__defineSerirs[this.__renderSeries[i].name].region;
+            if (region) {
+                for (let regionName in region) {
+
+                    region[regionName](subName => {
+                        subName = subName || "default";
+                        return this.__regionManager.painter(i + "@" + regionName + "::" + subName);
+                    }, attr);
+
+                }
+            }
         }
 
         this.$$lifecycle('drawed');
@@ -63,6 +79,9 @@ export function updateMixin(Clunch) {
         this._height = height;
         this._max = width > height ? width : height;
         this._min = width < height ? width : height;
+
+        // 重置区域
+        this.__regionManager.updateSize(width, height);
 
         // 重新计算
         this.$$updateWithData(true);
@@ -94,7 +113,7 @@ export function updateMixin(Clunch) {
         };
 
         let renderSeries = [], that = this;
-        (function doit(renderAOP, pScope, isSubAttrs, pid) {
+        (function doit(renderAOP, pScope, isSubAttrs, pid, ignoreFor) {
 
             // 如果当前计算的是某个父组件的子属性组件，应该返回
             let subRenderSeries = [];
@@ -113,16 +132,15 @@ export function updateMixin(Clunch) {
 
                 // c-for指令
                 // 由于此指令修改局部scope，因此优先级必须最高
-                if ('c-for' in renderAOP[i]) {
+                if (!ignoreFor && 'c-for' in renderAOP[i]) {
 
                     let cFor = renderAOP[i]['c-for'];
-                    delete renderAOP[i]['c-for'];
                     let data_for = evalExpress(that, cFor.data, renderAOP[i].scope);
 
                     for (let forKey in data_for) {
-                        renderAOP[i].scope[that, cFor.value] = data_for[forKey];
-                        if (cFor.key != null) renderAOP[i].scope[that, cFor.key] = forKey;
-                        doit([renderAOP[i]], {}, false, id + "for" + forKey + "-");
+                        renderAOP[i].scope[cFor.value] = data_for[forKey];
+                        if (cFor.key != null) renderAOP[i].scope[cFor.key] = forKey;
+                        doit([renderAOP[i]], {}, false, id + "for" + forKey + "-", true);
                     }
 
                     continue;
@@ -135,7 +153,7 @@ export function updateMixin(Clunch) {
                 delete renderAOP[i]['c-if'];
 
                 // 计算子组件
-                doit(renderAOP[i].children, renderAOP[i].scope, false, id + "-");
+                doit(renderAOP[i].children, renderAOP[i].scope, false, id + "-", false);
 
                 // group只是包裹，因此，组件本身不需要被统计
                 if (renderAOP[i].name != 'group') {
@@ -161,7 +179,7 @@ export function updateMixin(Clunch) {
                     }
 
                     // 计算子属性组件
-                    seriesItem.subAttr = doit(renderAOP[i].subAttrs, renderAOP[i].scope, true, id + "-");
+                    seriesItem.subAttr = doit(renderAOP[i].subAttrs, renderAOP[i].scope, true, id + "-", false);
 
                     // 登记事件
                     for (let j = 0; j < renderAOP[i].events.length; j++) {
@@ -174,13 +192,16 @@ export function updateMixin(Clunch) {
                     else renderSeries.push(seriesItem);
                 }
 
+                // 完成了恢复scope
+                renderAOP[i].scope = {};
+
             }
 
             return subRenderSeries;
         })
 
             // 分别表示：当前需要计算的AOP数组、父scope、是否是每个组件的子组件、父ID
-            (this.__renderAOP, {}, false, "");
+            (this.__renderAOP, {}, false, "", false);
 
         // 如果没有前置数据，根本不需要动画效果
         if (!this.__renderSeries || noAnimation) {

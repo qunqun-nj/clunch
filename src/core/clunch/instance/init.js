@@ -2,6 +2,7 @@ import { isArray, isFunction } from '@hai2007/tool/type';
 import serviceFactory from '../../service/index';
 import { isValidKey } from '../../../tool/config';
 import aopRender from '../vnode/AOP-render';
+import region from '../region/index';
 
 // 对象初始化相关
 
@@ -64,6 +65,9 @@ export function initMixin(Clunch) {
         this._height = 0;
         this._min = 0;
         this._max = 0;
+
+        // 区域管理者
+        this.__regionManager = region(this);
 
     };
 

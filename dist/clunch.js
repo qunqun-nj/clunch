@@ -4,12 +4,12 @@
  *
  * author hai2007 < https://hai2007.gitee.io/sweethome >
  *
- * version 0.1.0-alpha.1
+ * version 0.1.0-alpha.2
  *
  * Copyright (c) 2020 hai2007 走一步，再走一步。
  * Released under the MIT license
  *
- * Date:Thu Dec 03 2020 23:05:16 GMT+0800 (GMT+08:00)
+ * Date:Fri Dec 04 2020 22:48:39 GMT+0800 (GMT+08:00)
  */
 (function () {
   'use strict';
@@ -1044,6 +1044,423 @@
     }(initRender);
   }
 
+  // 点（x,y）围绕中心（cx,cy）旋转deg度
+  var rotate = function rotate(cx, cy, deg, x, y) {
+    var cos = Math.cos(deg),
+        sin = Math.sin(deg);
+    return [+((x - cx) * cos - (y - cy) * sin + cx).toFixed(7), +((x - cx) * sin + (y - cy) * cos + cy).toFixed(7)];
+  }; // r1和r2，内半径和外半径
+  // beginA起点弧度，rotateA旋转弧度式
+
+
+  function arc (beginA, rotateA, cx, cy, r1, r2, doback) {
+    // 有了前置的判断，这里可以省略了
+    // if (rotateA > Math.PI * 2) rotateA = Math.PI * 2;
+    // if (rotateA < -Math.PI * 2) rotateA = -Math.PI * 2;
+    // 保证逆时针也是可以的
+    if (rotateA < 0) {
+      beginA += rotateA;
+      rotateA *= -1;
+    }
+
+    var temp = [],
+        p; // 内部
+
+    p = rotate(0, 0, beginA, r1, 0);
+    temp[0] = p[0];
+    temp[1] = p[1];
+    p = rotate(0, 0, rotateA, p[0], p[1]);
+    temp[2] = p[0];
+    temp[3] = p[1]; // 外部
+
+    p = rotate(0, 0, beginA, r2, 0);
+    temp[4] = p[0];
+    temp[5] = p[1];
+    p = rotate(0, 0, rotateA, p[0], p[1]);
+    temp[6] = p[0];
+    temp[7] = p[1];
+    doback(beginA, beginA + rotateA, temp[0] + cx, temp[1] + cy, temp[4] + cx, temp[5] + cy, temp[2] + cx, temp[3] + cy, temp[6] + cx, temp[7] + cy, (r2 - r1) * 0.5);
+  }
+
+  var initText = function initText(painter, config, x, y, deg) {
+    painter.beginPath();
+    painter.translate(x, y);
+    painter.rotate(deg);
+    painter.font = config['font-size'] + "px " + config['font-family'];
+    return painter;
+  }; // 画弧统一设置方法
+
+  var initArc = function initArc(painter, config, cx, cy, r1, r2, beginDeg, deg) {
+    if (r1 > r2) {
+      var temp = r1;
+      r1 = r2;
+      r2 = temp;
+    }
+
+    beginDeg = beginDeg % (Math.PI * 2); // 当|deg|>=2π的时候都认为是一个圆环
+    // 为什么不取2π比较，是怕部分浏览器浮点不精确，同时也是为了和svg保持一致
+
+    if (deg >= Math.PI * 1.999999 || deg <= -Math.PI * 1.999999) {
+      deg = Math.PI * 2;
+    } else {
+      deg = deg % (Math.PI * 2);
+    }
+
+    arc(beginDeg, deg, cx, cy, r1, r2, function (beginA, endA, begInnerX, begInnerY, begOuterX, begOuterY, endInnerX, endInnerY, endOuterX, endOuterY, r) {
+      if (r < 0) r = -r;
+      painter.beginPath();
+      painter.moveTo(begInnerX, begInnerY);
+      painter.arc( // (圆心x，圆心y，半径，开始角度，结束角度，true逆时针/false顺时针)
+      cx, cy, r1, beginA, endA, false); // 结尾
+
+      if (config["arc-end-cap"] != 'round') painter.lineTo(endOuterX, endOuterY);else painter.arc((endInnerX + endOuterX) * 0.5, (endInnerY + endOuterY) * 0.5, r, endA - Math.PI, endA, true);
+      painter.arc(cx, cy, r2, endA, beginA, true); // 开头
+
+      if (config["arc-start-cap"] != 'round') painter.lineTo(begInnerX, begInnerY);else painter.arc((begInnerX + begOuterX) * 0.5, (begInnerY + begOuterY) * 0.5, r, beginA, beginA - Math.PI, true);
+    });
+    if (config["arc-start-cap"] == 'butt') painter.closePath();
+    return painter;
+  }; // 画圆统一设置方法
+
+  var initCircle = function initCircle(painter, cx, cy, r) {
+    painter.beginPath();
+    painter.moveTo(cx + r, cy);
+    painter.arc(cx, cy, r, 0, Math.PI * 2);
+    return painter;
+  }; // 画矩形统一设置方法
+
+  var initRect = function initRect(painter, x, y, width, height) {
+    painter.beginPath();
+    painter.rect(x, y, width, height);
+    return painter;
+  };
+
+  // 线性渐变
+  var linearGradient = function linearGradient(painter, x0, y0, x1, y1) {
+    var gradient = painter.createLinearGradient(x0, y0, x1, y1);
+    var enhanceGradient = {
+      "value": function value() {
+        return gradient;
+      },
+      "addColorStop": function addColorStop(stop, color) {
+        gradient.addColorStop(stop, color);
+        return enhanceGradient;
+      }
+    };
+    return enhanceGradient;
+  }; // 环形渐变
+
+  var radialGradient = function radialGradient(painter, cx, cy, r) {
+    var gradient = painter.createRadialGradient(cx, cy, 0, cx, cy, r);
+    var enhanceGradient = {
+      "value": function value() {
+        return gradient;
+      },
+      "addColorStop": function addColorStop(stop, color) {
+        gradient.addColorStop(stop, color);
+        return enhanceGradient;
+      }
+    };
+    return enhanceGradient;
+  };
+
+  function painter (canvas, width, height) {
+    // 获取canvas2D画笔
+    var painter = canvas.getContext("2d"); //  如果画布隐藏或大小为0
+
+    if (width == 0 || height == 0) throw new Error('Canvas is hidden or size is zero!'); // 设置显示大小
+
+    canvas.style.width = width + "px";
+    canvas.style.height = height + "px"; // 设置画布大小（画布大小设置为显示的二倍，使得显示的时候更加清晰）
+
+    canvas.setAttribute('width', width * 2);
+    canvas.setAttribute('height', height * 2); // 通过缩放实现模糊问题
+
+    painter.scale(2, 2); // 默认配置canvas2D对象已经存在的属性
+
+    painter.textBaseline = 'middle';
+    painter.textAlign = 'left'; // 默认配置不应该有canvas2D对象已经存在的属性
+    // 这里是为了简化或和svg统一接口而自定义的属性
+
+    var config = {
+      "font-size": "16",
+      // 文字大小
+      "font-family": "sans-serif",
+      // 字体
+      "arc-start-cap": "butt",
+      // 弧开始闭合方式
+      "arc-end-cap": "butt" // 弧结束闭合方式
+
+    }; // 配置生效方法
+
+    var useConfig = function useConfig(key, value) {
+      /**
+       * -----------------------------
+       * 特殊的设置开始
+       * -----------------------------
+       */
+      if (key == 'lineDash') {
+        painter.setLineDash(value);
+      }
+      /**
+       * -----------------------------
+       * 常规的配置开始
+       * -----------------------------
+       */
+      // 如果已经存在默认配置中，说明只需要缓存起来即可
+      else if (config[key]) {
+          config[key] = value;
+        } // 其它情况直接生效即可
+        else {
+            painter[key] = value;
+          }
+    }; // 画笔
+
+
+    var enhancePainter = {
+      // 属性设置或获取
+      "config": function config() {
+        if (arguments.length === 1) {
+          if (_typeof(arguments[0]) !== 'object') return painter[arguments[0]];
+
+          for (var key in arguments[0]) {
+            useConfig(key, arguments[0][key]);
+          }
+        } else if (arguments.length === 2) {
+          useConfig(arguments[0], arguments[1]);
+        }
+
+        return enhancePainter;
+      },
+      // 文字
+      "fillText": function fillText(text, x, y, deg) {
+        painter.save();
+        initText(painter, config, x, y, deg || 0).fillText(text, 0, 0);
+        painter.restore();
+        return enhancePainter;
+      },
+      "strokeText": function strokeText(text, x, y, deg) {
+        painter.save();
+        initText(painter, config, x, y, deg || 0).strokeText(text, 0, 0);
+        painter.restore();
+        return enhancePainter;
+      },
+      "fullText": function fullText(text, x, y, deg) {
+        painter.save();
+        initText(painter, config, x, y, deg || 0);
+        painter.fillText(text, 0, 0);
+        painter.strokeText(text, 0, 0);
+        painter.restore();
+        return enhancePainter;
+      },
+      // 路径
+      "beginPath": function beginPath() {
+        painter.beginPath();
+        return enhancePainter;
+      },
+      "closePath": function closePath() {
+        painter.closePath();
+        return enhancePainter;
+      },
+      "moveTo": function moveTo(x, y) {
+        painter.moveTo(x, y);
+        return enhancePainter;
+      },
+      "lineTo": function lineTo(x, y) {
+        painter.lineTo(x, y);
+        return enhancePainter;
+      },
+      "arc": function arc(x, y, r, beginDeg, deg) {
+        painter.arc(x, y, r, beginDeg, beginDeg + deg, deg < 0);
+        return enhancePainter;
+      },
+      "fill": function fill() {
+        painter.fill();
+        return enhancePainter;
+      },
+      "stroke": function stroke() {
+        painter.stroke();
+        return enhancePainter;
+      },
+      "full": function full() {
+        painter.fill();
+        painter.stroke();
+        return enhancePainter;
+      },
+      "save": function save() {
+        painter.save();
+        return enhancePainter;
+      },
+      "restore": function restore() {
+        painter.restore();
+        return enhancePainter;
+      },
+      // 路径 - 贝塞尔曲线
+      "quadraticCurveTo": function quadraticCurveTo(cpx, cpy, x, y) {
+        painter.quadraticCurveTo(cpx, cpy, x, y);
+        return enhancePainter;
+      },
+      "bezierCurveTo": function bezierCurveTo(cp1x, cp1y, cp2x, cp2y, x, y) {
+        painter.bezierCurveTo(cp1x, cp1y, cp2x, cp2y, x, y);
+        return enhancePainter;
+      },
+      // 弧
+      "fillArc": function fillArc(cx, cy, r1, r2, beginDeg, deg) {
+        initArc(painter, config, cx, cy, r1, r2, beginDeg, deg).fill();
+        return enhancePainter;
+      },
+      "strokeArc": function strokeArc(cx, cy, r1, r2, beginDeg, deg) {
+        initArc(painter, config, cx, cy, r1, r2, beginDeg, deg).stroke();
+        return enhancePainter;
+      },
+      "fullArc": function fullArc(cx, cy, r1, r2, beginDeg, deg) {
+        initArc(painter, config, cx, cy, r1, r2, beginDeg, deg);
+        painter.fill();
+        painter.stroke();
+        return enhancePainter;
+      },
+      // 圆形
+      "fillCircle": function fillCircle(cx, cy, r) {
+        initCircle(painter, cx, cy, r).fill();
+        return enhancePainter;
+      },
+      "strokeCircle": function strokeCircle(cx, cy, r) {
+        initCircle(painter, cx, cy, r).stroke();
+        return enhancePainter;
+      },
+      "fullCircle": function fullCircle(cx, cy, r) {
+        initCircle(painter, cx, cy, r);
+        painter.fill();
+        painter.stroke();
+        return enhancePainter;
+      },
+      // 矩形
+      "fillRect": function fillRect(x, y, width, height) {
+        initRect(painter, x, y, width, height).fill();
+        return enhancePainter;
+      },
+      "strokeRect": function strokeRect(x, y, width, height) {
+        initRect(painter, x, y, width, height).stroke();
+        return enhancePainter;
+      },
+      "fullRect": function fullRect(x, y, width, height) {
+        initRect(painter, x, y, width, height);
+        painter.fill();
+        painter.stroke();
+        return enhancePainter;
+      },
+
+      /**
+      * 渐变
+      * -------------
+      */
+      //  线性渐变
+      "createLinearGradient": function createLinearGradient(x0, y0, x1, y1) {
+        return linearGradient(painter, x0, y0, x1, y1);
+      },
+      // 环形渐变
+      "createRadialGradient": function createRadialGradient(cx, cy, r) {
+        return radialGradient(painter, cx, cy, r);
+      }
+    };
+    return enhancePainter;
+  }
+
+  // 绑定事件
+  function bind(target, eventType, callback) {
+    if (window.attachEvent) {
+      target.attachEvent("on" + eventType, callback); // 后绑定的先执行
+    } else {
+      target.addEventListener(eventType, callback, false); // 捕获
+    }
+  }
+
+  var position = function position(target, event) {
+    // 返回元素的大小及其相对于视口的位置
+    var bounding = target.getBoundingClientRect();
+    return {
+      // 鼠标相对元素位置 = 鼠标相对窗口坐标 - 元素相对窗口坐标
+      "x": event.clientX - bounding.left,
+      "y": event.clientY - bounding.top
+    };
+  };
+
+  function region (that) {
+    var regions = {},
+        //区域映射表
+    rgb = [0, 0, 0],
+        //区域标识色彩,rgb(0,0,0)表示空白区域
+    p = 'r'; //色彩增值位置
+    // 用于计算包含关系的画板
+
+    var _painter2,
+        canvas = document.createElement('canvas');
+
+    var _width = 0,
+        _height = 0;
+    return {
+      // 擦除
+      "erase": function erase() {
+        _painter2.config({
+          fillStyle: 'rgb(255,255,255)'
+        }).fillRect(0, 0, _width, _height);
+      },
+      // 更新大小
+      "updateSize": function updateSize(width, height) {
+        _width = width;
+        _height = height;
+        _painter2 = painter(canvas, width, height);
+      },
+      // 绘制（添加）区域范围
+
+      /**
+       * region_id：区域唯一标识（一个标签上可以维护多个区域）
+       */
+      "painter": function painter(region_id) {
+        if (regions[region_id] == undefined) regions[region_id] = {
+          'r': function r() {
+            rgb[0] += 1;
+            p = 'g';
+            return 'rgb(' + rgb[0] + ',' + rgb[1] + ',' + rgb[2] + ')';
+          },
+          'g': function g() {
+            rgb[1] += 1;
+            p = 'b';
+            return 'rgb(' + rgb[0] + ',' + rgb[1] + ',' + rgb[2] + ')';
+          },
+          'b': function b() {
+            rgb[2] += 1;
+            p = 'r';
+            return 'rgb(' + rgb[0] + ',' + rgb[1] + ',' + rgb[2] + ')';
+          }
+        }[p]();
+
+        _painter2.config({
+          fillStyle: regions[region_id],
+          strokeStyle: regions[region_id]
+        });
+
+        return _painter2;
+      },
+      // 获取此刻鼠标所在区域
+      "getRegion": function getRegion(event) {
+        var pos = position(that.__canvas, event);
+        pos.x -= getStyle(that.__canvas, 'border-left-width').replace('px', '');
+        pos.y -= getStyle(that.__canvas, 'border-top-width').replace('px', '');
+        var currentRGBA = canvas.getContext("2d").getImageData(pos.x * 2 - 0.5, pos.y * 2 - 0.5, 1, 1).data;
+
+        for (var i in regions) {
+          if ("rgb(" + currentRGBA[0] + "," + currentRGBA[1] + "," + currentRGBA[2] + ")" == regions[i]) {
+            return [i, pos.x, pos.y];
+          }
+        } // 说明当前不在任何区域
+
+
+        return undefined;
+      }
+    };
+  }
+
   function initMixin(Clunch) {
     // 对对象进行初始化
     Clunch.prototype.$$init = function (options) {
@@ -1091,7 +1508,9 @@
       this._width = 0;
       this._height = 0;
       this._min = 0;
-      this._max = 0;
+      this._max = 0; // 区域管理者
+
+      this.__regionManager = region(this);
     };
   }
 
@@ -1773,361 +2192,63 @@
     };
   }
 
-  // 点（x,y）围绕中心（cx,cy）旋转deg度
-  var rotate = function rotate(cx, cy, deg, x, y) {
-    var cos = Math.cos(deg),
-        sin = Math.sin(deg);
-    return [+((x - cx) * cos - (y - cy) * sin + cx).toFixed(7), +((x - cx) * sin + (y - cy) * cos + cy).toFixed(7)];
-  }; // r1和r2，内半径和外半径
-  // beginA起点弧度，rotateA旋转弧度式
-
-
-  function arc (beginA, rotateA, cx, cy, r1, r2, doback) {
-    // 有了前置的判断，这里可以省略了
-    // if (rotateA > Math.PI * 2) rotateA = Math.PI * 2;
-    // if (rotateA < -Math.PI * 2) rotateA = -Math.PI * 2;
-    // 保证逆时针也是可以的
-    if (rotateA < 0) {
-      beginA += rotateA;
-      rotateA *= -1;
-    }
-
-    var temp = [],
-        p; // 内部
-
-    p = rotate(0, 0, beginA, r1, 0);
-    temp[0] = p[0];
-    temp[1] = p[1];
-    p = rotate(0, 0, rotateA, p[0], p[1]);
-    temp[2] = p[0];
-    temp[3] = p[1]; // 外部
-
-    p = rotate(0, 0, beginA, r2, 0);
-    temp[4] = p[0];
-    temp[5] = p[1];
-    p = rotate(0, 0, rotateA, p[0], p[1]);
-    temp[6] = p[0];
-    temp[7] = p[1];
-    doback(beginA, beginA + rotateA, temp[0] + cx, temp[1] + cy, temp[4] + cx, temp[5] + cy, temp[2] + cx, temp[3] + cy, temp[6] + cx, temp[7] + cy, (r2 - r1) * 0.5);
-  }
-
-  var initText = function initText(painter, config, x, y, deg) {
-    painter.beginPath();
-    painter.translate(x, y);
-    painter.rotate(deg);
-    painter.font = config['font-size'] + "px " + config['font-family'];
-    return painter;
-  }; // 画弧统一设置方法
-
-  var initArc = function initArc(painter, config, cx, cy, r1, r2, beginDeg, deg) {
-    if (r1 > r2) {
-      var temp = r1;
-      r1 = r2;
-      r2 = temp;
-    }
-
-    beginDeg = beginDeg % (Math.PI * 2); // 当|deg|>=2π的时候都认为是一个圆环
-    // 为什么不取2π比较，是怕部分浏览器浮点不精确，同时也是为了和svg保持一致
-
-    if (deg >= Math.PI * 1.999999 || deg <= -Math.PI * 1.999999) {
-      deg = Math.PI * 2;
-    } else {
-      deg = deg % (Math.PI * 2);
-    }
-
-    arc(beginDeg, deg, cx, cy, r1, r2, function (beginA, endA, begInnerX, begInnerY, begOuterX, begOuterY, endInnerX, endInnerY, endOuterX, endOuterY, r) {
-      if (r < 0) r = -r;
-      painter.beginPath();
-      painter.moveTo(begInnerX, begInnerY);
-      painter.arc( // (圆心x，圆心y，半径，开始角度，结束角度，true逆时针/false顺时针)
-      cx, cy, r1, beginA, endA, false); // 结尾
-
-      if (config["arc-end-cap"] != 'round') painter.lineTo(endOuterX, endOuterY);else painter.arc((endInnerX + endOuterX) * 0.5, (endInnerY + endOuterY) * 0.5, r, endA - Math.PI, endA, true);
-      painter.arc(cx, cy, r2, endA, beginA, true); // 开头
-
-      if (config["arc-start-cap"] != 'round') painter.lineTo(begInnerX, begInnerY);else painter.arc((begInnerX + begOuterX) * 0.5, (begInnerY + begOuterY) * 0.5, r, beginA, beginA - Math.PI, true);
-    });
-    if (config["arc-start-cap"] == 'butt') painter.closePath();
-    return painter;
-  }; // 画圆统一设置方法
-
-  var initCircle = function initCircle(painter, cx, cy, r) {
-    painter.beginPath();
-    painter.moveTo(cx + r, cy);
-    painter.arc(cx, cy, r, 0, Math.PI * 2);
-    return painter;
-  }; // 画矩形统一设置方法
-
-  var initRect = function initRect(painter, x, y, width, height) {
-    painter.beginPath();
-    painter.rect(x, y, width, height);
-    return painter;
-  };
-
-  // 线性渐变
-  var linearGradient = function linearGradient(painter, x0, y0, x1, y1) {
-    var gradient = painter.createLinearGradient(x0, y0, x1, y1);
-    var enhanceGradient = {
-      "value": function value() {
-        return gradient;
-      },
-      "addColorStop": function addColorStop(stop, color) {
-        gradient.addColorStop(stop, color);
-        return enhanceGradient;
-      }
-    };
-    return enhanceGradient;
-  }; // 环形渐变
-
-  var radialGradient = function radialGradient(painter, cx, cy, r) {
-    var gradient = painter.createRadialGradient(cx, cy, 0, cx, cy, r);
-    var enhanceGradient = {
-      "value": function value() {
-        return gradient;
-      },
-      "addColorStop": function addColorStop(stop, color) {
-        gradient.addColorStop(stop, color);
-        return enhanceGradient;
-      }
-    };
-    return enhanceGradient;
-  };
-
-  function painter (canvas, width, height) {
-    // 获取canvas2D画笔
-    var painter = canvas.getContext("2d"); //  如果画布隐藏或大小为0
-
-    if (width == 0 || height == 0) throw new Error('Canvas is hidden or size is zero!'); // 设置显示大小
-
-    canvas.style.width = width + "px";
-    canvas.style.height = height + "px"; // 设置画布大小（画布大小设置为显示的二倍，使得显示的时候更加清晰）
-
-    canvas.setAttribute('width', width * 2);
-    canvas.setAttribute('height', height * 2); // 通过缩放实现模糊问题
-
-    painter.scale(2, 2); // 默认配置canvas2D对象已经存在的属性
-
-    painter.textBaseline = 'middle';
-    painter.textAlign = 'left'; // 默认配置不应该有canvas2D对象已经存在的属性
-    // 这里是为了简化或和svg统一接口而自定义的属性
-
-    var config = {
-      "font-size": "16",
-      // 文字大小
-      "font-family": "sans-serif",
-      // 字体
-      "arc-start-cap": "butt",
-      // 弧开始闭合方式
-      "arc-end-cap": "butt" // 弧结束闭合方式
-
-    }; // 配置生效方法
-
-    var useConfig = function useConfig(key, value) {
-      /**
-       * -----------------------------
-       * 特殊的设置开始
-       * -----------------------------
-       */
-      if (key == 'lineDash') {
-        painter.setLineDash(value);
-      }
-      /**
-       * -----------------------------
-       * 常规的配置开始
-       * -----------------------------
-       */
-      // 如果已经存在默认配置中，说明只需要缓存起来即可
-      else if (config[key]) {
-          config[key] = value;
-        } // 其它情况直接生效即可
-        else {
-            painter[key] = value;
-          }
-    }; // 画笔
-
-
-    var enhancePainter = {
-      // 属性设置或获取
-      "config": function config() {
-        if (arguments.length === 1) {
-          if (_typeof(arguments[0]) !== 'object') return painter[arguments[0]];
-
-          for (var key in arguments[0]) {
-            useConfig(key, arguments[0][key]);
-          }
-        } else if (arguments.length === 2) {
-          useConfig(arguments[0], arguments[1]);
-        }
-
-        return enhancePainter;
-      },
-      // 文字
-      "fillText": function fillText(text, x, y, deg) {
-        painter.save();
-        initText(painter, config, x, y, deg || 0).fillText(text, 0, 0);
-        painter.restore();
-        return enhancePainter;
-      },
-      "strokeText": function strokeText(text, x, y, deg) {
-        painter.save();
-        initText(painter, config, x, y, deg || 0).strokeText(text, 0, 0);
-        painter.restore();
-        return enhancePainter;
-      },
-      "fullText": function fullText(text, x, y, deg) {
-        painter.save();
-        initText(painter, config, x, y, deg || 0);
-        painter.fillText(text, 0, 0);
-        painter.strokeText(text, 0, 0);
-        painter.restore();
-        return enhancePainter;
-      },
-      // 路径
-      "beginPath": function beginPath() {
-        painter.beginPath();
-        return enhancePainter;
-      },
-      "closePath": function closePath() {
-        painter.closePath();
-        return enhancePainter;
-      },
-      "moveTo": function moveTo(x, y) {
-        painter.moveTo(x, y);
-        return enhancePainter;
-      },
-      "lineTo": function lineTo(x, y) {
-        painter.lineTo(x, y);
-        return enhancePainter;
-      },
-      "arc": function arc(x, y, r, beginDeg, deg) {
-        painter.arc(x, y, r, beginDeg, beginDeg + deg, deg < 0);
-        return enhancePainter;
-      },
-      "fill": function fill() {
-        painter.fill();
-        return enhancePainter;
-      },
-      "stroke": function stroke() {
-        painter.stroke();
-        return enhancePainter;
-      },
-      "full": function full() {
-        painter.fill();
-        painter.stroke();
-        return enhancePainter;
-      },
-      "save": function save() {
-        painter.save();
-        return enhancePainter;
-      },
-      "restore": function restore() {
-        painter.restore();
-        return enhancePainter;
-      },
-      // 路径 - 贝塞尔曲线
-      "quadraticCurveTo": function quadraticCurveTo(cpx, cpy, x, y) {
-        painter.quadraticCurveTo(cpx, cpy, x, y);
-        return enhancePainter;
-      },
-      "bezierCurveTo": function bezierCurveTo(cp1x, cp1y, cp2x, cp2y, x, y) {
-        painter.bezierCurveTo(cp1x, cp1y, cp2x, cp2y, x, y);
-        return enhancePainter;
-      },
-      // 弧
-      "fillArc": function fillArc(cx, cy, r1, r2, beginDeg, deg) {
-        initArc(painter, config, cx, cy, r1, r2, beginDeg, deg).fill();
-        return enhancePainter;
-      },
-      "strokeArc": function strokeArc(cx, cy, r1, r2, beginDeg, deg) {
-        initArc(painter, config, cx, cy, r1, r2, beginDeg, deg).stroke();
-        return enhancePainter;
-      },
-      "fullArc": function fullArc(cx, cy, r1, r2, beginDeg, deg) {
-        initArc(painter, config, cx, cy, r1, r2, beginDeg, deg);
-        painter.fill();
-        painter.stroke();
-        return enhancePainter;
-      },
-      // 圆形
-      "fillCircle": function fillCircle(cx, cy, r) {
-        initCircle(painter, cx, cy, r).fill();
-        return enhancePainter;
-      },
-      "strokeCircle": function strokeCircle(cx, cy, r) {
-        initCircle(painter, cx, cy, r).stroke();
-        return enhancePainter;
-      },
-      "fullCircle": function fullCircle(cx, cy, r) {
-        initCircle(painter, cx, cy, r);
-        painter.fill();
-        painter.stroke();
-        return enhancePainter;
-      },
-      // 矩形
-      "fillRect": function fillRect(x, y, width, height) {
-        initRect(painter, x, y, width, height).fill();
-        return enhancePainter;
-      },
-      "strokeRect": function strokeRect(x, y, width, height) {
-        initRect(painter, x, y, width, height).stroke();
-        return enhancePainter;
-      },
-      "fullRect": function fullRect(x, y, width, height) {
-        initRect(painter, x, y, width, height);
-        painter.fill();
-        painter.stroke();
-        return enhancePainter;
-      },
-
-      /**
-      * 渐变
-      * -------------
-      */
-      //  线性渐变
-      "createLinearGradient": function createLinearGradient(x0, y0, x1, y1) {
-        return linearGradient(painter, x0, y0, x1, y1);
-      },
-      // 环形渐变
-      "createRadialGradient": function createRadialGradient(cx, cy, r) {
-        return radialGradient(painter, cx, cy, r);
-      }
-    };
-    return enhancePainter;
-  }
-
   function updateMixin(Clunch) {
     // 重新绘制画布
     Clunch.prototype.$$updateView = function () {
+      var _this = this;
+
       // 如果没有挂载
       if (!this._isMounted) return;
-      this.$$lifecycle('beforeDraw');
+      this.$$lifecycle('beforeDraw'); // 清楚区域信息
 
-      for (var i = 0; i < this.__renderSeries.length; i++) {
+      this.__regionManager.erase();
+
+      var _loop = function _loop(i) {
         var attr = {
-          _subTexts: this.__renderSeries[i].subText,
+          _subTexts: _this.__renderSeries[i].subText,
           _subAttr: []
         }; // 属性
 
-        for (var attrKey in this.__renderSeries[i].attr) {
-          attr[attrKey] = this.__renderSeries[i].attr[attrKey].value;
+        for (var attrKey in _this.__renderSeries[i].attr) {
+          attr[attrKey] = _this.__renderSeries[i].attr[attrKey].value;
         } // 子组件
 
 
-        for (var j = 0; j < this.__renderSeries[i].subAttr.length; j++) {
+        for (var j = 0; j < _this.__renderSeries[i].subAttr.length; j++) {
           var subSeries = {
-            series: this.__renderSeries[i].subAttr[j].name,
+            series: _this.__renderSeries[i].subAttr[j].name,
             attr: {}
           }; // 子组件属性
 
-          for (var subSeriesAttrKey in this.__renderSeries[i].subAttr[j].attr) {
-            subSeries.attr[subSeriesAttrKey] = this.__renderSeries[i].subAttr[j].attr[subSeriesAttrKey];
+          for (var subSeriesAttrKey in _this.__renderSeries[i].subAttr[j].attr) {
+            subSeries.attr[subSeriesAttrKey] = _this.__renderSeries[i].subAttr[j].attr[subSeriesAttrKey];
           }
 
           attr._subAttr.push(subSeries);
         } // 绘制
 
 
-        this.__defineSerirs[this.__renderSeries[i].name].link(this.__painter, attr);
+        _this.__defineSerirs[_this.__renderSeries[i].name].link(_this.__painter, attr); // 记录区域
+
+
+        var region = _this.__defineSerirs[_this.__renderSeries[i].name].region;
+
+        if (region) {
+          var _loop2 = function _loop2(regionName) {
+            region[regionName](function (subName) {
+              subName = subName || "default";
+              return _this.__regionManager.painter(i + "@" + regionName + "::" + subName);
+            }, attr);
+          };
+
+          for (var regionName in region) {
+            _loop2(regionName);
+          }
+        }
+      };
+
+      for (var i = 0; i < this.__renderSeries.length; i++) {
+        _loop(i);
       }
 
       this.$$lifecycle('drawed');
@@ -2143,7 +2264,10 @@
       this._width = width;
       this._height = height;
       this._max = width > height ? width : height;
-      this._min = width < height ? width : height; // 重新计算
+      this._min = width < height ? width : height; // 重置区域
+
+      this.__regionManager.updateSize(width, height); // 重新计算
+
 
       this.$$updateWithData(true);
       this.$$lifecycle('resized');
@@ -2151,7 +2275,7 @@
 
 
     Clunch.prototype.$$updateWithData = function (noAnimation) {
-      var _this = this;
+      var _this2 = this;
 
       // 准备计算前一些初始化判断
       if (isFunction(this.__observeWatcher.stop)) {
@@ -2173,7 +2297,7 @@
       var renderSeries = [],
           that = this;
 
-      (function doit(renderAOP, pScope, isSubAttrs, pid) {
+      (function doit(renderAOP, pScope, isSubAttrs, pid, ignoreFor) {
         // 如果当前计算的是某个父组件的子属性组件，应该返回
         var subRenderSeries = [];
 
@@ -2189,15 +2313,14 @@
           // 由于此指令修改局部scope，因此优先级必须最高
 
 
-          if ('c-for' in renderAOP[i]) {
+          if (!ignoreFor && 'c-for' in renderAOP[i]) {
             var cFor = renderAOP[i]['c-for'];
-            delete renderAOP[i]['c-for'];
             var data_for = evalExpress(that, cFor.data, renderAOP[i].scope);
 
             for (var forKey in data_for) {
-              renderAOP[i].scope[(cFor.value)] = data_for[forKey];
-              if (cFor.key != null) renderAOP[i].scope[(cFor.key)] = forKey;
-              doit([renderAOP[i]], {}, false, id + "for" + forKey + "-");
+              renderAOP[i].scope[cFor.value] = data_for[forKey];
+              if (cFor.key != null) renderAOP[i].scope[cFor.key] = forKey;
+              doit([renderAOP[i]], {}, false, id + "for" + forKey + "-", true);
             }
 
             continue;
@@ -2208,7 +2331,7 @@
           if ('c-if' in renderAOP[i] && !evalExpress(that, renderAOP[i]['c-if'], renderAOP[i].scope)) continue;
           delete renderAOP[i]['c-if']; // 计算子组件
 
-          doit(renderAOP[i].children, renderAOP[i].scope, false, id + "-"); // group只是包裹，因此，组件本身不需要被统计
+          doit(renderAOP[i].children, renderAOP[i].scope, false, id + "-", false); // group只是包裹，因此，组件本身不需要被统计
 
           if (renderAOP[i].name != 'group') {
             var seriesItem = {
@@ -2230,7 +2353,7 @@
             } // 计算子属性组件
 
 
-            seriesItem.subAttr = doit(renderAOP[i].subAttrs, renderAOP[i].scope, true, id + "-"); // 登记事件
+            seriesItem.subAttr = doit(renderAOP[i].subAttrs, renderAOP[i].scope, true, id + "-", false); // 登记事件
 
             for (var j = 0; j < renderAOP[i].events.length; j++) {
               var event = renderAOP[i].events[j];
@@ -2239,12 +2362,15 @@
 
 
             if (isSubAttrs) subRenderSeries.push(seriesItem);else renderSeries.push(seriesItem);
-          }
+          } // 完成了恢复scope
+
+
+          renderAOP[i].scope = {};
         }
 
         return subRenderSeries;
       })( // 分别表示：当前需要计算的AOP数组、父scope、是否是每个组件的子组件、父ID
-      this.__renderAOP, {}, false, ""); // 如果没有前置数据，根本不需要动画效果
+      this.__renderAOP, {}, false, "", false); // 如果没有前置数据，根本不需要动画效果
 
 
       if (!this.__renderSeries || noAnimation) {
@@ -2257,15 +2383,15 @@
       var calcDeepSeriesFun = calcDeepSeries(this.__renderSeries, renderSeries); // 数据改变动画
 
       this.__observeWatcher.stop = animation(function (deep) {
-        _this.__renderSeries = calcDeepSeriesFun(deep);
+        _this2.__renderSeries = calcDeepSeriesFun(deep);
 
-        _this.$$updateView();
+        _this2.$$updateView();
       }, 500, function (deep) {
         if (deep == 1) {
           // 说明动画进行完毕以后停止的，我们需要触发'更新完毕'钩子
-          _this.__observeWatcher.stop = null;
+          _this2.__observeWatcher.stop = null;
 
-          _this.$$lifecycle('updated');
+          _this2.$$lifecycle('updated');
         }
       });
     };
@@ -2416,6 +2542,8 @@
   // 这样挂载了，才会真的绘制
 
   Clunch.prototype.$mount = function (el) {
+    var _this = this;
+
     if (this._isDestroyed) {
       // 已经销毁的组件不能重新挂载
       console.warn('The clunch has been destroyed!');
@@ -2448,7 +2576,37 @@
     el.innerHTML = '<canvas>非常抱歉，您的浏览器不支持canvas!</canvas>';
     this.__canvas = el.getElementsByTagName('canvas')[0]; // 触发数据改变更新
 
-    this.$$updateWithData(); // 挂载后以后，启动画布大小监听
+    this.$$updateWithData(); // 添加区域交互
+
+    ['click', 'dblclick', 'mousemove', 'mousedown', 'mouseup'].forEach(function (eventName) {
+      bind(_this.__canvas, eventName, function (event) {
+        var region = _this.__regionManager.getRegion(event);
+
+        if (region) {
+          var regionSplit = region[0].split('::');
+          var doback = _this.__events[eventName][regionSplit[0]];
+
+          if (isFunction(doback)) {
+            var regionNameSplit = regionSplit[0].split('@');
+            var curSeires = _this.__renderSeries[regionNameSplit[0]]; // 整理属性信息
+
+            var attr = {};
+
+            for (var attrKey in curSeires.attr) {
+              attr[attrKey] = curSeires.attr[attrKey].value;
+            } // 调用回调
+
+
+            doback.call(_this, {
+              series: curSeires.name,
+              region: regionNameSplit[1],
+              subRegion: regionSplit[1],
+              attr: attr
+            });
+          }
+        }
+      });
+    }); // 挂载后以后，启动画布大小监听
 
     resize(this); // 挂载完毕以后，同步标志
 
