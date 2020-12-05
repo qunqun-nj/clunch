@@ -9,7 +9,7 @@
  * Copyright (c) 2020 hai2007 走一步，再走一步。
  * Released under the MIT license
  *
- * Date:Fri Dec 04 2020 22:48:38 GMT+0800 (GMT+08:00)
+ * Date:Sat Dec 05 2020 13:15:32 GMT+0800 (GMT+08:00)
  */
 (function () {
   'use strict';
@@ -1304,6 +1304,40 @@
         painter.bezierCurveTo(cp1x, cp1y, cp2x, cp2y, x, y);
         return enhancePainter;
       },
+      // 擦除画面
+      "clearRect": function clearRect(x, y, w, h) {
+        painter.clearRect(x || 0, y || 0, w || width, h || height);
+        return enhancePainter;
+      },
+      // 地址图片
+      "toDataURL": function toDataURL() {
+        return canvas.toDataURL();
+      },
+      // 绘制图片
+      "drawImage": function drawImage(img, sx, sy, sw, sh, x, y, w, h) {
+        sx = sx || 0;
+        sy = sy || 0;
+        x = x || 0;
+        y = y || 0;
+        w = w ? w * 2 : width * 2;
+        h = h ? h * 2 : height * 2;
+
+        if (img.nodeName == 'CANVAS') {
+          // 我们不考虑别的canvas，我们认为我们面对的canvas都是自己控制的
+          // 如果有必要，未来可以对任意canvas进行向下兼容
+          w = w / 2;
+          h = h / 2;
+          sw = sw ? sw * 2 : width * 2;
+          sh = sh ? sh * 2 : height * 2;
+        } else {
+          // 默认类型是图片
+          sw = (sw || img.width) * 2;
+          sh = (sh || img.height) * 2;
+        }
+
+        painter.drawImage(img, sx, sy, sw, sh, x, y, w, h);
+        return enhancePainter;
+      },
       // 弧
       "fillArc": function fillArc(cx, cy, r1, r2, beginDeg, deg) {
         initArc(painter, config, cx, cy, r1, r2, beginDeg, deg).fill();
@@ -1456,7 +1490,7 @@
         } // 说明当前不在任何区域
 
 
-        return undefined;
+        return [null, pos.x, pos.y];
       }
     };
   }
@@ -1500,8 +1534,19 @@
 
 
       this.__observeWatcher = {
+        // 是否有前置计算未完成
         flag: false,
+        // 动画停止方法
         stop: null
+      }; // 画布大小改变需要的初始化辅助参数
+
+      this.__observeResize = {
+        // 是否可以立刻更新画布
+        help: true,
+        // 前置是否有任务未完成
+        flag: false,
+        // 画布监听对象
+        observer: null
       }; // 画笔参数
 
       this.__painter = null;
@@ -2105,6 +2150,7 @@
     return path[0];
   }; // 获取
 
+  // 属性deep值计算
   var calcDeepValue = function calcDeepValue(oldValue, newValue, deep) {
     // 首先，参与动画,而且值不一样
     if (newValue.animation && oldValue.value != newValue.value) {
@@ -2119,28 +2165,33 @@
             };
           }
       }
-    }
+    } // 其它情况原样返回
+
 
     return newValue;
-  };
+  }; // 获取数据改变后deep对应的实时数据计算方法
+
 
   function calcDeepSeries (oldRenderSeries, newRenderSeries) {
-    var linkIdToIndex = {};
+    var linkIdToIndex = {}; // 收集组件id和index的映射
 
     for (var index = 0; index < oldRenderSeries.length; index++) {
-      var subLinkIdToIndex = {};
+      var subLinkIdToIndex = {}; // 收集子属性组件的id和index的映射
 
       for (var subIndex = 0; subIndex < oldRenderSeries[index].subAttr.length; subIndex++) {
         subLinkIdToIndex[oldRenderSeries[index].subAttr[subIndex].id] = subIndex;
-      }
+      } // 收集完毕后，保存起来
+
 
       linkIdToIndex[oldRenderSeries[index].id] = {
         index: index,
         subLinkIdToIndex: subLinkIdToIndex
       };
-    }
+    } // 返回一个可以根据当前deep获取当前实际组件的方法
+
 
     return function (deep) {
+      // 如果deep=1直接返回新组件即可
       if (deep == 1) return newRenderSeries;
       var renderSeries = [];
 
@@ -2159,6 +2210,7 @@
 
           for (var j = 0; j < newRenderSeries[i].subAttr.length; j++) {
             if (newRenderSeries[i].subAttr[j].id in linkIdToIndex[newRenderSeries[i].id].subLinkIdToIndex) {
+              // 对于的旧子属性组件
               var oldSubSeries = oldSeries.subAttr[linkIdToIndex[newRenderSeries[i].id].subLinkIdToIndex[newRenderSeries[i].subAttr[j].id]];
               var subSeriesAttr = {}; // 计算子组件属性
 
@@ -2199,9 +2251,12 @@
 
       // 如果没有挂载
       if (!this._isMounted) return;
-      this.$$lifecycle('beforeDraw'); // 清楚区域信息
+      this.$$lifecycle('beforeDraw'); // 清空区域信息
 
-      this.__regionManager.erase();
+      this.__regionManager.erase(); // 清空画布
+
+
+      this.__painter.clearRect();
 
       var _loop = function _loop(i) {
         var attr = {
@@ -2478,17 +2533,44 @@
   Clunch.prototype.__defineSerirs = {};
 
   // 监听画布大小改变
+
+  /**
+   * 设计思路如下：
+   * （这是监听对象ResizeObserver生效的情况，不生效的话，只初始化主动刷新一次）
+   *
+   * 遇到画布大小在改变
+   * 1.如果有前置任务，就直接记录，说明当前画布在改变
+   * 2.如果没有前置任务，就延迟执行，执行前判断当前画布是否在改变，如果在改变，延迟再判断，否则立刻更新
+   */
   function resize (that) {
     try {
-      that.__resizeObserver = new ResizeObserver(function () {
-        that.$$updateWithSize();
+      that.__observeResize.observer = new ResizeObserver(function () {
+        // 如果前置任务都完成了
+        if (!that.__observeResize.flag) {
+          that.__observeResize.flag = true; // 既然前置任务已经没有了，那么就可以更新了？
+          // 不是的，可能非常端的时间里，后续有改变
+          // 因此延迟一点点来看看后续有没有改变
+          // 如果改变了，就再延迟看看
+
+          var interval = setInterval(function () {
+            // 判断当前是否可以立刻更新
+            if (that.__observeResize.help) {
+              window.clearInterval(interval);
+              that.__observeResize.flag = false;
+              that.$$updateWithSize();
+            }
+
+            that.__observeResize.help = true;
+          }, 200);
+        } else {
+          that.__observeResize.help = false;
+        }
       }); // 监听
 
-      that.__resizeObserver.observe(that.__el);
+      that.__observeResize.observer.observe(that.__el);
     } catch (e) {
       that.$$updateWithSize(); // 如果浏览器不支持此接口
 
-      console.info(e);
       console.error('ResizeObserver undefined!');
     }
   }
@@ -2582,7 +2664,7 @@
       bind(_this.__canvas, eventName, function (event) {
         var region = _this.__regionManager.getRegion(event);
 
-        if (region) {
+        if (region[0] != null) {
           var regionSplit = region[0].split('::');
           var doback = _this.__events[eventName][regionSplit[0]];
 
@@ -2601,12 +2683,56 @@
               series: curSeires.name,
               region: regionNameSplit[1],
               subRegion: regionSplit[1],
-              attr: attr
+              attr: attr,
+              left: region[1],
+              top: region[2]
             });
           }
         }
       });
-    }); // 挂载后以后，启动画布大小监听
+    }); // 这里的回调函数doback和上面区域事件回调保持一致
+
+    this.$bind = function (eventName, doback) {
+      var _this2 = this;
+
+      bind(this.__canvas, eventName, function (event) {
+        var region = _this2.__regionManager.getRegion(event);
+
+        var callbackValue;
+
+        if (region[0] != null) {
+          var regionSplit = region[0].split('::');
+          var regionNameSplit = regionSplit[0].split('@');
+          var curSeires = _this2.__renderSeries[regionNameSplit[0]]; // 整理属性信息
+
+          var attr = {};
+
+          for (var attrKey in curSeires.attr) {
+            attr[attrKey] = curSeires.attr[attrKey].value;
+          }
+
+          callbackValue = {
+            series: curSeires.name,
+            region: regionNameSplit[1],
+            subRegion: regionSplit[1],
+            attr: attr
+          };
+        } else {
+          callbackValue = {
+            series: null,
+            region: null,
+            subRegion: null,
+            attr: {}
+          };
+        }
+
+        callbackValue.left = region[1];
+        callbackValue.top = region[2];
+        doback.call(_this2, callbackValue);
+      });
+      return this;
+    }; // 挂载后以后，启动画布大小监听
+
 
     resize(this); // 挂载完毕以后，同步标志
 

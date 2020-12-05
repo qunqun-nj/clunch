@@ -175,6 +175,9 @@
                     console.log('destroyed');
                 };
             }]
+        }).$bind('click', function (data) {
+            console.warn(this);
+            console.warn(data);
         });
 
         console.log(window.clunch);

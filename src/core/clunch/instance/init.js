@@ -55,8 +55,20 @@ export function initMixin(Clunch) {
 
         // 数据改变需要的初始化辅助参数
         this.__observeWatcher = {
+            // 是否有前置计算未完成
             flag: false,
+            // 动画停止方法
             stop: null
+        };
+
+        // 画布大小改变需要的初始化辅助参数
+        this.__observeResize = {
+            // 是否可以立刻更新画布
+            help: true,
+            // 前置是否有任务未完成
+            flag: false,
+            // 画布监听对象
+            observer: null
         };
 
         // 画笔参数

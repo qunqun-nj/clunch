@@ -79,7 +79,7 @@ export default function (that) {
             }
 
             // 说明当前不在任何区域
-            return undefined;
+            return [null, pos.x, pos.y];
         }
 
     };

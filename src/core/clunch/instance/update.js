@@ -17,8 +17,11 @@ export function updateMixin(Clunch) {
 
         this.$$lifecycle('beforeDraw');
 
-        // 清楚区域信息
+        // 清空区域信息
         this.__regionManager.erase();
+
+        // 清空画布
+        this.__painter.clearRect();
 
         for (let i = 0; i < this.__renderSeries.length; i++) {
             let attr = {

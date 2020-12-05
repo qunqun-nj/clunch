@@ -127,6 +127,38 @@ export default function (canvas, width, height) {
             painter.bezierCurveTo(cp1x, cp1y, cp2x, cp2y, x, y); return enhancePainter;
         },
 
+        // 擦除画面
+        "clearRect": function (x, y, w, h) { painter.clearRect(x || 0, y || 0, w || width, h || height); return enhancePainter; },
+
+        // 地址图片
+        "toDataURL": function () { return canvas.toDataURL() },
+
+        // 绘制图片
+        "drawImage": function (img, sx, sy, sw, sh, x, y, w, h) {
+            sx = sx || 0;
+            sy = sy || 0;
+            x = x || 0;
+            y = y || 0;
+            w = w ? w * 2 : width * 2;
+            h = h ? h * 2 : height * 2;
+
+            if (img.nodeName == 'CANVAS') {
+                // 我们不考虑别的canvas，我们认为我们面对的canvas都是自己控制的
+                // 如果有必要，未来可以对任意canvas进行向下兼容
+                w = w / 2;
+                h = h / 2;
+                sw = sw ? sw * 2 : width * 2;
+                sh = sh ? sh * 2 : height * 2;
+            } else {
+                // 默认类型是图片
+                sw = (sw || img.width) * 2;
+                sh = (sh || img.height) * 2;
+            }
+
+            painter.drawImage(img, sx, sy, sw, sh, x, y, w, h);
+            return enhancePainter;
+        },
+
         // 弧
         "fillArc": function (cx, cy, r1, r2, beginDeg, deg) {
             initArc(painter, config, cx, cy, r1, r2, beginDeg, deg).fill(); return enhancePainter;

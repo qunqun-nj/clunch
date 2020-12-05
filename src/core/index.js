@@ -54,7 +54,7 @@ Clunch.prototype.$mount = function (el) {
         bind(this.__canvas, eventName, event => {
 
             let region = this.__regionManager.getRegion(event);
-            if (region) {
+            if (region[0] != null) {
                 let regionSplit = region[0].split('::');
                 let doback = this.__events[eventName][regionSplit[0]];
                 if (isFunction(doback)) {
@@ -73,13 +73,56 @@ Clunch.prototype.$mount = function (el) {
                         series: curSeires.name,
                         region: regionNameSplit[1],
                         subRegion: regionSplit[1],
-                        attr
+                        attr,
+                        left: region[1],
+                        top: region[2]
                     });
                 }
             }
 
         });
     });
+
+    // 这里的回调函数doback和上面区域事件回调保持一致
+    this.$bind = function (eventName, doback) {
+        bind(this.__canvas, eventName, event => {
+            let region = this.__regionManager.getRegion(event);
+            let callbackValue;
+            if (region[0] != null) {
+                let regionSplit = region[0].split('::');
+                let regionNameSplit = regionSplit[0].split('@');
+                let curSeires = this.__renderSeries[regionNameSplit[0]];
+
+                // 整理属性信息
+                let attr = {};
+                for (let attrKey in curSeires.attr) {
+                    attr[attrKey] = curSeires.attr[attrKey].value;
+                }
+
+                callbackValue = {
+                    series: curSeires.name,
+                    region: regionNameSplit[1],
+                    subRegion: regionSplit[1],
+                    attr
+                };
+            } else {
+                callbackValue = {
+                    series: null,
+                    region: null,
+                    subRegion: null,
+                    attr: {}
+                };
+            }
+
+            callbackValue.left = region[1];
+            callbackValue.top = region[2];
+
+            doback.call(this, callbackValue);
+
+        });
+
+        return this;
+    };
 
     // 挂载后以后，启动画布大小监听
     resize(this);
