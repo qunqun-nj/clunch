@@ -9,7 +9,7 @@
  * Copyright (c) 2020 hai2007 走一步，再走一步。
  * Released under the MIT license
  *
- * Date:Sat Dec 05 2020 13:15:32 GMT+0800 (GMT+08:00)
+ * Date:Sun Dec 06 2020 03:40:38 GMT+0800 (GMT+08:00)
  */
 (function () {
   'use strict';
@@ -28,39 +28,6 @@
     }
 
     return _typeof(obj);
-  }
-
-  function _toConsumableArray(arr) {
-    return _arrayWithoutHoles(arr) || _iterableToArray(arr) || _unsupportedIterableToArray(arr) || _nonIterableSpread();
-  }
-
-  function _arrayWithoutHoles(arr) {
-    if (Array.isArray(arr)) return _arrayLikeToArray(arr);
-  }
-
-  function _iterableToArray(iter) {
-    if (typeof Symbol !== "undefined" && Symbol.iterator in Object(iter)) return Array.from(iter);
-  }
-
-  function _unsupportedIterableToArray(o, minLen) {
-    if (!o) return;
-    if (typeof o === "string") return _arrayLikeToArray(o, minLen);
-    var n = Object.prototype.toString.call(o).slice(8, -1);
-    if (n === "Object" && o.constructor) n = o.constructor.name;
-    if (n === "Map" || n === "Set") return Array.from(o);
-    if (n === "Arguments" || /^(?:Ui|I)nt(?:8|16|32)(?:Clamped)?Array$/.test(n)) return _arrayLikeToArray(o, minLen);
-  }
-
-  function _arrayLikeToArray(arr, len) {
-    if (len == null || len > arr.length) len = arr.length;
-
-    for (var i = 0, arr2 = new Array(len); i < len; i++) arr2[i] = arr[i];
-
-    return arr2;
-  }
-
-  function _nonIterableSpread() {
-    throw new TypeError("Invalid attempt to spread non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method.");
   }
 
   /**
@@ -1663,7 +1630,7 @@
             i += 1;
             next();
           } else {
-            throw new Error("Illegal expression : ".concat(express, "\nstep='analyseExpress',index=").concat(i));
+            throw new Error("Illegal expression : " + express + "\nstep='analyseExpress',index=" + i);
           }
         } else {
           // 拦截部分比较特殊的
@@ -1692,7 +1659,7 @@
           while (currentChar != beginTag) {
             if (i >= express.length) {
               // 如果还没有遇到结束标识就结束了，属于字符串未闭合错误
-              throw new Error("String unclosed error : ".concat(express, "\nstep='analyseExpress',index=").concat(i));
+              throw new Error("String unclosed error : " + express + "\nstep='analyseExpress',index=" + i);
             } // 继续拼接
 
 
@@ -1706,15 +1673,15 @@
         else if (/\d/.test(currentChar)) {
             var dotFlag = 'no'; // no表示还没有匹配到.，如果已经匹配到了，标识为yes，如果匹配到了.，可是后面还没有遇到数组，标识为error
 
-            var _temp = currentChar;
+            var temp = currentChar;
             next();
 
             while (i < express.length) {
               if (/\d/.test(currentChar)) {
-                _temp += currentChar;
+                temp += currentChar;
                 if (dotFlag == 'error') dotFlag = 'yes';
               } else if ('.' == currentChar && dotFlag == 'no') {
-                _temp += currentChar;
+                temp += currentChar;
                 dotFlag = 'error';
               } else {
                 break;
@@ -1724,8 +1691,8 @@
             } // 如果小数点后面没有数字，辅助添加一个0
 
 
-            if (dotFlag == 'error') _temp += "0";
-            expressArray.push(+_temp);
+            if (dotFlag == 'error') temp += "0";
+            expressArray.push(+temp);
           } // 如果是特殊符号
           // 也就是类似null、undefined等
           else if (['null', 'true'].indexOf(nextNValue(4)) > -1) {
@@ -1795,7 +1762,7 @@
                   next();
                 } // 都不是，那就是错误
                 else {
-                    throw new Error("Illegal express : ".concat(express, "\nstep='analyseExpress',index=").concat(i));
+                    throw new Error("Illegal express : " + express + "\nstep='analyseExpress',index=" + i);
                   }
               }
     } // 实际情况是，对于-1等特殊数字，可能存在误把1前面的-号作为运算符的错误，这里拦截校对一下
@@ -1803,13 +1770,13 @@
 
     var length = 0;
 
-    for (var _i = 0; _i < expressArray.length; _i++) {
-      if (["+", "-"].indexOf(expressArray[_i]) > -1 && ( // 如果前面的也是运算符或开头，这个应该就不应该是运算符了
-      _i == 0 || specialCode2.indexOf(expressArray[length - 1]) > -1)) {
-        expressArray[length++] = +(expressArray[_i] + expressArray[_i + 1]);
-        _i += 1;
+    for (var j = 0; j < expressArray.length; j++) {
+      if (["+", "-"].indexOf(expressArray[j]) > -1 && ( // 如果前面的也是运算符或开头，这个应该就不应该是运算符了
+      j == 0 || specialCode2.indexOf(expressArray[length - 1]) > -1)) {
+        expressArray[length++] = +(expressArray[j] + expressArray[j + 1]);
+        j += 1;
       } else {
-        expressArray[length++] = expressArray[_i];
+        expressArray[length++] = expressArray[j];
       }
     }
 
@@ -2102,7 +2069,9 @@
       else {
           var lastIndex = newExpressArray.lastIndexOf(']');
           var tempPath = doit3(newExpressArray.slice(0, lastIndex + 1));
-          path = [evalValue([calcValue$1(target, tempPath, scope)].concat(_toConsumableArray(newExpressArray.slice(lastIndex + 1))))];
+          var tempArray = newExpressArray.slice(lastIndex + 1);
+          tempArray.unshift(calcValue$1(target, tempPath, scope));
+          path = [evalValue(tempArray)];
         }
 
     return path;
@@ -2141,12 +2110,12 @@
    */
   // 解析一段表达式
 
-  var evalExpress = function evalExpress(target, express) {
-    var scope = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : {};
+  var evalExpress = function evalExpress(target, express, scope) {
+    if (arguments.length < 3) scope = {};
     var expressArray = analyseExpress(target, express, scope);
     var path = toPath(target, expressArray, scope); // 如果不是表达式
 
-    if (path.length > 1) throw new Error("Illegal expression : ".concat(express, "\nstep='evalExpress',path=").concat(path, ",expressArray=").concat(expressArray));
+    if (path.length > 1) throw new Error("Illegal expression : " + express + "\nstep='evalExpress',path=" + path + ",expressArray=" + expressArray);
     return path[0];
   }; // 获取
 
@@ -2656,7 +2625,9 @@
     this.__el = el; // 初始化添加画布
 
     el.innerHTML = '<canvas>非常抱歉，您的浏览器不支持canvas!</canvas>';
-    this.__canvas = el.getElementsByTagName('canvas')[0]; // 触发数据改变更新
+    this.__canvas = el.getElementsByTagName('canvas')[0]; // 挂载后以后，启动画布大小监听
+
+    resize(this); // 触发数据改变更新
 
     this.$$updateWithData(); // 添加区域交互
 
@@ -2731,10 +2702,8 @@
         doback.call(_this2, callbackValue);
       });
       return this;
-    }; // 挂载后以后，启动画布大小监听
+    }; // 挂载完毕以后，同步标志
 
-
-    resize(this); // 挂载完毕以后，同步标志
 
     this._isMounted = true;
     this.$$lifecycle('mounted');
@@ -2975,18 +2944,18 @@
               }
             } // 如果在包裹外面，试探是否即将进入包裹
             else {
-                var _next23Value = nextNValue(2);
+                var next23Value = nextNValue(2);
 
-                if (_next23Value == '="' || _next23Value == "='") {
-                  attrLeftValue = _next23Value.replace('=', '');
+                if (next23Value == '="' || next23Value == "='") {
+                  attrLeftValue = next23Value.replace('=', '');
                   attrLeftLen = 1;
                   isAttrString = true;
                 }
 
-                _next23Value = nextNValue(3);
+                next23Value = nextNValue(3);
 
-                if (_next23Value == '=\"' || _next23Value == "=\'") {
-                  attrLeftValue = _next23Value.replace('=', '');
+                if (next23Value == '=\"' || next23Value == "=\'") {
+                  attrLeftValue = next23Value.replace('=', '');
                   attrLeftLen = 2;
                   isAttrString = true;
                 }
@@ -3008,14 +2977,14 @@
 
             tag = tag.replace(/^</, '');
             tagObj.tagName = "";
-            var _i = 0;
+            var j = 0;
 
-            for (; _i < tag.length; _i++) {
-              if (tag[_i] == ' ') break;
-              tagObj.tagName += tag[_i];
+            for (; j < tag.length; j++) {
+              if (tag[j] == ' ') break;
+              tagObj.tagName += tag[j];
             }
 
-            var attrString = tag.substring(_i);
+            var attrString = tag.substring(j);
 
             if ($RegExp.blanksReg.test(attrString)) {
               tagObj.attrs = {};
@@ -3215,7 +3184,7 @@
             DomTree[currentIndex].parentNode = preTemp2Index;
             if (preTemp2Index != null) DomTree[preTemp2Index].childNodes.push(currentIndex); // 校对presNode
 
-            for (var _i = 0; _i < preDeep - currentDeep; _i++) {
+            for (var j = 0; j < preDeep - currentDeep; j++) {
               presNode.pop();
             }
 
