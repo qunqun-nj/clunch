@@ -1,5 +1,119 @@
 <template>
-    <div>
-        非常抱歉，项目研发中，敬请期待！
-    </div>
+    <article>
+        <nav>
+            <span title='提供更友好的数据可视化解决方案'>clunch.js</span>
+            <ul>
+                <li title='首页说明' @click='openRouter("guide")' class='menu-1 guide'>
+                    首页
+                </li>
+                <li title='所有对外稳定的接口的说明文档' @click='openRouter("api")' class='menu-1 api'>
+                    接口文档
+                </li>
+                <li title='带你一步步学习使用' @click='openRouter("course")' class='menu-1 course'>
+                    教程
+                </li>
+                <li onclick="window.location.href='https://github.com/hai2007/clunch'" class='git-url'
+                    title='clunch.js 源码'>
+                    Fork-me-on-Github
+                </li>
+            </ul>
+        </nav>
+        <div>
+            <component :is='page' />
+        </div>
+    </article>
 </template>
+
+<script>
+
+    import iCrush from 'icrush';
+
+    export default {
+        data() {
+            return {
+                page: null
+            };
+        },
+        mounted() {
+            this.loadRouter(page => this.page = page, 1);
+        },
+        methods: {
+            openRouter(pagename) {
+                this.goRouter(page => this.page = page, [pagename]);
+            }
+        }
+    };
+
+</script>
+<style>
+    article>nav {
+        line-height: .44rem;
+        height: .44rem;
+        background-color: #fff;
+        box-shadow: rgba(0, 0, 0, 0.1) 0 1px 2px;
+        font-size: 0.2rem;
+        background-image: url(./assets/clunch.png);
+        background-position: .2rem center;
+        background-size: 0.3rem auto;
+        background-repeat: no-repeat;
+        color: #2396b9;
+        padding-left: .5rem;
+        position: fixed;
+        min-width: 100vw;
+        top: 0;
+        z-index: 1;
+    }
+
+    article>div {
+        padding-top: .44rem;
+    }
+
+    article>p {
+        position: fixed;
+        width: 100vw;
+        height: 100vh;
+        left: 0;
+        top: 0;
+        display: none;
+        z-index: 1;
+        background-color: #b2b2c2;
+        opacity: 0.9;
+    }
+
+    article>nav>span {
+        padding-left: .1rem;
+    }
+
+    article>nav>ul {
+        display: inline-block;
+        position: absolute;
+        right: .3rem;
+        top: 0;
+    }
+
+    article>nav>ul>li {
+        vertical-align: top;
+        display: inline-block;
+        color: #030303;
+        padding: 0 0.05rem;
+        font-size: 0.12rem;
+        cursor: pointer;
+        font-weight: bold;
+        height: 100%;
+        user-select: none;
+    }
+
+    article>nav>ul>li[active='yes'] {
+        color: #2396b9;
+        border-bottom: 3px solid red;
+    }
+
+    article>nav>ul>li.git-url {
+        background-image: url(./assets/github.png);
+        font-size: 0;
+        width: 1rem;
+        background-size: 90% auto;
+        background-repeat: no-repeat;
+        background-position: center center;
+    }
+</style>

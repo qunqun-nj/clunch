@@ -1,0 +1,173 @@
+<template>
+    <div class='doc-view'>
+        <header id='fixed-top'>
+            指令
+        </header>
+        <h2 id='fixed-expression'>
+            表达式
+        </h2>
+        <p>
+            表达式
+            <span class="public">expression</span>
+            在接下来的文档中会多次提及，因此在开头进行说明。
+        </p>
+        <p>
+            一个合法的表达式几乎和普通的
+            <span class="important">JS表达式</span>
+            差不多，我们先来列举几个正确的写法：
+        </p>
+        <pre ui-code>
+key + 10
+dataList[0].value[keyName]
+!flag
+!flag[key][0].flag == 7 || ( flag.demo > 10 || key )
+"id" + index
+help[key] ? "red" : "white"
+        </pre>
+        <p>
+            是不是和普通的
+            <span class="important">JS表达式</span>
+            差不多，唯一的区别是，在符号（比如：+、-、=、||、小括号等）间需要添加一个空格。
+        </p>
+        <p>
+            我们再来看几个错误的例子：
+        </p>
+        <pre ui-code>
+key+10
+"id"+index
+(flag+3) * 10
+        </pre>
+        <h1 id="fixed-c-on">
+            事件
+            <span class='sub-title'>
+                c-on
+            </span>
+        </h1>
+        <pre ui-code><ui-demo c-on:eventType|regionName='doit' /></pre>
+        <p>
+            对于任意一个组件，如果希望在此组件的某个区域上绑定交换事件，可以用上面的c-on指令，其中
+            <span class="public">eventType</span>
+            是必输的，表示事件类型，支持如下几种：
+        </p>
+        <ul>
+            <li>
+                <span class="important">click</span>
+                :点击
+            </li>
+            <li>
+                <span class="important">dblclick</span>
+                :双击
+            </li>
+            <li>
+                <span class="important">mousemove</span>
+                :鼠标移动
+            </li>
+            <li>
+                <span class="important">mousedown</span>
+                :鼠标按下
+            </li>
+            <li>
+                <span class="important">mouseup</span>
+                :鼠标放开
+            </li>
+        </ul>
+        <p>
+            此外，
+            <span class="public">regionName</span>
+            是可选的，无特殊说明，可以直接省略，表示触发默认区域（具体的请在
+            <a href="#/api/series?fixed=create" target="_blank">自定义组件</a>
+            中查看），或者填写特定的区域名称。
+        </p>
+        <p>
+            对于上面的doit方法，有一个形参，格式如下：
+        </p>
+        <pre ui-code>
+{series: "arc", region: "default", subRegion: "default", attr: {…}, left: 635, …}
+attr: {fill-color: "black", dash: Array(0), type: "fill", …}
+left: 635
+region: "default"
+series: "arc"
+subRegion: "default"
+top: 305
+        </pre>
+        <ul>
+            <li>
+                <span class="important">attr</span>
+                ：当前标签的属性；
+            </li>
+            <li>
+                <span class="important">left、top</span>
+                ：触发事件的位置，注意是相对画布左上角的；
+            </li>
+            <li>
+                <span class="important">region</span>
+                ：当前交互的区域名称；
+            </li>
+            <li>
+                <span class="important">series</span>
+                ：组件名称；
+            </li>
+            <li>
+                <span class="important">subRegion</span>
+                ：子区域名称。
+            </li>
+        </ul>
+        <h1 id="fixed-c-for">
+            迭代
+            <span class='sub-title'>
+                c-for
+            </span>
+        </h1>
+        <pre ui-code><ui-demo c-for='(value, key) in dataList' /></pre>
+        <p>
+            或
+        </p>
+        <pre ui-code><ui-demo c-for='value in dataList' /></pre>
+        <p>
+            其中
+            <span class="public">dataList</span>
+            可以是
+            <span class="important">数组</span>
+            或键值对形式的
+            <span class="important">JSON</span>
+            。
+        </p>
+        <h1 id="fixed-c-if">
+            是否显示
+            <span class='sub-title'>
+                c-if
+            </span>
+        </h1>
+        <pre ui-code><ui-demo c-if='expression' /></pre>
+        <p>
+            <span class="public">expression</span>
+            应该是一个合法的表达式，如果为true表示显示，否则隐藏此图形组件。
+        </p>
+        <h1 id="fixed-c-bind">
+            数据绑定
+            <span class='sub-title'>
+                c-bind
+            </span>
+        </h1>
+        <pre ui-code><ui-demo c-bind:attrName='expression' /></pre>
+        <p>
+            <span class="public">attrName</span>
+            表示属性名称，
+            <span class="public">expression</span>
+            是一个表达式，数据绑定可以自动监听数据改变来更新组件。
+        </p>
+    </div>
+</template>
+<script>
+    import changeActive from '../../../Service/changeActive.js';
+    import fixedScroll from '../../../Service/fixedScroll.js';
+    export default {
+        created() {
+            changeActive('menu-2', 'directive');
+        },
+        mounted() {
+            fixedScroll(document.getElementById('api-id'), 44);
+        }
+    };
+
+</script>

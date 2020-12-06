@@ -1,0 +1,17 @@
+<template>
+    <div class='root'>
+        首页
+    </div>
+</template>
+<script>
+    import changeActive from '../Service/changeActive.js';
+    export default {
+        created() {
+            changeActive('menu-1', 'guide');
+        }
+    };
+
+</script>
+<style>
+
+</style>

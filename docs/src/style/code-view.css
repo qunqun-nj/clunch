@@ -1,0 +1,28 @@
+.code-view {
+    white-space: nowrap;
+}
+
+.code-view>div {
+    display: inline-block;
+    vertical-align: top;
+    white-space: normal;
+}
+
+.code-view>.code {
+    width: 40%;
+}
+
+.code-view>.code>pre {
+    margin: 0;
+    height: calc(50vh - 22px);
+    outline: 3px solid rgb(255, 255, 255);
+}
+
+.code-view>.view {
+    width: 60%;
+    line-height: calc(100vh - 44px);
+    height: calc(100vh - 44px);
+    text-align: center;
+    font-size: 50px;
+    color: gray;
+}
