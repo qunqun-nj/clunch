@@ -150,7 +150,7 @@ cardinal.setP([[X1,Y1],[X2,Y2],...,[Xn, Yn]]);
         <p>
             给定任意一个合法的css颜色字符串，把颜色统一转变成rgba格式，返回一个数组[r,g,b,a]：
         </p>
-        <pre ui-code>$color.formatColor(colorString);</pre>
+        <pre ui-code>$formatColor(colorString);</pre>
         <h1 id="fixed-getRandomColors">
             颜色
             <span class='sub-title'>
@@ -161,7 +161,7 @@ cardinal.setP([[X1,Y1],[X2,Y2],...,[Xn, Yn]]);
             传递需要的颜色个数，返回一组随机色彩：
         </p>
         <pre ui-code>// alpha可选，取值是0-1，表示颜色透明度
-$color.getRandomColors(number, alpha);</pre>
+$getRandomColors(number, alpha);</pre>
     </div>
 </template>
 <script>
