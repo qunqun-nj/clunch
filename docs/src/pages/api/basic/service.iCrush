@@ -44,23 +44,9 @@
     // deep取值0-1，表示动画进度
 }, speeds, function(deep){
     // deep和上面一样，提供的原因是有时候结束回调是stop方法触发而不是动画结束了
-},timing);</pre>
+});</pre>
         <p>
-            该方法有四个参数：分别表示画帧方法、动画时长、动画结束回调和进度控制参数（动画时长单位毫秒，最后三个均可选）。
-        </p>
-        <p>
-            其中timing可以为字符串或数组，字符串可选参数有：
-            <span class="public">"ease"</span>
-            、
-            <span class="public">"ease-in"</span>
-            、
-            <span class="public">"ease-in-out"</span>
-            、<span class="public">"ease-out"</span>
-            和
-            <span class='public'>"linear"</span>
-            （默认值），值的意义和css中的属性
-            <span class="important">transition-timing-function</span>
-            基本一致，数组的话也是和这个属性保持一致，长度为4。
+            该方法有三个参数：分别表示画帧方法、动画时长、动画结束回调（动画时长单位毫秒，最后两个均可选）。
         </p>
         <p>
             如果希望动画立刻结束，可以调用动画返回的方法主动停止：
