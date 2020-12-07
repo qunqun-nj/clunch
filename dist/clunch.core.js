@@ -4,12 +4,12 @@
  *
  * author hai2007 < https://hai2007.gitee.io/sweethome >
  *
- * version 0.1.0-alpha.2
+ * version 0.1.0-beta
  *
  * Copyright (c) 2020 hai2007 走一步，再走一步。
  * Released under the MIT license
  *
- * Date:Mon Dec 07 2020 17:28:28 GMT+0800 (GMT+08:00)
+ * Date:Mon Dec 07 2020 19:39:36 GMT+0800 (GMT+08:00)
  */
 (function () {
   'use strict';
@@ -2529,7 +2529,7 @@
         // 如果前置任务都完成了
         if (!that.__observeResize.flag) {
           that.__observeResize.flag = true; // 既然前置任务已经没有了，那么就可以更新了？
-          // 不是的，可能非常端的时间里，后续有改变
+          // 不是的，可能非常短的时间里，后续有改变
           // 因此延迟一点点来看看后续有没有改变
           // 如果改变了，就再延迟看看
 

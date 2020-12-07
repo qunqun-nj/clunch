@@ -1,3 +1,16 @@
+/*!
+ * clunch.js <@template> - 🎨 The Progressive JavaScript Interactive Picture Framework.
+ * git+https://github.com/hai2007/clunch.git
+ *
+ * author hai2007 < https://hai2007.gitee.io/sweethome >
+ *
+ * version 0.1.0-beta
+ *
+ * Copyright (c) 2020 hai2007 走一步，再走一步。
+ * Released under the MIT license
+ *
+ * Date:Mon Dec 07 2020 19:39:36 GMT+0800 (GMT+08:00)
+ */
 (function () {
   'use strict';
 

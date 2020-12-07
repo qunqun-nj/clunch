@@ -3,7 +3,7 @@
 <p align="center"><a href="https://hai2007.gitee.io/clunch/" target="_blank">
 <img width="400" src="https://hai2007.gitee.io/clunch/src/assets/clunch.png" alt="clunch logo"></a></p>
 
-- 项目研发中，敬请期待！
+- 你可以查看[在线文档](https://hai2007.gitee.io/clunch/)学习或查看文档进行使用！
 
 <p>
   <a href="https://yelloxing.gitee.io/npm-downloads?interval=7&packages=clunch"><img src="https://img.shields.io/npm/dm/clunch.svg" alt="downloads"></a>

@@ -43,10 +43,10 @@ key+10
                 c-on
             </span>
         </h1>
-        <pre ui-code><ui-demo c-on:eventType|regionName='doit' /></pre>
+        <pre ui-code><ui-demo c-on:eventName@regionNamee='doit' /></pre>
         <p>
             对于任意一个组件，如果希望在此组件的某个区域上绑定交换事件，可以用上面的c-on指令，其中
-            <span class="public">eventType</span>
+            <span class="public">eventName</span>
             是必输的，表示事件类型，支持如下几种：
         </p>
         <ul>
