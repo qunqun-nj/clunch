@@ -22,7 +22,7 @@ export let initArc = function (painter, config, cx, cy, r1, r2, beginDeg, deg) {
     beginDeg = beginDeg % (Math.PI * 2);
 
     // 当|deg|>=2π的时候都认为是一个圆环
-    // 为什么不取2π比较，是怕部分浏览器浮点不精确，同时也是为了和svg保持一致
+    // 为什么不取2π比较，是怕部分浏览器浮点不精确
     if (deg >= Math.PI * 1.999999 || deg <= -Math.PI * 1.999999) {
         deg = Math.PI * 2;
     } else {

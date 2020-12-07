@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="zh-cn">
+
+<head>
+    <meta charset="UTF-8">
+    <title>clunch.js - 用例测试</title>
+    <script src="../../../dist/clunch-template.js"></script>
+    <link rel="shortcut icon" href="../../../clunch.png">
+    <style>
+        body {
+            margin: 0;
+        }
+
+        #root {
+            width: 100vw;
+            height: 100vh;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div id="root">
+
+        <ruler x='100' y='100' c-bind:length='_width - 200' c-bind:value='value1'></ruler>
+        <ruler x='150' y='200' c-bind:length='_width - 200' c-bind:value='value1' mark-direction='left' color='red'>
+        </ruler>
+
+        <ruler x='100' y='120' c-bind:length='_height - 200' c-bind:value='value1' direction='TB'></ruler>
+
+        <polar-ruler c-bind:cx='_width*0.5' c-bind:cy='_height*0.5' radius='300' c-bind:value='value1' deg='1.5pi'>
+        </polar-ruler>
+
+        <polar-ruler c-bind:cx='_width*0.5' c-bind:cy='_height*0.5' radius='400' color='green' c-bind:value='value1'
+            begin='0.2pi' deg='1.5pi'></polar-ruler>
+
+    </div>
+
+    <script>
+
+        window.clunch = new Clunch({
+            el: document.getElementById('root'),
+            data() {
+                return {
+                    value1: ["星期1", "星期2", "星期3", "星期4", "星期5", "星期6", "星期7"]
+                };
+            }
+        });
+
+
+    </script>
+
+</body>
+
+</html>

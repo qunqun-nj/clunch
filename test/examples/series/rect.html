@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="zh-cn">
+
+<head>
+    <meta charset="UTF-8">
+    <title>clunch.js - 用例测试</title>
+    <script src="../../../dist/clunch-template.js"></script>
+    <link rel="shortcut icon" href="../../../clunch.png">
+    <style>
+        body {
+            margin: 0;
+        }
+
+        #root {
+            width: 100vw;
+            height: 100vh;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div id="root">
+
+        <rect x='100' y='100' width='100' height='100'></rect>
+        <rect x='200' y='200' width='100' height='100' align='center'></rect>
+        <rect x='300' y='300' width='100' height='100' type='stroke'></rect>
+        <rect x='400' y='400' width='200' height='100' baseline='middle'></rect>
+
+    </div>
+
+    <script>
+
+        window.clunch = new Clunch({
+            el: document.getElementById('root')
+        });
+
+
+    </script>
+
+</body>
+
+</html>

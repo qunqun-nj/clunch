@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="zh-cn">
+
+<head>
+    <meta charset="UTF-8">
+    <title>clunch.js - 用例测试</title>
+    <script src="../../../dist/clunch-template.js"></script>
+    <link rel="shortcut icon" href="../../../clunch.png">
+    <style>
+        body {
+            margin: 0;
+        }
+
+        #root {
+            width: 100vw;
+            height: 100vh;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div id="root">
+
+        <text c-bind:x='_width*0.5' c-bind:y='_height*0.5' align='center'>
+            上下左右居中的文字！
+        </text>
+
+        <text x='100' y='100' content='位置（100,100）'></text>
+
+        <text x='100' y='200' content='位置（100,200）' font-size='30' type='full' stroke-color='red'></text>
+
+        <text x='300' y='300' content='O虚线O' font-size='100' stroke-color='red' type='stroke' c-bind:dash='dash'></text>
+
+    </div>
+
+    <script>
+
+        window.clunch = new Clunch({
+            el: document.getElementById('root'),
+            data() {
+                return {
+                    dash: [10, 5]
+                };
+            }
+        });
+
+
+    </script>
+
+</body>
+
+</html>

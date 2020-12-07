@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="zh-cn">
+
+<head>
+    <meta charset="UTF-8">
+    <title>clunch.js - 用例测试</title>
+    <script src="../../../dist/clunch-template.js"></script>
+    <link rel="shortcut icon" href="../../../clunch.png">
+    <style>
+        body {
+            margin: 0;
+        }
+
+        #root {
+            width: 100vw;
+            height: 100vh;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div id="root">
+
+        <arc cx='100' cy='100' radius1='50' radius2='70' deg='100deg'></arc>
+
+        <arc cx='300' cy='100' radius1='50' radius2='70' begin='90deg' deg='1pi' fill-color='pink'></arc>
+
+        <arc cx='400' cy='300' radius1='10' radius2='200' deg='1.8pi' type='full' c-bind:dash='dash' line-width='30'></arc>
+
+    </div>
+
+    <script>
+
+        window.clunch = new Clunch({
+            el: document.getElementById('root'),
+            data() {
+                return {
+                    dash: [10, 30]
+                };
+            }
+        });
+
+
+    </script>
+
+</body>
+
+</html>

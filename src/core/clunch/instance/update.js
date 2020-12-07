@@ -43,7 +43,7 @@ export function updateMixin(Clunch) {
 
                 // 子组件属性
                 for (let subSeriesAttrKey in this.__renderSeries[i].subAttr[j].attr) {
-                    subSeries.attr[subSeriesAttrKey] = this.__renderSeries[i].subAttr[j].attr[subSeriesAttrKey];
+                    subSeries.attr[subSeriesAttrKey] = this.__renderSeries[i].subAttr[j].attr[subSeriesAttrKey].value;
                 }
 
                 attr._subAttr.push(subSeries);

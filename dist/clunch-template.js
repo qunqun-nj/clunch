@@ -1,16 +1,3 @@
-/*!
- * clunch.js <@template> - 🎨 The Progressive JavaScript Interactive Picture Framework.
- * git+https://github.com/hai2007/clunch.git
- *
- * author hai2007 < https://hai2007.gitee.io/sweethome >
- *
- * version 0.1.0-alpha.2
- *
- * Copyright (c) 2020 hai2007 走一步，再走一步。
- * Released under the MIT license
- *
- * Date:Sun Dec 06 2020 03:40:39 GMT+0800 (GMT+08:00)
- */
 (function () {
   'use strict';
 
@@ -908,8 +895,20 @@
           // 角度
           if (/deg$/.test(express)) return (0 - -express.replace(/deg$/, '')) / 180 * Math.PI; // 弧度
 
-          if (/pi$/.test(express)) return (0 - -express.replace(/pi$/, '')) * Math.PI;
-          return +express;
+          if (/pi$/.test(express)) return (0 - -express.replace(/pi$/, '')) * Math.PI; // 如果是字符串，类型强转
+
+          if (isString(express)) return +express;
+          return express;
+        }
+      // JSON
+
+      case 'json':
+        {
+          if (isString(express)) {
+            return JSON.parse(express);
+          }
+
+          return express;
         }
     }
 
@@ -1098,7 +1097,7 @@
     }
 
     beginDeg = beginDeg % (Math.PI * 2); // 当|deg|>=2π的时候都认为是一个圆环
-    // 为什么不取2π比较，是怕部分浏览器浮点不精确，同时也是为了和svg保持一致
+    // 为什么不取2π比较，是怕部分浏览器浮点不精确
 
     if (deg >= Math.PI * 1.999999 || deg <= -Math.PI * 1.999999) {
       deg = Math.PI * 2;
@@ -2278,7 +2277,7 @@
           }; // 子组件属性
 
           for (var subSeriesAttrKey in _this.__renderSeries[i].subAttr[j].attr) {
-            subSeries.attr[subSeriesAttrKey] = _this.__renderSeries[i].subAttr[j].attr[subSeriesAttrKey];
+            subSeries.attr[subSeriesAttrKey] = _this.__renderSeries[i].subAttr[j].attr[subSeriesAttrKey].value;
           }
 
           attr._subAttr.push(subSeries);
@@ -2550,7 +2549,7 @@
         // 如果前置任务都完成了
         if (!that.__observeResize.flag) {
           that.__observeResize.flag = true; // 既然前置任务已经没有了，那么就可以更新了？
-          // 不是的，可能非常端的时间里，后续有改变
+          // 不是的，可能非常短的时间里，后续有改变
           // 因此延迟一点点来看看后续有没有改变
           // 如果改变了，就再延迟看看
 

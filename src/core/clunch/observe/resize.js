@@ -21,7 +21,7 @@ export default function (that) {
                 that.__observeResize.flag = true;
 
                 // 既然前置任务已经没有了，那么就可以更新了？
-                // 不是的，可能非常端的时间里，后续有改变
+                // 不是的，可能非常短的时间里，后续有改变
                 // 因此延迟一点点来看看后续有没有改变
                 // 如果改变了，就再延迟看看
                 let interval = setInterval(() => {

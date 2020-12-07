@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="zh-cn">
+
+<head>
+    <meta charset="UTF-8">
+    <title>clunch.js - 用例测试</title>
+    <script src="../../../dist/clunch-template.js"></script>
+    <link rel="shortcut icon" href="../../../clunch.png">
+    <style>
+        body {
+            margin: 0;
+        }
+
+        #root {
+            width: 100vw;
+            height: 100vh;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div id="root">
+
+        <path>
+            <move-to x='100' y='100'></move-to>
+            <line-to x='300' c-bind:y='_height-100'></line-to>
+            <line-to x='400' y='400'></line-to>
+            <bezier-to x='700' y='400' cp1x='500' cp1y='300' cp2x='600' cp2y='500'></bezier-to>
+            <bezier-to x='700' y='500' cp1x='500' cp1y='450'></bezier-to>
+        </path>
+
+        <path stroke-color='red'>
+            <move-to x='300' y='300'></move-to>
+            <bezier-to x='700' y='300' cp1x='500' cp1y='400'></bezier-to>
+        </path>
+
+    </div>
+
+    <script>
+
+        window.clunch = new Clunch({
+            el: document.getElementById('root')
+        });
+
+
+    </script>
+
+</body>
+
+</html>

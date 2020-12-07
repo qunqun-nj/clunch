@@ -1,5 +1,5 @@
 
-import { isString } from '@hai2007/tool/type';
+import { isFunction, isString } from '@hai2007/tool/type';
 
 let calcValue = (type, express) => {
 
@@ -19,7 +19,18 @@ let calcValue = (type, express) => {
             // 弧度
             if (/pi$/.test(express)) return (0 - -express.replace(/pi$/, '')) * Math.PI;
 
-            return +express;
+            // 如果是字符串，类型强转
+            if (isString(express)) return +express;
+
+            return express;
+        }
+
+        // JSON
+        case 'json': {
+            if (isString(express)) {
+                return JSON.parse(express);
+            }
+            return express;
         }
     }
 

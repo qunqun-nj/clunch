@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="zh-cn">
+
+<head>
+    <meta charset="UTF-8">
+    <title>clunch.js - 用例测试</title>
+    <script src="../../../dist/clunch-template.js"></script>
+    <link rel="shortcut icon" href="../../../clunch.png">
+    <style>
+        body {
+            margin: 0;
+        }
+
+        #root {
+            width: 100vw;
+            height: 100vh;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div id="root">
+
+        <circle cx='300' cy='300' radius='200'></circle>
+
+        <circle cx='300' cy='300' radius='100' type='stroke' line-width='40' stroke-color='pink'></circle>
+
+        <circle cx='300' cy='300' radius='160' type='stroke' line-width='30' stroke-color='white' c-bind:dash='dash'>
+        </circle>
+
+    </div>
+
+    <script>
+
+        window.clunch = new Clunch({
+            el: document.getElementById('root'),
+            data() {
+                return {
+                    dash: [30]
+                };
+            }
+        });
+
+
+    </script>
+
+</body>
+
+</html>
