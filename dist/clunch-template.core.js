@@ -4,12 +4,12 @@
  *
  * author hai2007 < https://hai2007.gitee.io/sweethome >
  *
- * version 0.1.0-beta
+ * version 0.1.0
  *
  * Copyright (c) 2020 hai2007 走一步，再走一步。
  * Released under the MIT license
  *
- * Date:Mon Dec 07 2020 19:39:36 GMT+0800 (GMT+08:00)
+ * Date:Mon Dec 07 2020 21:45:10 GMT+0800 (GMT+08:00)
  */
 (function () {
   'use strict';
@@ -899,7 +899,11 @@
 
 
   function aopRender (initRender, series) {
-    // 唯一序列号
+    // 由于下面的一些方法修改来原来的值
+    // 而且AOP操作非常不频繁
+    // 因此目前这里直接深度clone
+    initRender = JSON.parse(JSON.stringify(initRender)); // 唯一序列号
+
     var seriesNumber = 0;
     return function doit(renders, pName) {
       var temp = [];
@@ -2725,11 +2729,48 @@
   // 你可以重新挂载
 
 
-  Clunch.prototype.$unmount = function () {}; // 彻底销毁资源，无法再重新挂载
+  Clunch.prototype.$unmount = function () {
+    if (this._isDestroyed) {
+      console.warn('[Clay warn]: The object has been destroyed!');
+      return;
+    }
+
+    if (!this._isMounted) {
+      console.warn('[Clay warn]: Object not mounted!');
+      return;
+    }
+
+    this.$$lifecycle('beforeUnmount'); // 解除对画布大小改变的监听
+
+    this.__observeResize.observer.disconnect(); // 释放资源
+
+
+    this.__painter = null;
+    this.__canvas = null;
+    this._isMounted = false;
+    this.$$lifecycle('unmounted');
+    return this;
+  }; // 彻底销毁资源，无法再重新挂载
   // 主要是为了释放一些内置资源
 
 
-  Clunch.prototype.$destroy = function () {};
+  Clunch.prototype.$destroy = function () {
+    if (this._isDestroyed) {
+      console.warn('[Clay warn]: The object has been destroyed!');
+      return;
+    } // 先解除绑定
+
+
+    if (this._isMounted) this.$unmount();
+    this.$$lifecycle('beforeDestroy'); // 释放资源
+
+    delete this.__regionManager;
+    this.__observeResize = {};
+    this.__observeWatcher = {};
+    this._isDestroyed = true;
+    this.$$lifecycle('destroyed');
+    return this;
+  };
   /**
    *
    * >>> 总入口 <<<

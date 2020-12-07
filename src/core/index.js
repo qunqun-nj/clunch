@@ -140,12 +140,53 @@ Clunch.prototype.$mount = function (el) {
 // 你可以重新挂载
 Clunch.prototype.$unmount = function () {
 
+    if (this._isDestroyed) {
+        console.warn('[Clay warn]: The object has been destroyed!');
+        return;
+    }
+
+    if (!this._isMounted) {
+        console.warn('[Clay warn]: Object not mounted!');
+        return;
+    }
+
+    this.$$lifecycle('beforeUnmount');
+
+    // 解除对画布大小改变的监听
+    this.__observeResize.observer.disconnect();
+
+    // 释放资源
+    this.__painter = null;
+    this.__canvas = null;
+    this._isMounted = false;
+    this.$$lifecycle('unmounted');
+
+    return this;
 };
 
 // 彻底销毁资源，无法再重新挂载
 // 主要是为了释放一些内置资源
 Clunch.prototype.$destroy = function () {
 
+    if (this._isDestroyed) {
+        console.warn('[Clay warn]: The object has been destroyed!');
+        return;
+    }
+
+    // 先解除绑定
+    if (this._isMounted) this.$unmount();
+
+    this.$$lifecycle('beforeDestroy');
+
+    // 释放资源
+    delete this.__regionManager;
+    this.__observeResize = {};
+    this.__observeWatcher = {};
+
+    this._isDestroyed = true;
+    this.$$lifecycle('destroyed');
+
+    return this;
 };
 
 /**

@@ -128,7 +128,7 @@ new Clunch({
             在上面的例子我们发现，如果随机数过小或过大的时候，文字有部分显示不出来，因为我们设置的文字水平对齐方式是固定居中的。
         </p>
         <p>
-           幸运的是，c-bind指令可以解析一个合法的js表达式，因此，只需要对.clunch进行简单的修改即可（此次修改只设计<span class="public">text标签</span>，别的不列出了）：
+            幸运的是，c-bind指令可以解析一个合法的js表达式，因此，只需要对.clunch进行简单的修改即可（此次修改只设计<span class="public">text标签</span>，别的不列出了）：
         </p>
         <pre ui-code>
 <text c-bind:x='value * 5'
@@ -183,7 +183,7 @@ new Clunch({
     import demo1 from './demos/demo1.clunch';
     import demo2 from './demos/demo2.clunch';
 
-    let help1, help2;
+    let help1, help2, help3, help4;
 
     export default {
         created() {
@@ -192,14 +192,19 @@ new Clunch({
         beforeDestroy() {
 
             // 离开前销毁
+
             clearInterval(help1);
             clearInterval(help2);
+
+            help3.$destroy();
+            help4.$destroy();
+
         },
         mounted() {
             fixedScroll(document.getElementById('course-id'), 44);
 
             // 例子1
-            new Clunch({
+            help3 = new Clunch({
                 el: document.getElementById('canvas-1'),
                 render: demo1,
                 data() {
@@ -217,7 +222,7 @@ new Clunch({
             });
 
             // 例子2
-            new Clunch({
+            help4 = new Clunch({
                 el: document.getElementById('canvas-2'),
                 render: demo2,
                 filter: {

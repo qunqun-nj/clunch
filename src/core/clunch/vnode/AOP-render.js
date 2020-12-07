@@ -1,5 +1,5 @@
 
-import { isFunction, isString } from '@hai2007/tool/type';
+import { isString } from '@hai2007/tool/type';
 
 let calcValue = (type, express) => {
 
@@ -43,6 +43,11 @@ let calcValue = (type, express) => {
 // （处理render参数或者最终的组件对象）
 
 export default function (initRender, series) {
+
+    // 由于下面的一些方法修改来原来的值
+    // 而且AOP操作非常不频繁
+    // 因此目前这里直接深度clone
+    initRender = JSON.parse(JSON.stringify(initRender));
 
     // 唯一序列号
     let seriesNumber = 0;
