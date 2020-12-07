@@ -48,8 +48,19 @@ const pages = {
      */
 
     "course": {
-        "content": () => import('../pages/course/index.iCrush')
+        "content": () => import('../pages/course/index.iCrush'),
+        "author": {
+            "content": () => import('../pages/course/author.iCrush')
+        },
+        "install": {
+            "content": () => import('../pages/course/install.iCrush')
+        },
+        "introduce": {
+            "content": () => import('../pages/course/introduce.iCrush')
+        },
+        "_default_": "introduce"
     },
+
 
     "_default_": "guide"
 

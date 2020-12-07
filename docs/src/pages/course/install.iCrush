@@ -1,0 +1,109 @@
+<template>
+    <div class='doc-view'>
+        <header id='fixed-top'>
+            说明
+        </header>
+        <h1 id="fixed-compatibility">兼容性</h1>
+        <p>
+            本项目不支持 IE9 以下版本（IE9支持），因为 IE9 以下对
+            <a href="https://caniuse.com/#search=canvas" target="_blank">Canvans</a>
+            本身就没有很好的支持，而且使用的人越来越少，没有太多兼容的意义。
+        </p>
+        <h1 id="fixed-log">更新日志</h1>
+        <p>
+            每个版本的更新日志见：
+            <a href="https://github.com/hai2007/clunch/blob/master/CHANGELOG" target="_blank">Github</a>
+        </p>
+        <h2 id="fixed-script">
+            直接用
+            <span class="important">script</span>
+            引入
+        </h2>
+        <p>
+            直接下载并用script标签引入，
+            <span class="important">Clunch</span>
+            会被注册为一个全局变量。
+        </p>
+        <h1 id="fixed-cnd">CDN</h1>
+        <pre ui-code>
+            <script src="https://cdn.jsdelivr.net/npm/clunch"></script>
+        </pre>
+        <h2 id="fixed-npm">
+            通过
+            <span class="important">NPM</span>
+            方式管理
+        </h2>
+        <p>
+            同样的，你可以使用 NPM 安装。
+        </p>
+        <pre ui-code>npm install --save clunch</pre>
+        <p>
+            安装好了以后，在需要的地方引入即可：
+        </p>
+        <pre ui-code>import Clunch from 'clunch';</pre>
+        <h1 id="fixed-types">对不同构建版本的解释</h1>
+        <p>
+            在打包后的文件夹
+            <span class="important">dist/</span>
+            下有很多不同类型的clunch.js打包文件，我们下面对其进行解释：
+        </p>
+        <ul>
+            <li>
+                <span class="important">clunch.core.js</span>
+                ：只包含最核心的部分,不支持template属性。
+            </li>
+            <li>
+                <span class="important">clunch-template.core.js</span>
+                ：只包含最核心的内容，支持template属性。
+            </li>
+            <li>
+                <span class="important">clunch.js</span>
+                ：包含了全部的功能，不支持template属性。
+            </li>
+            <li>
+                <span class="important">clunch-template.js</span>
+                ：包含了全部的功能，支持template属性。
+            </li>
+        </ul>
+        <p class="warn">温馨提示：同名带
+            <span class="public">clunch.xxx.min.js</span>
+            的表示压缩文件。
+        </p>
+        <p>
+            我们默认导出的是
+            <span class="important">clunch.min.js</span>
+            文件，在实际项目中，请根据具体情况调整，这有益于减小打包后的体积。
+        </p>
+        <h3 id='fixed-types-webpack'>webpack</h3>
+        <p>
+            如果你使用npm安装后，基于webpack搭建开发环境，你可以这样修改默认导出文件：
+        </p>
+        <pre ui-code>
+...
+    resolve: {
+        alias: {
+            // 比如我们当前希望基于此进行二次开发
+            'clunch': require('path').resolve('clunch/dist/clunch.core.min.js')
+        }
+    },
+...
+        </pre>
+        <div class="bottom-link">
+            <a href="#/course/author?fixed=top" target="_blank" class='left'>上一节：关于我们</a>
+            <a href="#/course/introduce?fixed=top" target="_blank" class='right'>下一节：开始使用</a>
+        </div>
+    </div>
+</template>
+<script>
+    import changeActive from '../../Service/changeActive.js';
+    import fixedScroll from '../../Service/fixedScroll.js';
+    export default {
+        created() {
+            changeActive('menu-2', 'install');
+        },
+        mounted() {
+            fixedScroll(document.getElementById('course-id'), 44);
+        }
+    };
+
+</script>

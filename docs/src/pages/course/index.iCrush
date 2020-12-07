@@ -1,17 +1,134 @@
 <template>
-    <div class='root'>
-        教程
+    <div class='menu-view'>
+        <div>
+            <h2>写在前面</h2>
+            <ul>
+                <li>
+                    <h3 @click='openRouter("author")' class='menu-2 author'>关于我们</h3>
+                    <ul>
+                        <li>
+                            <h4 @click='doScroll("projects")'>当前在做什么？</h4>
+                        </li>
+                        <li>
+                            <h4 @click='doScroll("new-task")'>新任务如何产生？</h4>
+                        </li>
+                        <li>
+                            <h4 @click='doScroll("join-us")'>加入我们</h4>
+                        </li>
+                    </ul>
+                </li>
+            </ul>
+            <h2>基础</h2>
+            <ul>
+                <li>
+                    <h3 @click='openRouter("install")' class='menu-2 install'>说明</h3>
+                    <ul>
+                        <li>
+                            <ul>
+                                <li>
+                                    <h5 @click='doScroll("compatibility")'>兼容性</h5>
+                                </li>
+                                <li>
+                                    <h5 @click='doScroll("log")'>更新日志</h5>
+                                </li>
+                            </ul>
+                        </li>
+                        <li>
+                            <h4 @click='doScroll("script")'>直接用 script 引入</h4>
+                            <ul>
+                                <li>
+                                    <h5 @click='doScroll("cdn")'>CDN</h5>
+                                </li>
+                            </ul>
+                        </li>
+                        <li>
+                            <h4 @click='doScroll("npm")'>通过 NPM 方式管理</h4>
+                        </li>
+                        <li>
+                            <h4 @click='doScroll("types")'>对不同构建版本的解释</h4>
+                            <ul>
+                                <li>
+                                    <h5 @click='doScroll("types-webpack")'>webpack</h5>
+                                </li>
+                            </ul>
+                        </li>
+                    </ul>
+                </li>
+                <li>
+                    <h3 @click='openRouter("introduce")' class='menu-2 introduce'>开始使用</h3>
+                    <ul>
+                        <li>
+                            <h4 @click='doScroll("environment")'>环境搭建</h4>
+                        </li>
+                        <li>
+                            <h4 @click='doScroll("simple-example")'>一个简单的例子</h4>
+                            <ul>
+                                <li>
+                                    <h5 @click='doScroll("simple-example-file")'>第一步：编辑clunch文件</h5>
+                                </li>
+                                <li>
+                                    <h5 @click='doScroll("simple-example-canvas")'>第二步：准备画布</h5>
+                                </li>
+                                <li>
+                                    <h5 @click='doScroll("simple-example-object")'>第三步：创建clunch对象</h5>
+                                </li>
+                                <li>
+                                    <h5 @click='doScroll("simple-example-show1")' class='sub'>运行效果一</h5>
+                                </li>
+                                <li>
+                                    <h5 @click='doScroll("simple-example-filter")'>第四步：使用过滤器优化</h5>
+                                </li>
+                                <li>
+                                    <h5 @click='doScroll("simple-example-show2")' class='sub'>运行效果二</h5>
+                                </li>
+                            </ul>
+                        </li>
+                        <li>
+                            <h4 @click='doScroll("simple-example-end")'>小结</h4>
+                        </li>
+                    </ul>
+                </li>
+            </ul>
+        </div>
+        <div id='course-id'>
+            <component :is='page' />
+        </div>
     </div>
 </template>
 <script>
     import changeActive from '../../Service/changeActive.js';
+    import fixedScroll from '../../Service/fixedScroll.js';
     export default {
+        data() {
+            return {
+                page: null
+            };
+        },
         created() {
             changeActive('menu-1', 'course');
+        },
+        mounted() {
+            this.loadRouter(page => this.page = page, 2);
+        },
+        beforeDestroy() {
+            if (this.page.beforeDestroy) this.page.beforeDestroy();
+        },
+        methods: {
+            openRouter(pagename) {
+                this.goRouter(page => this.page = page, ['course', pagename]);
+                this.doScroll("top");
+            },
+            doScroll(fixedName) {
+                window.location.href = (window.location.href + "").replace(/\?fixed=.*$/, '') + "?fixed=" + fixedName;
+                fixedScroll(document.getElementById('course-id'), 44);
+            }
         }
     };
 
 </script>
 <style>
-
+    .sub {
+        padding-left: 1em;
+        text-decoration: underline;
+    }
 </style>

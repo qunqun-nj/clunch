@@ -1,0 +1,250 @@
+<template>
+    <div class='doc-view'>
+        <header id='fixed-top'>
+            开始使用
+        </header>
+        <p>
+            在开始使用之前，需要确保有
+            <span class="important">
+                webpack
+            </span>
+            前置知识，可以正常使用或简单配置即可，在这里默认已经掌握。
+        </p>
+        <h1 id='fixed-environment'>
+            环境搭建
+        </h1>
+        <p>
+            由于我们目前推荐基于
+            <span class="important">
+                webpack
+            </span>
+            开发，因此，下面来演示一下如何基于webpack搭建开发环境。
+        </p>
+        <p class="warn">
+            温馨提示：前端框架是选择vue、react或者没有框架都无所谓。
+        </p>
+        <p>
+            首先，你需要安装clunch.js:
+        </p>
+        <pre ui-code>npm install --save clunch</pre>
+        <p>
+            安装好了以后，直接在
+            <span class="important">webpack.config.js</span>
+            配置文件中添加loader配置：
+        </p>
+        <pre ui-code>
+module.exports = {
+    ......
+    module: {
+        rules:[
+            {
+                test: /\.clunch$/,
+                exclude: /node_modules/,
+                loader: ['clunch/loader.js']
+            },
+            ......
+        ]
+};
+        </pre>
+        <p>
+            经过上面的配置以后，环境就搭建好了。
+        </p>
+        <h1 id='fixed-simple-example'>
+            一个简单的例子
+        </h1>
+        <p>
+            假如现在有一个这样的需求：一个进度条，范围是0~100，我们每隔1.5s随机生成一个数（值的范围是0~100），进度实时显示。
+        </p>
+        <h3 id='fixed-simple-example-file'>
+            第一步：编辑clunch文件
+        </h3>
+        <p>
+            你需要新建一个
+            <span class="important">.clunch文件</span>
+            ，比如
+            <span class="public">demo1.clunch</span>
+            ，然后在里面添加下列代码：
+        </p>
+        <pre ui-code>
+<!-- 显示当前的值 -->
+<text c-bind:x='value * 5' align='center' y='0'
+      c-bind:content='"当前随机生成的值：" + value' baseline='top'/>
+
+<!-- 进度条值,因为总长度是500，值的范围是0~100，实际宽就应该乘以5 -->
+<rect c-bind:width='value * 5' height='20' x='0' y='20' type='fill' fill-color='red'/>
+
+<!-- 进度条轮廓 -->
+<rect width='500' height='20' x='0' y='20' type='stroke'/>
+        </pre>
+        <h3 id='fixed-simple-example-canvas'>
+            第二步：准备画布
+        </h3>
+        <p>
+            可能叫挂载点更合适，我们需要在页面上准备好挂载的地方，比如有一个div，给他设置了大小（这个div的大小直接决定了最终绘图画布的大小）：
+        </p>
+        <pre ui-code>
+<div id='canvas-1' style='width:500px;height:40px;'></div>
+        </pre>
+        <h3 id='fixed-simple-example-object'>
+            第三步：创建clunch对象
+        </h3>
+        <p>
+            比如在和上述
+            <span class="important">.clunch文件</span>
+            同级目录的
+            <span class="important">.js文件</span>
+            里面：
+        </p>
+        <pre ui-code>
+import Clunch from 'clunch';
+import demo1 from './demo1.clunch';
+
+new Clunch({
+    el:document.getElementById('canvas-1'),
+    render:demo1,
+    data(){
+        return {
+            value:0
+        };
+    },
+    mounted(){
+
+        // 每隔1500秒改变一下数据
+        setInterval(()=>{
+            this.value = (Math.random() * 100).toFixed(0);
+        },1500);
+    }
+});
+        </pre>
+        <h2 id='fixed-simple-example-show1'>运行效果一</h2>
+        <p>
+            到这里，简单的例子就写完了，下面是运行效果：
+        </p>
+        <div id='canvas-1' style='width:500px;height:40px;'></div>
+        <h3 id='fixed-simple-example-filter'>
+            第四步：三元表达式
+        </h3>
+        <p>
+            在上面的例子我们发现，如果随机数过小或过大的时候，文字有部分显示不出来，因为我们设置的文字水平对齐方式是固定居中的。
+        </p>
+        <p>
+           幸运的是，c-bind指令可以解析一个合法的js表达式，因此，只需要对.clunch进行简单的修改即可（此次修改只设计<span class="public">text标签</span>，别的不列出了）：
+        </p>
+        <pre ui-code>
+<text c-bind:x='value * 5'
+    c-bind:align='value>83?"right":(right<16?"left":"center")' ... />
+        </pre>
+        <h2 id='fixed-simple-example-show2'>运行效果二</h2>
+        <p>
+            然后我们看看现在的效果：
+        </p>
+        <div id='canvas-2' style='width:500px;height:40px;'></div>
+        <h1 id='fixed-simple-example-end'>
+            小结
+        </h1>
+        <p>
+            经过上面的学习，我们主要让你感受一下clunch是如何设计绘图方式的，也就是
+            <span class="important">
+                数据驱动绘图
+            </span>
+            的方式，使用者专注业务代码的开发即可！
+        </p>
+        <p>
+            在实际开发中，会遇到很多种情况，为了兼容这些，我们在下列两方面进行了探索：
+        </p>
+        <ul>
+            <li>
+                首先，图形交互、画布自适应大小、过渡动画和浏览器兼容等问题，我们通过配置、指令、服务等方式主动提供，避免clunch使用者再去考虑，降低了难度。
+            </li>
+            <li>
+                其次，虽然上面只使用了
+                <span class="public">text</span>
+                和
+                <span class="public">rect</span>
+                标签，实际项目这些基本的可能无法完成，通过
+                <span class="important">自定义小组件</span>
+                等方式，提高了代码的复用性。
+            </li>
+        </ul>
+        <p>
+            当然，一切都还在探索中，我们会根据反馈不断迭代更新，接下来，让我们继续学习clunch的使用。
+        </p>
+        <div class="bottom-link">
+            <a href="#/course/install?fixed=top" target="_blank" class='left'>上一节：说明</a>
+        </div>
+    </div>
+</template>
+<script>
+    import changeActive from '../../Service/changeActive.js';
+    import fixedScroll from '../../Service/fixedScroll.js';
+
+    import Clunch from 'clunch';
+
+    import demo1 from './demos/demo1.clunch';
+    import demo2 from './demos/demo2.clunch';
+
+    let help1, help2;
+
+    export default {
+        created() {
+            changeActive('menu-2', 'introduce');
+        },
+        beforeDestroy() {
+
+            // 离开前销毁
+            clearInterval(help1);
+            clearInterval(help2);
+        },
+        mounted() {
+            fixedScroll(document.getElementById('course-id'), 44);
+
+            // 例子1
+            new Clunch({
+                el: document.getElementById('canvas-1'),
+                render: demo1,
+                data() {
+                    return {
+                        value: 0
+                    };
+                },
+                mounted() {
+
+                    // 每隔1500秒改变一下数据
+                    help1 = setInterval(() => {
+                        this.value = (Math.random() * 100).toFixed(0);
+                    }, 1500);
+                }
+            });
+
+            // 例子2
+            new Clunch({
+                el: document.getElementById('canvas-2'),
+                render: demo2,
+                filter: {
+                    calcAlign(input) {
+                        if (input > 83) {
+                            return 'right';
+                        } else if (input < 16) {
+                            return 'left';
+                        } else {
+                            return 'center';
+                        }
+                    }
+                },
+                data() {
+                    return {
+                        value: 0
+                    };
+                },
+                mounted() {
+
+                    // 每隔1500秒改变一下数据
+                    help2 = setInterval(() => {
+                        this.value = (Math.random() * 100).toFixed(0);
+                    }, 1500);
+                }
+            });
+        }
+    };
+
+</script>

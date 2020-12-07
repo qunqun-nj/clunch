@@ -26,19 +26,14 @@
 
         <arc cx='300' cy='100' radius1='50' radius2='70' begin='90deg' deg='1pi' fill-color='pink'></arc>
 
-        <arc cx='400' cy='300' radius1='10' radius2='200' deg='1.8pi' type='full' c-bind:dash='dash' line-width='30'></arc>
+        <arc cx='400' cy='300' radius1='10' radius2='200' deg='1.8pi' type='full' dash='[10,40]' line-width='30'></arc>
 
     </div>
 
     <script>
 
         window.clunch = new Clunch({
-            el: document.getElementById('root'),
-            data() {
-                return {
-                    dash: [10, 30]
-                };
-            }
+            el: document.getElementById('root')
         });
 
 

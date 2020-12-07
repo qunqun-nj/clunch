@@ -7,17 +7,34 @@
     <script src="./JSLitmus.js"></script>
     <script src="../../dist/clunch.js"></script>
     <link rel="shortcut icon" href="../../clunch.png">
+    <style>
+        div.help>div {
+            display: inline-block;
+            width: 100px;
+            height: 100px;
+        }
+    </style>
 </head>
 
 <body>
 
-    <script>
+    <div class="help">
+        <div id='arc'></div>
+        <div id='circle'></div>
+        <div id='path'></div>
+        <div id='rect'></div>
+        <div id='ruler'></div>
+        <div id='polar-ruler'></div>
+        <div id="text"></div>
+    </div>
 
-        new Clunch({
-
-        });
-
-    </script>
+    <script src="./arc.spec.js"></script>
+    <script src="./circle.spec.js"></script>
+    <script src="./path.spec.js"></script>
+    <script src="./polar-ruler.spec.js"></script>
+    <script src="./rect.spec.js"></script>
+    <script src="./ruler.spec.js"></script>
+    <script src="./text.spec.js"></script>
 
 </body>
 

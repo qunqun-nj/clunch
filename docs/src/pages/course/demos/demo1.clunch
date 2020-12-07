@@ -1,0 +1,8 @@
+<!-- 显示当前的值 -->
+<text c-bind:x='value * 5' align='center' y='3' c-bind:content='"当前随机生成的值：" + value' baseline='top' />
+
+<!-- 进度条值,因为总长度是500，值的范围是0~100，实际宽就应该乘以5 -->
+<rect c-bind:width='value * 5' height='20' x='0' y='20' type='fill' fill-color='red' />
+
+<!-- 进度条轮廓 -->
+<rect width='500' height='20' x='0' y='20' type='stroke' />

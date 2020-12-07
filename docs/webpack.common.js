@@ -12,7 +12,7 @@ module.exports = {
     },
     resolve: {
         alias: {
-            'clunch': require('path').resolve('../dist/clunch.template.js')
+            'clunch': require('path').resolve('../dist/clunch-template.js')
         }
     },
     module: {
