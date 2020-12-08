@@ -90,7 +90,7 @@
             </span>
         </h3>
         <pre ui-code>
-<!-- 分别表示：矩形左上角坐标、宽和高 -->
+<!-- 分别表示：矩形坐标、宽和高 -->
 <rect x='number' y='number' width='number' height='number' />
         </pre>
         <p>

@@ -128,11 +128,11 @@ new Clunch({
             在上面的例子我们发现，如果随机数过小或过大的时候，文字有部分显示不出来，因为我们设置的文字水平对齐方式是固定居中的。
         </p>
         <p>
-            幸运的是，c-bind指令可以解析一个合法的js表达式，因此，只需要对.clunch进行简单的修改即可（此次修改只设计<span class="public">text标签</span>，别的不列出了）：
+            幸运的是，c-bind指令可以解析一个合法的js表达式，因此，只需要对.clunch进行简单的修改即可（此次修改只涉及<span class="public">text标签</span>，别的不列出了）：
         </p>
         <pre ui-code>
 <text c-bind:x='value * 5'
-    c-bind:align='value>83?"right":(right<16?"left":"center")' ... />
+    c-bind:align='value>83?"right":(value<16?"left":"center")' ... />
         </pre>
         <h2 id='fixed-simple-example-show2'>运行效果二</h2>
         <p>
@@ -167,7 +167,7 @@ new Clunch({
             </li>
         </ul>
         <p>
-            当然，一切都还在探索中，我们会根据反馈不断迭代更新，接下来，让我们继续学习clunch的使用。
+            当然，一切都在探索中，我们会根据反馈不断迭代更新。
         </p>
         <div class="bottom-link">
             <a href="#/course/install?fixed=top" target="_blank" class='left'>上一节：说明</a>

@@ -1,5 +1,5 @@
 <!-- 显示当前的值 -->
-<text c-bind:x='value * 5' c-bind:align='value>83?"right":(right<16?"left":"center")' y='3' c-bind:content='"当前随机生成的值：" + value'
+<text c-bind:x='value * 5' c-bind:align='value>83?"right":(value<16?"left":"center")' y='3' c-bind:content='"当前随机生成的值：" + value'
     baseline='top' />
 
 <!-- 进度条值,因为总长度是500，值的范围是0~100，实际宽就应该乘以5 -->

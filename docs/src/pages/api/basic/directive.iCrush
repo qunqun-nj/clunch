@@ -14,7 +14,7 @@
         <p>
             一个合法的表达式几乎和普通的
             <span class="important">JS表达式</span>
-            差不多，我们先来列举几个正确的写法：
+            差不多，我们来列举几个正确的写法：
         </p>
         <pre ui-code>
 key + 10
@@ -23,19 +23,6 @@ dataList[0].value[keyName]
 !flag[key][0].flag == 7 || ( flag.demo > 10 || key )
 "id" + index
 help[key] ? "red" : "white"
-        </pre>
-        <p>
-            是不是和普通的
-            <span class="important">JS表达式</span>
-            差不多，唯一的区别是，在符号（比如：+、-、=、||、小括号等）间需要添加一个空格。
-        </p>
-        <p>
-            我们再来看几个错误的例子：
-        </p>
-        <pre ui-code>
-key+10
-"id"+index
-(flag+3) * 10
         </pre>
         <h1 id="fixed-c-on">
             事件
