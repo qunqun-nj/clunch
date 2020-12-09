@@ -44,7 +44,7 @@ let calcValue = (type, express) => {
 
 export default function (initRender, series) {
 
-    // 由于下面的一些方法修改来原来的值
+    // 由于下面的一些方法修改了原来的值
     // 而且AOP操作非常不频繁
     // 因此目前这里直接深度clone
     initRender = JSON.parse(JSON.stringify(initRender));

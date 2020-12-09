@@ -8,6 +8,11 @@
                     <ul>
                         <li>
                             <h4 @click='doScroll("config")'>配置项</h4>
+                            <ul>
+                                <li>
+                                    <h5 @click='doScroll("template")'>template</h5>
+                                </li>
+                            </ul>
                         </li>
                         <li>
                             <h4 @click='doScroll("liefcycle")'>生命周期</h4>

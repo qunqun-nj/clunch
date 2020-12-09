@@ -74,6 +74,20 @@
                 ,用于提供在特定时期执行一些操作的能力。
             </li>
         </ul>
+        <h2 id="fixed-template">template</h2>
+        <p>
+            在一般情况下，render由webpack配置的loader解析
+            <span class="public">.clunch文件</span>
+            自动生成，可是，如果你的项目不是基于webpack搭建的，就可以使用此属性。
+        </p>
+        <p>
+            此属性非常简单,就是把原本写在
+            <span class="public">.clunch文件</span>
+            中的代码以字符串的形式作为此配置项的值即可。
+        </p>
+        <p class="warn">
+            温馨提示：template和render是两个互斥的选项，如果两个同时存在，由于render优先级更高，因此template会被忽略！
+        </p>
         <h1 id="fixed-liefcycle">生命周期</h1>
         <h2 id="fixed-what">有哪些钩子</h2>
         <p>
