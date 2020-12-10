@@ -4,12 +4,12 @@
  *
  * author hai2007 < https://hai2007.gitee.io/sweethome >
  *
- * version 0.1.0
+ * version 0.1.1
  *
  * Copyright (c) 2020 hai2007 走一步，再走一步。
  * Released under the MIT license
  *
- * Date:Mon Dec 07 2020 21:45:10 GMT+0800 (GMT+08:00)
+ * Date:Thu Dec 10 2020 15:20:21 GMT+0800 (GMT+08:00)
  */
 (function () {
   'use strict';
@@ -899,7 +899,7 @@
 
 
   function aopRender (initRender, series) {
-    // 由于下面的一些方法修改来原来的值
+    // 由于下面的一些方法修改了原来的值
     // 而且AOP操作非常不频繁
     // 因此目前这里直接深度clone
     initRender = JSON.parse(JSON.stringify(initRender)); // 唯一序列号
@@ -930,11 +930,12 @@
 
           for (var attrKey in render.attrs) {
             // 对c-bind:attrKey一类进行处理
-            if (/^c\-bind\:/.test(attrKey)) {
-              render.attrs[attrKey.replace(/^c\-bind\:/, '')] = {
+            if (/^c\-bind\:/.test(attrKey) || /^\:/.test(attrKey)) {
+              render.attrs[attrKey.replace(/^(?:c\-bind){0,1}\:/, '')] = {
                 isBind: true,
                 express: render.attrs[attrKey]
               };
+              delete render.attrs[attrKey];
             } // c-on:eventName@regionName
             else if (/^c\-on\:/.test(attrKey)) {
                 var eventsArray = (attrKey.replace(/^c\-on\:/, '') + "@default").split('@');
@@ -966,28 +967,38 @@
                         express: render.attrs[attrKey]
                       };
                     }
+          } // 校对属性是否未定义
+          // 同时对一些特殊属性进行处理
+
+
+          for (var _attrKey in render.attrs) {
+            if (_attrKey == '$id') {
+              aopRender.$id = render.attrs.$id;
+            } else if (!(_attrKey in curSeries.attrs)) {
+              console.warn("attrs." + _attrKey + ' is not defined for ' + (pName ? pName + " > " + render.name : render.name) + '!');
+            }
           } // 校对预定义规则的属性
 
 
-          for (var _attrKey in curSeries.attrs) {
-            var curAttrs = curSeries.attrs[_attrKey]; // 对于必输项，如果没有输入，应该直接报错
+          for (var _attrKey2 in curSeries.attrs) {
+            var curAttrs = curSeries.attrs[_attrKey2]; // 对于必输项，如果没有输入，应该直接报错
 
-            if (curAttrs.required && !(_attrKey in render.attrs)) {
-              throw new Error('attrs.' + _attrKey + " is required for series " + render.name + "!");
+            if (curAttrs.required && !(_attrKey2 in render.attrs)) {
+              throw new Error('attrs.' + _attrKey2 + ' is required for ' + (pName ? pName + " > " + render.name : render.name) + '!');
             } // 添加定义的属性
 
 
-            aopRender.attrs[_attrKey] = {
+            aopRender.attrs[_attrKey2] = {
               animation: curAttrs.animation,
               type: curAttrs.type,
-              value: _attrKey in render.attrs ? render.attrs[_attrKey] : {
+              value: _attrKey2 in render.attrs ? render.attrs[_attrKey2] : {
                 isBind: false,
                 express: curAttrs["default"]
               }
             }; // 类型校对和特殊计算
 
-            if (!aopRender.attrs[_attrKey].value.isBind) {
-              aopRender.attrs[_attrKey].value.express = calcValue(aopRender.attrs[_attrKey].type, aopRender.attrs[_attrKey].value.express);
+            if (!aopRender.attrs[_attrKey2].value.isBind) {
+              aopRender.attrs[_attrKey2].value.express = calcValue(aopRender.attrs[_attrKey2].type, aopRender.attrs[_attrKey2].value.express);
             }
           } // 划分孩子结点和子组件
 
@@ -1483,10 +1494,12 @@
     Clunch.prototype.$$init = function (options) {
       this.__options = options; // 需要双向绑定的数据
 
-      this.__data = isArray(options.data) ? serviceFactory(options.data) : isFunction(options.data) ? options.data() : options.data; // 记录状态
+      this.__data = isArray(options.data) ? serviceFactory(options.data) : isFunction(options.data) ? options.data() : options.data; // 数据改变是否需要过渡动画
+
+      this.__animation = 'animation' in options ? options.animation : true; // 记录状态
 
       this._isMounted = false;
-      this._isDestroyed = false; // 挂载方法
+      this._isDestroyed = false; // 挂载方法-
 
       for (var key in options.methods) {
         // 由于key的特殊性，注册前需要进行校验
@@ -2342,13 +2355,20 @@
         var subRenderSeries = [];
 
         for (var i = 0; i < renderAOP.length; i++) {
-          // 在一些特殊情况下，id应该由用户指定，在这里修改校对即可
-          var id = pid + renderAOP[i].index; // 继承scope
-
+          // 继承scope
           for (var scopeKey in pScope) {
             if (!(scopeKey in renderAOP[i].scope)) {
               renderAOP[i].scope[scopeKey] = pScope[scopeKey];
             }
+          } // id可以采用默认的计算机制，也可以由用户自定义
+
+
+          var id = void 0;
+
+          if ('$id' in renderAOP[i]) {
+            id = renderAOP[i].$id.isBind ? evalExpress(that, renderAOP[i].$id.express, renderAOP[i].scope) : renderAOP[i].$id.express;
+          } else {
+            id = pid + renderAOP[i].index;
           } // c-for指令
           // 由于此指令修改局部scope，因此优先级必须最高
 
@@ -2413,7 +2433,7 @@
       this.__renderAOP, {}, false, "", false); // 如果没有前置数据，根本不需要动画效果
 
 
-      if (!this.__renderSeries || noAnimation) {
+      if (!this.__renderSeries || noAnimation || !this.__animation) {
         this.__renderSeries = renderSeries;
         this.$$updateView();
         this.$$lifecycle('updated');

@@ -22,15 +22,9 @@
 
     <div id="root">
 
-        <text c-bind:x='_width*0.5' c-bind:y='_height*0.5' align='center'>
-            上下左右居中的文字！
-        </text>
+        <circle cx='300' cy='300' :radius='radius1'></circle>
 
-        <text x='100' y='100' content='位置（100,100）'></text>
-
-        <text x='100' y='200' content='位置（100,200）' font-size='30' type='full' stroke-color='red'></text>
-
-        <text x='300' y='300' content='O虚线O' font-size='100' stroke-color='red' type='stroke' c-bind:dash='dash'></text>
+        <circle cx='300' cy='300' :radius='radius2' type='stroke' line-width='40' stroke-color='pink'></circle>
 
     </div>
 
@@ -38,9 +32,13 @@
 
         window.clunch = new Clunch({
             el: document.getElementById('root'),
-            data:function() {
+
+            // 设置数据改变无需过渡动画
+            animation: false,
+            data: function () {
                 return {
-                    dash: [10, 5]
+                    radius1: 200,
+                    radius2: 100
                 };
             }
         });

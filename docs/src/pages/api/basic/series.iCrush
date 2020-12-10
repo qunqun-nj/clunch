@@ -4,18 +4,17 @@
             图形小组件
         </header>
         <h1 id="fixed-create">如何自定义小组件</h1>
-        <pre ui-code>Clunch.series('ui-demo',["type1",...,"server1Name", ..., function($type1,...,server1, ...){
+        <pre ui-code>Clunch.series('ui-demo',["type1",...,"server1", ..., function($type1,...,server1, ...){
     return {
         // 定义属性，可选
         attrs:{
             // 自定义的图形组件上的属性都需要提前在这里配置
-            // $type1表示类型生成方法，一共有这些type:'boolean', 'number', 'json', 'string', 'color', 'any'
+            // $type1表示类型生成方法，
+            // 一共有这些type:'boolean', 'number', 'json', 'string', 'color', 'any'
             // 类型生成方法的参数defaultValue可选，如果没有默认值可以不传递，表示必输
             // 类型生成方法执行以后返回的是一个函数，
-            // 如果此属性参与动画，可以传递true或函数，否则可以省略：
-            // $type1(defaultValue)即可。
-            // 如果传递函数，格式如下：
-            // (newValue, oldValue, depp)=>{ 返回结果 }
+            // 如果此属性参与动画，可以传递true或函数，否则可以省略：$type1(defaultValue)
+            // 如果传递函数，格式：(newValue, oldValue, depp)=>{ 返回结果 }
             attrName1:$type1(defaultValue)(boolean|function),
             ......
         },
@@ -48,7 +47,7 @@
 }]);</pre>
         <p class='warn'>
             温馨提示：上面的
-            <span class="public">server1Name</span>
+            <span class="public">server1</span>
             表示服务，所有可以使用的内置服务请查看
             <a href="#/api/service?fixed=top" target="_blank">服务</a>
             一节。
@@ -59,8 +58,12 @@
         </p>
         <ul>
             <li>
-                <span class="important">$或_开头的</span>
+                <span class="important">$开头的</span>或<span class="important">_开头的</span>
                 ：已经被clunch内部特殊使用了，请勿使用；
+            </li>
+            <li>
+                <span class="important">#</span>、<span class="important">:</span>和<span class="important">@</span>
+                ：已经作为特殊的属性切割符了，请勿在自定义组件的属性名中出现；
             </li>
             <li>
                 <span class="important">c-开头的</span>
@@ -71,8 +74,17 @@
             number类型
         </h3>
         <ul>
-            <li>deg：表示角度，例如2deg；</li>
-            <li>pi：表示弧度，例如2pi。</li>
+            <li><span class="important">deg</span>：表示角度，例如2deg；</li>
+            <li><span class="important">pi</span>：表示弧度，例如2pi。</li>
+        </ul>
+        <h3 id='fixed-inner-attr'>
+            内置属性
+        </h3>
+        <p>
+            对于所有的组件，除了组件自己定义的特殊属性外，还有一类他们共有的属性，这些属性由于框架本身提供，用于提供特殊的支持。
+        </p>
+        <ul>
+            <li><span class="important">$id</span>：组件的唯一标识（组件的子组件属性也支持这个属性），可选，默认由框架自动给出。</li>
         </ul>
         <h1 id="fixed-core">核心组件</h1>
         <h3 id="fixed-group">

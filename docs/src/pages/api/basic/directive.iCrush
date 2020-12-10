@@ -143,6 +143,10 @@ top: 305
             <span class="public">expression</span>
             是一个表达式，数据绑定可以自动监听数据改变来更新组件。
         </p>
+        <p>
+            此外，由于此指令使用较多，你可以使用简写形式：
+        </p>
+        <pre ui-code><ui-demo :attrName='expression' /></pre>
     </div>
 </template>
 <script>

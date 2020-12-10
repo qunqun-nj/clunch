@@ -28,6 +28,10 @@
                 部分了解更多细节。
             </li>
             <li>
+                <span class="important">animation</span>
+                ：可选，默认true，表示数据改变提供动画，如果设置为false，就会取消数据改变动画。
+            </li>
+            <li>
 
                 <span class="important">methods</span>
                 ：格式如下：

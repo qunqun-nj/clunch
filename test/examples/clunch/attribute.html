@@ -22,15 +22,12 @@
 
     <div id="root">
 
-        <text c-bind:x='_width*0.5' c-bind:y='_height*0.5' align='center'>
-            上下左右居中的文字！
-        </text>
+        <arc :cx='cx' c-bind:cy='cy' radius1='50' radius2='70' deg='100deg' help1='无用的属性1'></arc>
 
-        <text x='100' y='100' content='位置（100,100）'></text>
-
-        <text x='100' y='200' content='位置（100,200）' font-size='30' type='full' stroke-color='red'></text>
-
-        <text x='300' y='300' content='O虚线O' font-size='100' stroke-color='red' type='stroke' c-bind:dash='dash'></text>
+        <path stroke-color='red' help2='无用的属性2'>
+            <move-to x='300' y='300' help2-1='无用的属性2-1'></move-to>
+            <bezier-to x='700' y='300' cp1x='500' cp1y='400' help2-2='无用的属性2-2'></bezier-to>
+        </path>
 
     </div>
 
@@ -38,9 +35,10 @@
 
         window.clunch = new Clunch({
             el: document.getElementById('root'),
-            data:function() {
+            data: function () {
                 return {
-                    dash: [10, 5]
+                    cx: 100,
+                    cy: 100
                 };
             }
         });

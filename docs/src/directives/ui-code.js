@@ -7,7 +7,6 @@ iCrush.directive('uiCode', {
 
   inserted: (el, binding) => {
     let code = el.innerHTML.replace(/&lt;/g, '<').replace(/&gt;/g, '>').replace(/&amp;/g, '&');
-    el.style.maxHeight='500px';
     let wscode = new WSCode({
 
       // 编辑器挂载点

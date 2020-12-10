@@ -123,14 +123,19 @@ export function updateMixin(Clunch) {
 
             for (let i = 0; i < renderAOP.length; i++) {
 
-                // 在一些特殊情况下，id应该由用户指定，在这里修改校对即可
-                let id = pid + renderAOP[i].index;
-
                 // 继承scope
                 for (let scopeKey in pScope) {
                     if (!(scopeKey in renderAOP[i].scope)) {
                         renderAOP[i].scope[scopeKey] = pScope[scopeKey];
                     }
+                }
+
+                // id可以采用默认的计算机制，也可以由用户自定义
+                let id;
+                if ('$id' in renderAOP[i]) {
+                    id = renderAOP[i].$id.isBind ? evalExpress(that, renderAOP[i].$id.express, renderAOP[i].scope) : renderAOP[i].$id.express;
+                } else {
+                    id = pid + renderAOP[i].index;
                 }
 
                 // c-for指令
@@ -207,7 +212,7 @@ export function updateMixin(Clunch) {
             (this.__renderAOP, {}, false, "", false);
 
         // 如果没有前置数据，根本不需要动画效果
-        if (!this.__renderSeries || noAnimation) {
+        if (!this.__renderSeries || noAnimation || !this.__animation) {
 
             this.__renderSeries = renderSeries;
             this.$$updateView();

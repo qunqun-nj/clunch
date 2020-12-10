@@ -16,10 +16,13 @@ export function initMixin(Clunch) {
         // 需要双向绑定的数据
         this.__data = isArray(options.data) ? serviceFactory(options.data) : (isFunction(options.data) ? options.data() : options.data);
 
+        // 数据改变是否需要过渡动画
+        this.__animation = 'animation' in options ? options.animation : true;
+
         // 记录状态
         this._isMounted = false; this._isDestroyed = false;
 
-        // 挂载方法
+        // 挂载方法-
         for (let key in options.methods) {
 
             // 由于key的特殊性，注册前需要进行校验

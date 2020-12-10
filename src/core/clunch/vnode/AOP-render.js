@@ -81,11 +81,13 @@ export default function (initRender, series) {
                 for (let attrKey in render.attrs) {
 
                     // 对c-bind:attrKey一类进行处理
-                    if (/^c\-bind\:/.test(attrKey)) {
-                        render.attrs[attrKey.replace(/^c\-bind\:/, '')] = {
+                    if (/^c\-bind\:/.test(attrKey) || /^\:/.test(attrKey)) {
+                        render.attrs[attrKey.replace(/^(?:c\-bind){0,1}\:/, '')] = {
                             isBind: true,
                             express: render.attrs[attrKey],
                         };
+
+                        delete render.attrs[attrKey];
                     }
 
                     // c-on:eventName@regionName
@@ -131,6 +133,16 @@ export default function (initRender, series) {
 
                 }
 
+                // 校对属性是否未定义
+                // 同时对一些特殊属性进行处理
+                for (let attrKey in render.attrs) {
+                    if (attrKey == '$id') {
+                        aopRender.$id = render.attrs.$id;
+                    } else if (!(attrKey in curSeries.attrs)) {
+                        console.warn("attrs." + attrKey + ' is not defined for ' + (pName ? pName + " > " + render.name : render.name) + '!');
+                    }
+                }
+
                 // 校对预定义规则的属性
                 for (let attrKey in curSeries.attrs) {
 
@@ -138,7 +150,7 @@ export default function (initRender, series) {
 
                     // 对于必输项，如果没有输入，应该直接报错
                     if (curAttrs.required && !(attrKey in render.attrs)) {
-                        throw new Error('attrs.' + attrKey + " is required for series " + render.name + "!");
+                        throw new Error('attrs.' + attrKey + ' is required for ' + (pName ? pName + " > " + render.name : render.name) + '!');
                     }
 
                     // 添加定义的属性
