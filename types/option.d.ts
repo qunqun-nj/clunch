@@ -11,6 +11,11 @@ export interface option {
     data: Function,
 
     /**
+    * 数据改变是否需要过渡动画
+    */
+    animation: boolean,
+
+    /**
      * 内置方法
      */
     methods: any,
