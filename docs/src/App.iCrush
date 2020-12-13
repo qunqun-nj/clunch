@@ -12,7 +12,7 @@
                 <li title='带你一步步学习使用' @click='openRouter("course")' class='menu-1 course'>
                     教程
                 </li>
-                <li title='一些使用例子' @click='openRouter("examples")' class='menu-1 examples'>
+                <li title='一些使用例子' class='menu-1 examples'>
                     <a href="#/examples" target="_blank">用例</a>
                 </li>
                 <li onclick="window.location.href='https://github.com/hai2007/clunch'" class='git-url'
