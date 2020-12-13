@@ -1,6 +1,6 @@
 <template>
     <article>
-        <nav>
+        <nav id="main-nav">
             <span title='提供更友好的数据可视化解决方案'>clunch.js</span>
             <ul>
                 <li title='首页说明' @click='openRouter("guide")' class='menu-1 guide'>
@@ -12,13 +12,16 @@
                 <li title='带你一步步学习使用' @click='openRouter("course")' class='menu-1 course'>
                     教程
                 </li>
+                <li title='一些使用例子' @click='openRouter("examples")' class='menu-1 examples'>
+                    <a href="#/examples" target="_blank">用例</a>
+                </li>
                 <li onclick="window.location.href='https://github.com/hai2007/clunch'" class='git-url'
                     title='clunch.js 源码'>
                     Fork-me-on-Github
                 </li>
             </ul>
         </nav>
-        <div>
+        <div id='main-content'>
             <component :is='page' />
         </div>
     </article>
@@ -91,10 +94,14 @@
         top: 0;
     }
 
+    article>nav>ul>li,
+    article>nav>ul>li>a {
+        color: #030303;
+    }
+
     article>nav>ul>li {
         vertical-align: top;
         display: inline-block;
-        color: #030303;
         padding: 0 0.05rem;
         font-size: 0.12rem;
         margin: 0 0.05rem;

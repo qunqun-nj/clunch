@@ -61,6 +61,38 @@ const pages = {
         "_default_": "introduce"
     },
 
+    /**
+     * 教程
+     */
+
+    "examples": {
+        "content": () => import('../pages/examples/index.iCrush'),
+        "menu": {
+            "content": () => import('../pages/examples/menu.iCrush')
+        },
+        "page1": {
+            "content": () => import('../pages/examples/page1/index.iCrush')
+        },
+        "page2": {
+            "content": () => import('../pages/examples/page2/index.iCrush')
+        },
+        "page3": {
+            "content": () => import('../pages/examples/page3/index.iCrush')
+        },
+        "page4": {
+            "content": () => import('../pages/examples/page4/index.iCrush')
+        },
+        "page5": {
+            "content": () => import('../pages/examples/page5/index.iCrush')
+        },
+        "page6": {
+            "content": () => import('../pages/examples/page6/index.iCrush')
+        },
+        "page7": {
+            "content": () => import('../pages/examples/page7/index.iCrush')
+        },
+        "_default_": "menu"
+    },
 
     "_default_": "guide"
 
