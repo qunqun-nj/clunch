@@ -71,6 +71,7 @@ export function updateMixin(Clunch) {
 
     // 画布大小改变的时候，更新
     Clunch.prototype.$$updateWithSize = function () {
+
         this.$$lifecycle('beforeResize');
 
         let width = this.__el.clientWidth - ((getStyle(this.__el, 'padding-left') + "").replace('px', '')) - ((getStyle(this.__el, 'padding-right') + "").replace('px', ''));

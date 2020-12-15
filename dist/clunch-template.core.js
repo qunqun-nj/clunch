@@ -9,7 +9,7 @@
  * Copyright (c) 2020 hai2007 走一步，再走一步。
  * Released under the MIT license
  *
- * Date:Thu Dec 10 2020 15:20:21 GMT+0800 (GMT+08:00)
+ * Date:Tue Dec 15 2020 18:01:47 GMT+0800 (GMT+08:00)
  */
 (function () {
   'use strict';
@@ -2663,6 +2663,7 @@
     el.innerHTML = '<canvas>非常抱歉，您的浏览器不支持canvas!</canvas>';
     this.__canvas = el.getElementsByTagName('canvas')[0]; // 挂载后以后，启动画布大小监听
 
+    this.$$updateWithSize();
     resize(this); // 触发数据改变更新
 
     this.$$updateWithData(); // 添加区域交互

@@ -1,5 +1,29 @@
 <template>
-    <div>
-        用例3
-    </div>
+    <div id='canvas'></div>
 </template>
+<script>
+    import image from './image.clunch';
+    import Clunch from 'clunch';
+    export default {
+        mounted() {
+            new Clunch({
+                el: document.getElementById('canvas'),
+                render: image,
+                data() {
+                    return {
+
+                    };
+                },
+                mounted() {
+
+                }
+            });
+        }
+    };
+</script>
+<style>
+    div {
+        width: 100vw;
+        height: 100vh;
+    }
+</style>
