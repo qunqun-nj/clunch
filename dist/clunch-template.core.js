@@ -4,12 +4,12 @@
  *
  * author hai2007 < https://hai2007.gitee.io/sweethome >
  *
- * version 0.1.1
+ * version 0.1.2
  *
  * Copyright (c) 2020 hai2007 走一步，再走一步。
  * Released under the MIT license
  *
- * Date:Tue Dec 15 2020 18:01:47 GMT+0800 (GMT+08:00)
+ * Date:Tue Dec 15 2020 20:04:34 GMT+0800 (GMT+08:00)
  */
 (function () {
   'use strict';
@@ -972,7 +972,7 @@
 
 
           for (var _attrKey in render.attrs) {
-            if (_attrKey == '$id') {
+            if (['c-if', 'c-for', 'c-bind', 'c-on'].indexOf(_attrKey) > -1) ; else if (_attrKey == '$id') {
               aopRender.$id = render.attrs.$id;
             } else if (!(_attrKey in curSeries.attrs)) {
               console.warn("attrs." + _attrKey + ' is not defined for ' + (pName ? pName + " > " + render.name : render.name) + '!');
@@ -1421,11 +1421,12 @@
     p = 'r'; //色彩增值位置
     // 用于计算包含关系的画板
 
-    var _painter2,
-        canvas = document.createElement('canvas');
+    var canvas = document.createElement('canvas');
 
-    var _width = 0,
-        _height = 0;
+    var _painter2 = painter(canvas, 1, 1);
+
+    var _width = 1,
+        _height = 1;
     return {
       // 擦除
       "erase": function erase() {
@@ -2248,7 +2249,7 @@
       var _this = this;
 
       // 如果没有挂载
-      if (!this._isMounted) return;
+      if (!this._isMounted || !this.__painter) return;
       this.$$lifecycle('beforeDraw'); // 清空区域信息
 
       this.__regionManager.erase(); // 清空画布
@@ -2309,6 +2310,8 @@
 
 
     Clunch.prototype.$$updateWithSize = function () {
+      var _this2 = this;
+
       this.$$lifecycle('beforeResize');
       var width = this.__el.clientWidth - (getStyle(this.__el, 'padding-left') + "").replace('px', '') - (getStyle(this.__el, 'padding-right') + "").replace('px', '');
       var height = this.__el.clientHeight - (getStyle(this.__el, 'padding-top') + "").replace('px', '') - (getStyle(this.__el, 'padding-bottom') + "").replace('px', ''); // 更新画布
@@ -2319,20 +2322,31 @@
       this._max = width > height ? width : height;
       this._min = width < height ? width : height; // 重置区域
 
-      this.__regionManager.updateSize(width, height); // 重新计算
+      this.__regionManager.updateSize(width, height);
 
+      if (isFunction(this.__observeWatcher.stop)) {
+        this.__observeWatcher.stop();
 
-      this.$$updateWithData(true);
-      this.$$lifecycle('resized');
+        this.__observeWatcher.stop = null;
+      }
+
+      setTimeout(function () {
+        // 重新计算
+        _this2.$$updateWithData(true);
+
+        _this2.$$lifecycle('resized');
+      }, 10);
     }; // 数据改变的时候，需要重新计算需要绘制的具体图形
 
 
     Clunch.prototype.$$updateWithData = function (noAnimation) {
-      var _this2 = this;
+      var _this3 = this;
 
       // 准备计算前一些初始化判断
       if (isFunction(this.__observeWatcher.stop)) {
         this.__observeWatcher.stop();
+
+        this.__observeWatcher.stop = null;
       } // 如果上次数据改变没有结束，这次不应该触发数据改变前钩子
       else {
           this.$$lifecycle('beforeUpdate');
@@ -2443,15 +2457,15 @@
       var calcDeepSeriesFun = calcDeepSeries(this.__renderSeries, renderSeries); // 数据改变动画
 
       this.__observeWatcher.stop = animation(function (deep) {
-        _this2.__renderSeries = calcDeepSeriesFun(deep);
+        _this3.__renderSeries = calcDeepSeriesFun(deep);
 
-        _this2.$$updateView();
+        _this3.$$updateView();
       }, 500, function (deep) {
         if (deep == 1) {
           // 说明动画进行完毕以后停止的，我们需要触发'更新完毕'钩子
-          _this2.__observeWatcher.stop = null;
+          _this3.__observeWatcher.stop = null;
 
-          _this2.$$lifecycle('updated');
+          _this3.$$lifecycle('updated');
         }
       });
     };
@@ -2663,7 +2677,6 @@
     el.innerHTML = '<canvas>非常抱歉，您的浏览器不支持canvas!</canvas>';
     this.__canvas = el.getElementsByTagName('canvas')[0]; // 挂载后以后，启动画布大小监听
 
-    this.$$updateWithSize();
     resize(this); // 触发数据改变更新
 
     this.$$updateWithData(); // 添加区域交互

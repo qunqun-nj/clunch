@@ -13,7 +13,7 @@ export function updateMixin(Clunch) {
     Clunch.prototype.$$updateView = function () {
 
         // 如果没有挂载
-        if (!this._isMounted) return;
+        if (!this._isMounted || !this.__painter) return;
 
         this.$$lifecycle('beforeDraw');
 
@@ -87,10 +87,20 @@ export function updateMixin(Clunch) {
         // 重置区域
         this.__regionManager.updateSize(width, height);
 
-        // 重新计算
-        this.$$updateWithData(true);
+        if (isFunction(this.__observeWatcher.stop)) {
+            this.__observeWatcher.stop();
+            this.__observeWatcher.stop = null;
+        }
 
-        this.$$lifecycle('resized');
+        setTimeout(() => {
+
+            // 重新计算
+            this.$$updateWithData(true);
+
+            this.$$lifecycle('resized');
+
+        }, 10);
+
     };
 
     // 数据改变的时候，需要重新计算需要绘制的具体图形
@@ -99,6 +109,7 @@ export function updateMixin(Clunch) {
         // 准备计算前一些初始化判断
         if (isFunction(this.__observeWatcher.stop)) {
             this.__observeWatcher.stop();
+            this.__observeWatcher.stop = null;
         }
 
         // 如果上次数据改变没有结束，这次不应该触发数据改变前钩子
@@ -232,6 +243,7 @@ export function updateMixin(Clunch) {
 
         }, 500, deep => {
             if (deep == 1) {
+
                 // 说明动画进行完毕以后停止的，我们需要触发'更新完毕'钩子
                 this.__observeWatcher.stop = null;
                 this.$$lifecycle('updated');

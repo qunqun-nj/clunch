@@ -11,9 +11,10 @@ export default function (that) {
         p = 'r';//色彩增值位置
 
     // 用于计算包含关系的画板
-    let painter, canvas = document.createElement('canvas');
+    let canvas = document.createElement('canvas');
+    let painter = _painter(canvas, 1, 1);
 
-    let _width = 0, _height = 0;
+    let _width = 1, _height = 1;
 
     return {
 

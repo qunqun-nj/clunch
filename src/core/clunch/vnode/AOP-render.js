@@ -136,7 +136,10 @@ export default function (initRender, series) {
                 // 校对属性是否未定义
                 // 同时对一些特殊属性进行处理
                 for (let attrKey in render.attrs) {
-                    if (attrKey == '$id') {
+                    if (['c-if', 'c-for','c-bind','c-on'].indexOf(attrKey) > -1) {
+                        // todo
+                    }
+                    else if (attrKey == '$id') {
                         aopRender.$id = render.attrs.$id;
                     } else if (!(attrKey in curSeries.attrs)) {
                         console.warn("attrs." + attrKey + ' is not defined for ' + (pName ? pName + " > " + render.name : render.name) + '!');

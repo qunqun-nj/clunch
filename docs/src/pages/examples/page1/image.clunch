@@ -4,19 +4,19 @@
     color="gray" begin="-90deg" value-position="between" />
 
 <!-- 垂直刻度尺 -->
-<ruler direction="BT" :x="0.5*_width" :y="0.5*_height" :length="0.4*_min" value="[0,2000,4000,6000,8000,10000]" mark-direction="left"
-    color='blue' />
+<ruler direction="BT" :x="0.5*_width" :y="0.5*_height" :length="0.4*_min" value="[0,2000,4000,6000,8000,10000]"
+    mark-direction="left" color='blue' />
 
 <group c-for='(item,index) in data'>
 
     <!-- 弧形 -->
     <arc :cx="0.5*_width" :cy="0.5*_height" :radius1="item[0] / 10000 * _min * 0.4 * deep"
-        :radius2="item[1] / 10000 * _min * 0.4 * deep" :begin='perDeg * ( index + 0.1 ) + beginDeg'
-        :deg='perDeg * 0.8' fill-color='red' type='fill' />
+        :radius2="item[1] / 10000 * _min * 0.4 * deep" :begin='perDeg * ( index - -0.1 ) + beginDeg' :deg='perDeg * 0.8'
+        fill-color='red' type='fill' />
 
     <!-- 灰色刻度 -->
     <arc :cx="0.5*_width" :cy="0.5*_height" :radius1="item[2] / 10000 * _min * 0.4 - 2"
-        :radius2="item[2] / 10000 * _min * 0.4 + 2" :begin='perDeg * ( index + 0.1 ) + beginDeg'
-        :deg='perDeg * 0.8' type='fill' c-if='deep == 1' />
+        :radius2="item[2] / 10000 * _min * 0.4 + 2" :begin='perDeg * ( index - -0.1 ) + beginDeg' :deg='perDeg * 0.8'
+        type='fill' c-if='deep == 1' />
 
 </group>

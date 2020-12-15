@@ -47,7 +47,6 @@ Clunch.prototype.$mount = function (el) {
     this.__canvas = el.getElementsByTagName('canvas')[0];
 
     // 挂载后以后，启动画布大小监听
-    this.$$updateWithSize();
     resize(this);
 
     // 触发数据改变更新

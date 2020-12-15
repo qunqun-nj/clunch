@@ -9,6 +9,7 @@
             window.clunch = new Clunch({
                 el: document.getElementById('canvas'),
                 render: image,
+                animation: true,
                 data() {
                     return {
                         deep: 0,
@@ -38,7 +39,9 @@
                     };
                 },
                 mounted() {
-                    this.deep = 1;
+                    setTimeout(() => {
+                        this.deep = 1;
+                    }, 500);
                 }
             });
         }
