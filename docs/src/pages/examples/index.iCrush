@@ -1,6 +1,8 @@
 <template>
     <div id='examples-id'>
         <a href="https://github.com/hai2007/clunch" class="github" target="_blank">Fork Library on Github</a>
+        <a href="javascript:void(0)" style='display: none;' id='examples-github-banner' class="examples-github " target="_blank">Fork Examples Code
+            on Github</a>
         <component :is='page' />
     </div>
 </template>
@@ -40,5 +42,22 @@
         outline: 0.04rem solid #03a9f4;
         border: 0.02rem dashed #065b9f;
         color: #fafafa;
+    }
+
+    .examples-github {
+        position: fixed;
+        transform: rotate(45deg);
+        line-height: 1.6em;
+        transform-origin: 1.5rem 0.23rem;
+        text-align: center;
+        font-family: sans-serif;
+        display: inline-block;
+        top: 0.8rem;
+        right: -1rem;
+        width: 4rem;
+        background-color: #ac2c23;
+        outline: 0.04rem solid #ac2c23;
+        border: 0.02rem dashed #d14742;
+        color: #ebdbd9;
     }
 </style>

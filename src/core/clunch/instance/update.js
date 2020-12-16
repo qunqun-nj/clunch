@@ -1,6 +1,6 @@
 import { evalExpress } from '@hai2007/algorithm/value';
 import animation from '@hai2007/tool/animation';
-import { isFunction } from '@hai2007/tool/type';
+import { isFunction, isArray } from '@hai2007/tool/type';
 import calcDeepSeries from '../../../tool/calcDeepSeries';
 import painter from '../../painter/index';
 import getStyle from '../../../tool/get-style';
@@ -159,7 +159,7 @@ export function updateMixin(Clunch) {
 
                     for (let forKey in data_for) {
                         renderAOP[i].scope[cFor.value] = data_for[forKey];
-                        if (cFor.key != null) renderAOP[i].scope[cFor.key] = forKey;
+                        if (cFor.key != null) renderAOP[i].scope[cFor.key] = isArray(data_for) ? (+forKey) : forKey;
                         doit([renderAOP[i]], {}, false, id + "for" + forKey + "-", true);
                     }
 
@@ -168,48 +168,51 @@ export function updateMixin(Clunch) {
                 }
 
                 // c-if
-                // 如果c-if是false，就不用当前的就可以略过了
-                if ('c-if' in renderAOP[i] && !evalExpress(that, renderAOP[i]['c-if'], renderAOP[i].scope)) continue;
-                delete renderAOP[i]['c-if'];
+                if ('c-if' in renderAOP[i] && !evalExpress(that, renderAOP[i]['c-if'], renderAOP[i].scope)) {
 
-                // 计算子组件
-                doit(renderAOP[i].children, renderAOP[i].scope, false, id + "-", false);
+                    // 如果c-if是false，就不用当前的就可以略过了
 
-                // group只是包裹，因此，组件本身不需要被统计
-                if (renderAOP[i].name != 'group') {
+                } else {
 
-                    let seriesItem = {
-                        name: renderAOP[i].name,
-                        attr: {},
-                        subAttr: [],
-                        subText: renderAOP[i].text,
-                        id
-                    };
+                    // 计算子组件
+                    doit(renderAOP[i].children, renderAOP[i].scope, false, id + "-", false);
 
-                    // 计算属性
-                    for (let attrKey in renderAOP[i].attrs) {
-                        let oralAttrValue = renderAOP[i].attrs[attrKey];
-                        seriesItem.attr[attrKey] = {
-                            animation: oralAttrValue.animation,
-                            type: oralAttrValue.type,
+                    // group只是包裹，因此，组件本身不需要被统计
+                    if (renderAOP[i].name != 'group') {
 
-                            // 这里是根据是通过双向绑定还是写死的来区分
-                            value: oralAttrValue.value.isBind ? evalExpress(that, oralAttrValue.value.express, renderAOP[i].scope) : oralAttrValue.value.express
+                        let seriesItem = {
+                            name: renderAOP[i].name,
+                            attr: {},
+                            subAttr: [],
+                            subText: renderAOP[i].text,
+                            id
                         };
+
+                        // 计算属性
+                        for (let attrKey in renderAOP[i].attrs) {
+                            let oralAttrValue = renderAOP[i].attrs[attrKey];
+                            seriesItem.attr[attrKey] = {
+                                animation: oralAttrValue.animation,
+                                type: oralAttrValue.type,
+
+                                // 这里是根据是通过双向绑定还是写死的来区分
+                                value: oralAttrValue.value.isBind ? evalExpress(that, oralAttrValue.value.express, renderAOP[i].scope) : oralAttrValue.value.express
+                            };
+                        }
+
+                        // 计算子属性组件
+                        seriesItem.subAttr = doit(renderAOP[i].subAttrs, renderAOP[i].scope, true, id + "-", false);
+
+                        // 登记事件
+                        for (let j = 0; j < renderAOP[i].events.length; j++) {
+                            let event = renderAOP[i].events[j];
+                            that.__events[event.event][renderSeries.length + "@" + event.region] = that[event.method];
+                        }
+
+                        // 计算完毕以后，根据情况存放好
+                        if (isSubAttrs) subRenderSeries.push(seriesItem);
+                        else renderSeries.push(seriesItem);
                     }
-
-                    // 计算子属性组件
-                    seriesItem.subAttr = doit(renderAOP[i].subAttrs, renderAOP[i].scope, true, id + "-", false);
-
-                    // 登记事件
-                    for (let j = 0; j < renderAOP[i].events.length; j++) {
-                        let event = renderAOP[i].events[j];
-                        that.__events[event.event][renderSeries.length + "@" + event.region] = that[event.method];
-                    }
-
-                    // 计算完毕以后，根据情况存放好
-                    if (isSubAttrs) subRenderSeries.push(seriesItem);
-                    else renderSeries.push(seriesItem);
                 }
 
                 // 完成了恢复scope
@@ -241,7 +244,7 @@ export function updateMixin(Clunch) {
             this.__renderSeries = calcDeepSeriesFun(deep);
             this.$$updateView();
 
-        }, 500, deep => {
+        }, this.__observeWatcher.time, deep => {
             if (deep == 1) {
 
                 // 说明动画进行完毕以后停止的，我们需要触发'更新完毕'钩子

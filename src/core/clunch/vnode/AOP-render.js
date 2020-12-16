@@ -136,7 +136,7 @@ export default function (initRender, series) {
                 // 校对属性是否未定义
                 // 同时对一些特殊属性进行处理
                 for (let attrKey in render.attrs) {
-                    if (['c-if', 'c-for','c-bind','c-on'].indexOf(attrKey) > -1) {
+                    if (/^c\-/.test(attrKey)) {
                         // todo
                     }
                     else if (attrKey == '$id') {

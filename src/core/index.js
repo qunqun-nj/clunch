@@ -73,6 +73,7 @@ Clunch.prototype.$mount = function (el) {
 
                     // 调用回调
                     doback.call(this, {
+                        id:curSeires.id,
                         series: curSeires.name,
                         region: regionNameSplit[1],
                         subRegion: regionSplit[1],
@@ -103,6 +104,7 @@ Clunch.prototype.$mount = function (el) {
                 }
 
                 callbackValue = {
+                    id:curSeires.id,
                     series: curSeires.name,
                     region: regionNameSplit[1],
                     subRegion: regionSplit[1],
@@ -141,12 +143,12 @@ Clunch.prototype.$mount = function (el) {
 Clunch.prototype.$unmount = function () {
 
     if (this._isDestroyed) {
-        console.warn('[Clay warn]: The object has been destroyed!');
+        console.warn('The object has been destroyed!');
         return;
     }
 
     if (!this._isMounted) {
-        console.warn('[Clay warn]: Object not mounted!');
+        console.warn('Object not mounted!');
         return;
     }
 
@@ -169,7 +171,7 @@ Clunch.prototype.$unmount = function () {
 Clunch.prototype.$destroy = function () {
 
     if (this._isDestroyed) {
-        console.warn('[Clay warn]: The object has been destroyed!');
+        console.warn('The object has been destroyed!');
         return;
     }
 

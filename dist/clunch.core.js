@@ -4,12 +4,12 @@
  *
  * author hai2007 < https://hai2007.gitee.io/sweethome >
  *
- * version 0.1.2
+ * version 0.2.0
  *
  * Copyright (c) 2020 hai2007 走一步，再走一步。
  * Released under the MIT license
  *
- * Date:Tue Dec 15 2020 20:04:34 GMT+0800 (GMT+08:00)
+ * Date:Wed Dec 16 2020 16:25:14 GMT+0800 (GMT+08:00)
  */
 (function () {
   'use strict';
@@ -807,6 +807,88 @@
     return treeObj;
   }
 
+  /* 等角斜方位投影 */
+  var // 围绕X轴旋转
+  _rotateX = function _rotateX(deg, x, y, z) {
+    var cos = Math.cos(deg),
+        sin = Math.sin(deg);
+    return [x, y * cos - z * sin, y * sin + z * cos];
+  },
+      // 围绕Y轴旋转
+  _rotateY = function _rotateY(deg, x, y, z) {
+    var cos = Math.cos(deg),
+        sin = Math.sin(deg);
+    return [z * sin + x * cos, y, z * cos - x * sin];
+  },
+      // 围绕Z轴旋转
+  _rotateZ = function _rotateZ(deg, x, y, z) {
+    var cos = Math.cos(deg),
+        sin = Math.sin(deg);
+    return [x * cos - y * sin, x * sin + y * cos, z];
+  };
+
+  var p = [];
+  function eoap (config, longitude, latitude) {
+    /**
+     * 通过旋转的方法
+     * 先旋转出点的位置
+     * 然后根据把地心到旋转中心的这条射线变成OZ这条射线的变换应用到初始化点上
+     * 这样求的的点的x,y就是最终结果
+     *
+     *  计算过程：
+     *  1.初始化点的位置是p（x,0,0）,其中x的值是地球半径除以缩放倍速
+     *  2.根据点的纬度对p进行旋转，旋转后得到的p的坐标纬度就是目标纬度
+     *  3.同样的对此刻的p进行经度的旋转，这样就获取了极点作为中心点的坐标
+     *  4.接着想象一下为了让旋转中心移动到极点需要进行旋转的经纬度是多少，记为lo和la
+     *  5.然后再对p进行经度度旋转lo获得新的p
+     *  6.然后再对p进行纬度旋转la获得新的p
+     *  7.旋转结束
+     *
+     * 特别注意：第5和第6步顺序一定不可以调换，原因来自经纬度定义上
+     * 【除了经度为0的位置，不然纬度的旋转会改变原来的经度值，反过来不会】
+     *
+     */
+    p = _rotateY((360 - latitude) / 180 * Math.PI, 100 * config.scale, 0, 0);
+    p = _rotateZ(longitude / 180 * Math.PI, p[0], p[1], p[2]);
+    p = _rotateZ((90 - config.center[0]) / 180 * Math.PI, p[0], p[1], p[2]);
+    p = _rotateX((90 - config.center[1]) / 180 * Math.PI, p[0], p[1], p[2]);
+    return [-p[0], //加-号是因为浏览器坐标和地图不一样
+    p[1], p[2]];
+  }
+
+  function map (_config) {
+    var config = initConfig({
+      // 默认使用「等角斜方位投影」
+      type: 'eoap',
+      // 缩放比例
+      scale: 1,
+      // 投影中心经纬度
+      center: [107, 36]
+    }, _config);
+
+    var map = function map(longitude, latitude) {
+      switch (config.type) {
+        case 'eoap':
+          {
+            return eoap(config, longitude, latitude);
+          }
+
+        default:
+          {
+            throw new Error('Map type configuration error!');
+          }
+      }
+    }; // 修改配置
+
+
+    map.config = function (_config) {
+      config = initConfig(config, _config);
+      return map;
+    };
+
+    return map;
+  }
+
   // 引入第三方提供的服务
   /**
    * 把类似
@@ -849,7 +931,8 @@
             "$dot": dot,
             "$rotate": _rotate,
             "$move": _move,
-            "$scale": _scale
+            "$scale": _scale,
+            "$map": map
           }[inputArray[i]]);
         }
     };
@@ -972,7 +1055,7 @@
 
 
           for (var _attrKey in render.attrs) {
-            if (['c-if', 'c-for', 'c-bind', 'c-on'].indexOf(_attrKey) > -1) ; else if (_attrKey == '$id') {
+            if (/^c\-/.test(_attrKey)) ; else if (_attrKey == '$id') {
               aopRender.$id = render.attrs.$id;
             } else if (!(_attrKey in curSeries.attrs)) {
               console.warn("attrs." + _attrKey + ' is not defined for ' + (pName ? pName + " > " + render.name : render.name) + '!');
@@ -1534,7 +1617,8 @@
         // 是否有前置计算未完成
         flag: false,
         // 动画停止方法
-        stop: null
+        stop: null,
+        time: 'time' in options ? options.time : 500
       }; // 画布大小改变需要的初始化辅助参数
 
       this.__observeResize = {
@@ -2393,49 +2477,48 @@
 
             for (var forKey in data_for) {
               renderAOP[i].scope[cFor.value] = data_for[forKey];
-              if (cFor.key != null) renderAOP[i].scope[cFor.key] = forKey;
+              if (cFor.key != null) renderAOP[i].scope[cFor.key] = isArray(data_for) ? +forKey : forKey;
               doit([renderAOP[i]], {}, false, id + "for" + forKey + "-", true);
             }
 
             continue;
           } // c-if
-          // 如果c-if是false，就不用当前的就可以略过了
 
 
-          if ('c-if' in renderAOP[i] && !evalExpress(that, renderAOP[i]['c-if'], renderAOP[i].scope)) continue;
-          delete renderAOP[i]['c-if']; // 计算子组件
+          if ('c-if' in renderAOP[i] && !evalExpress(that, renderAOP[i]['c-if'], renderAOP[i].scope)) ; else {
+            // 计算子组件
+            doit(renderAOP[i].children, renderAOP[i].scope, false, id + "-", false); // group只是包裹，因此，组件本身不需要被统计
 
-          doit(renderAOP[i].children, renderAOP[i].scope, false, id + "-", false); // group只是包裹，因此，组件本身不需要被统计
+            if (renderAOP[i].name != 'group') {
+              var seriesItem = {
+                name: renderAOP[i].name,
+                attr: {},
+                subAttr: [],
+                subText: renderAOP[i].text,
+                id: id
+              }; // 计算属性
 
-          if (renderAOP[i].name != 'group') {
-            var seriesItem = {
-              name: renderAOP[i].name,
-              attr: {},
-              subAttr: [],
-              subText: renderAOP[i].text,
-              id: id
-            }; // 计算属性
-
-            for (var attrKey in renderAOP[i].attrs) {
-              var oralAttrValue = renderAOP[i].attrs[attrKey];
-              seriesItem.attr[attrKey] = {
-                animation: oralAttrValue.animation,
-                type: oralAttrValue.type,
-                // 这里是根据是通过双向绑定还是写死的来区分
-                value: oralAttrValue.value.isBind ? evalExpress(that, oralAttrValue.value.express, renderAOP[i].scope) : oralAttrValue.value.express
-              };
-            } // 计算子属性组件
-
-
-            seriesItem.subAttr = doit(renderAOP[i].subAttrs, renderAOP[i].scope, true, id + "-", false); // 登记事件
-
-            for (var j = 0; j < renderAOP[i].events.length; j++) {
-              var event = renderAOP[i].events[j];
-              that.__events[event.event][renderSeries.length + "@" + event.region] = that[event.method];
-            } // 计算完毕以后，根据情况存放好
+              for (var attrKey in renderAOP[i].attrs) {
+                var oralAttrValue = renderAOP[i].attrs[attrKey];
+                seriesItem.attr[attrKey] = {
+                  animation: oralAttrValue.animation,
+                  type: oralAttrValue.type,
+                  // 这里是根据是通过双向绑定还是写死的来区分
+                  value: oralAttrValue.value.isBind ? evalExpress(that, oralAttrValue.value.express, renderAOP[i].scope) : oralAttrValue.value.express
+                };
+              } // 计算子属性组件
 
 
-            if (isSubAttrs) subRenderSeries.push(seriesItem);else renderSeries.push(seriesItem);
+              seriesItem.subAttr = doit(renderAOP[i].subAttrs, renderAOP[i].scope, true, id + "-", false); // 登记事件
+
+              for (var j = 0; j < renderAOP[i].events.length; j++) {
+                var event = renderAOP[i].events[j];
+                that.__events[event.event][renderSeries.length + "@" + event.region] = that[event.method];
+              } // 计算完毕以后，根据情况存放好
+
+
+              if (isSubAttrs) subRenderSeries.push(seriesItem);else renderSeries.push(seriesItem);
+            }
           } // 完成了恢复scope
 
 
@@ -2460,7 +2543,7 @@
         _this3.__renderSeries = calcDeepSeriesFun(deep);
 
         _this3.$$updateView();
-      }, 500, function (deep) {
+      }, this.__observeWatcher.time, function (deep) {
         if (deep == 1) {
           // 说明动画进行完毕以后停止的，我们需要触发'更新完毕'钩子
           _this3.__observeWatcher.stop = null;
@@ -2701,6 +2784,7 @@
 
 
             doback.call(_this, {
+              id: curSeires.id,
               series: curSeires.name,
               region: regionNameSplit[1],
               subRegion: regionSplit[1],
@@ -2733,6 +2817,7 @@
           }
 
           callbackValue = {
+            id: curSeires.id,
             series: curSeires.name,
             region: regionNameSplit[1],
             subRegion: regionSplit[1],
@@ -2765,12 +2850,12 @@
 
   Clunch.prototype.$unmount = function () {
     if (this._isDestroyed) {
-      console.warn('[Clay warn]: The object has been destroyed!');
+      console.warn('The object has been destroyed!');
       return;
     }
 
     if (!this._isMounted) {
-      console.warn('[Clay warn]: Object not mounted!');
+      console.warn('Object not mounted!');
       return;
     }
 
@@ -2790,7 +2875,7 @@
 
   Clunch.prototype.$destroy = function () {
     if (this._isDestroyed) {
-      console.warn('[Clay warn]: The object has been destroyed!');
+      console.warn('The object has been destroyed!');
       return;
     } // 先解除绑定
 

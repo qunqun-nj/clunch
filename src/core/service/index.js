@@ -7,6 +7,7 @@ import cardinal from './$cardinal';
 import { formatColor, getRandomColors } from './$color';
 import tree from './$tree';
 import { dot, rotate, move, scale } from './$transform';
+import map from './$map/index';
 
 /**
  * 把类似
@@ -59,7 +60,8 @@ export default function (inputArray) {
                 "$dot": dot,
                 "$rotate": rotate,
                 "$move": move,
-                "$scale": scale
+                "$scale": scale,
+                "$map": map
             }[inputArray[i]]);
         }
     }

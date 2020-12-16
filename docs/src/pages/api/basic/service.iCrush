@@ -162,6 +162,34 @@ cardinal.setP([[X1,Y1],[X2,Y2],...,[Xn, Yn]]);
         </p>
         <pre ui-code>// alpha可选，取值是0-1，表示颜色透明度
 $getRandomColors(number, alpha);</pre>
+        <h1 id="fixed-map">
+            地图
+            <span class='sub-title'>
+                $map
+            </span>
+        </h1>
+        <pre ui-code>
+var map=$map({
+
+    // 设置缩放比例，默认1
+    "scale":number,
+
+    // 设置旋转中心，你可以把你绘制的部分的中心的经纬度设置为中心，默认[107, 36]
+    "center":[number, number],
+
+    // 映射算法类型，默认'eoap',表示使用「等角斜方位投影」
+    "type":string
+
+});</pre>
+        <p>
+            获取map对象实例的时候需要传递配置来告诉对象如何去理解用户的意图。
+        </p>
+        <pre ui-code>
+// 特别需要注意，计算出来的位置是偏离中心点的距离
+var d_xyz=map(longitude, latitude);</pre>
+        <p>
+            最后，传递给map对象一个点的经纬度即可返回该点的绘图坐标。
+        </p>
     </div>
 </template>
 <script>

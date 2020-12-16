@@ -1,6 +1,6 @@
 {
   "name": "clunch",
-  "version": "0.1.2",
+  "version": "0.2.0",
   "description": "🎨 The Progressive JavaScript Interactive Picture Framework.",
   "main": "dist/clunch.min.js",
   "typings": "types/index.d.ts",
@@ -37,6 +37,7 @@
   },
   "homepage": "https://github.com/hai2007/clunch#readme",
   "devDependencies": {
+    "@hai2007/tool": "^0.4.0",
     "@babel/core": "^7.12.3",
     "@babel/preset-env": "^7.12.1",
     "@rollup/plugin-babel": "^5.2.1",
@@ -47,7 +48,6 @@
     "uglify-js": "^3.11.6"
   },
   "dependencies": {
-    "@hai2007/algorithm": "^0.5.0",
-    "@hai2007/tool": "^0.4.0"
+    "@hai2007/algorithm": "^0.5.0"
   }
 }

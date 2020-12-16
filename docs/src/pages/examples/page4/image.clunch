@@ -1,0 +1,2 @@
+<ui-region c-on:click='doSelect' :$id='index' c-for='(item,index) in chinaGenJson.features' :cx='_width*0.5' :cy='_height*0.5'
+    :geo-json='item' :fill-color='selectIndex==index?"white":colors[index]' />

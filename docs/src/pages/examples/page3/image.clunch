@@ -1,0 +1,17 @@
+<group c-for="(value,key) in treeData">
+
+    <!-- 连线 -->
+    <path c-if='value.pid' stroke-color='gray' :$id='"path:" + key'>
+        <move-to :x='value.left' :y='value.top' />
+        <line-to :x='treeData[value.pid].left' :y='treeData[value.pid].top' />
+    </path>
+
+    <!-- 文字 -->
+    <text :x='value.left' :y='value.top' fill-color='#000' :content='key' :deg='value.deg' font-size='10'
+        :$id='"text:" + key' />
+
+    <!-- 圆球 -->
+    <circle :cx='value.left' :cy='value.top' radius='5' :fill-color='help[key]?"red":"white"' stroke-color='red'
+        :$id='"circle:" + key' c-on:click='toggerNode' type='full' />
+
+</group>

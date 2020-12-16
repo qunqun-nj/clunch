@@ -61,7 +61,8 @@ export function initMixin(Clunch) {
             // 是否有前置计算未完成
             flag: false,
             // 动画停止方法
-            stop: null
+            stop: null,
+            time: 'time' in options ? options.time : 500
         };
 
         // 画布大小改变需要的初始化辅助参数
