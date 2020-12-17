@@ -11,9 +11,26 @@ export interface option {
     data: Function,
 
     /**
-    * 数据改变是否需要过渡动画
-    */
+     * 表示当前图形内容
+     * （JSON格式，一般由loader生成）
+     */
+    render:Array<any>,
+
+    /**
+     * 表示当前图形内容
+     * (模板字符串)
+     */
+    template:string,
+
+    /**
+     * 默认true，表示数据改变提供动画，如果设置为false，就会取消数据改变动画
+     */
     animation: boolean,
+
+    /**
+     *默认500，表示数据改变动画进行时长，单位ms
+     */
+    time:number,
 
     /**
      * 内置方法
