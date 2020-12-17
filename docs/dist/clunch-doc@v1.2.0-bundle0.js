@@ -5,12 +5,12 @@
  *
  * author hai2007 < https://hai2007.gitee.io/sweethome >
  *
- * version 0.2.0
+ * version 0.2.1
  *
  * Copyright (c) 2020 hai2007 走一步，再走一步。
  * Released under the MIT license
  *
- * Date:Wed Dec 16 2020 16:20:29 GMT+0800 (GMT+08:00)
+ * Date:Thu Dec 17 2020 14:07:29 GMT+0800 (GMT+08:00)
  */
 !function(){"use strict";function t(e){return(t="function"==typeof Symbol&&"symbol"==typeof Symbol.iterator?function(e){return typeof e}:function(e){return e&&"function"==typeof Symbol&&e.constructor===Symbol&&e!==Symbol.prototype?"symbol":typeof e})(e)}function r(e){return function(e){if(Array.isArray(e))return n(e)}(e)||function(e){if("undefined"!=typeof Symbol&&Symbol.iterator in Object(e))return Array.from(e)}(e)||function(e,t){if(!e)return;if("string"==typeof e)return n(e,t);var r=Object.prototype.toString.call(e).slice(8,-1);"Object"===r&&e.constructor&&(r=e.constructor.name);if("Map"===r||"Set"===r)return Array.from(e);if("Arguments"===r||/^(?:Ui|I)nt(?:8|16|32)(?:Clamped)?Array$/.test(r))return n(e,t)}(e)||function(){throw new TypeError("Invalid attempt to spread non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method.")}()}function n(e,t){(null==t||t>e.length)&&(t=e.length);for(var r=0,n=new Array(t);r<t;r++)n[r]=e[r];return n}var i=Object.prototype.toString;function o(e){return null==e?void 0===e?"[object Undefined]":"[object Null]":i.call(e)}var a=function(e,r){return null!==r&&"object"===t(r)&&e.indexOf(r.nodeType)>-1&&!function(e){if(null===e||"object"!==t(e)||"[object Object]"!=o(e))return!1;if(null===Object.getPrototypeOf(e))return!0;for(var r=e;null!==Object.getPrototypeOf(r);)r=Object.getPrototypeOf(r);return Object.getPrototypeOf(e)===r}(r)},s=function(e){var r=t(e);return"string"===r||"object"===r&&null!=e&&!Array.isArray(e)&&"[object String]"===o(e)},l=function(e){if(!function(e){var r=t(e);return null!=e&&("object"===r||"function"===r)}(e))return!1;var r=o(e);return"[object Function]"===r||"[object AsyncFunction]"===r||"[object GeneratorFunction]"===r||"[object Proxy]"===r},u=function(e){return Array.isArray(e)},c=function(e){return a([1,9,11],e)},f=[],d=null;
 /*!
