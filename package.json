@@ -35,7 +35,7 @@
   "bugs": {
     "url": "https://github.com/hai2007/clunch/issues"
   },
-  "homepage": "https://github.com/hai2007/clunch#readme",
+  "homepage": "https://hai2007.gitee.io/clunch/",
   "devDependencies": {
     "@hai2007/tool": "^0.4.0",
     "@babel/core": "^7.12.3",
