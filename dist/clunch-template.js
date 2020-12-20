@@ -4,12 +4,12 @@
  *
  * author hai2007 < https://hai2007.gitee.io/sweethome >
  *
- * version 0.2.1
+ * version 0.2.2
  *
  * Copyright (c) 2020 hai2007 走一步，再走一步。
  * Released under the MIT license
  *
- * Date:Thu Dec 17 2020 14:07:29 GMT+0800 (GMT+08:00)
+ * Date:Sat Dec 19 2020 20:21:18 GMT+0800 (GMT+08:00)
  */
 (function () {
   'use strict';
@@ -2511,7 +2511,13 @@
             for (var forKey in data_for) {
               renderAOP[i].scope[cFor.value] = data_for[forKey];
               if (cFor.key != null) renderAOP[i].scope[cFor.key] = isArray(data_for) ? +forKey : forKey;
-              doit([renderAOP[i]], {}, false, id + "for" + forKey + "-", true);
+              var temp = doit([renderAOP[i]], {}, isSubAttrs, id + "for" + forKey + "-", true);
+
+              if (isSubAttrs) {
+                for (var j = 0; j < temp.length; j++) {
+                  subRenderSeries.push(temp[j]);
+                }
+              }
             }
 
             continue;
@@ -2544,8 +2550,8 @@
 
               seriesItem.subAttr = doit(renderAOP[i].subAttrs, renderAOP[i].scope, true, id + "-", false); // 登记事件
 
-              for (var j = 0; j < renderAOP[i].events.length; j++) {
-                var event = renderAOP[i].events[j];
+              for (var _j = 0; _j < renderAOP[i].events.length; _j++) {
+                var event = renderAOP[i].events[_j];
                 that.__events[event.event][renderSeries.length + "@" + event.region] = that[event.method];
               } // 计算完毕以后，根据情况存放好
 

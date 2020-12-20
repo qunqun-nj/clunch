@@ -4,7 +4,7 @@
 <img width="400" src="https://hai2007.gitee.io/clunch/src/assets/clunch.png" alt="clunch logo"></a></p>
 
 <p>
-  <a href="https://yelloxing.gitee.io/npm-downloads?interval=7&packages=clunch"><img src="https://img.shields.io/npm/dm/clunch.svg" alt="downloads"></a>
+  <a href="https://hai2007.gitee.io/npm-downloads?interval=7&packages=clunch"><img src="https://img.shields.io/npm/dm/clunch.svg" alt="downloads"></a>
   <a href="https://packagephobia.now.sh/result?p=clunch"><img src="https://packagephobia.now.sh/badge?p=clunch" alt="install size"></a>
   <a href="https://www.jsdelivr.com/package/npm/clunch"><img src="https://data.jsdelivr.com/v1/package/npm/clunch/badge" alt="CDN"></a>
   <a href="https://www.npmjs.com/package/clunch"><img src="https://img.shields.io/npm/v/clunch.svg" alt="Version"></a>
@@ -95,4 +95,4 @@ new Clunch({
 ---------------------------------------
 [MIT](https://github.com/hai2007/clunch/blob/master/LICENSE)
 
-Copyright (c) 2020 hai2007 走一步，再走一步。
+Copyright (c) 2020 [hai2007](https://hai2007.gitee.io/sweethome/) 走一步，再走一步。

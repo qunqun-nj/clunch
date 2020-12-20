@@ -1,6 +1,6 @@
 {
   "name": "clunch",
-  "version": "0.2.1",
+  "version": "0.2.2",
   "description": "🎨 The Progressive JavaScript Interactive Picture Framework.",
   "main": "dist/clunch.min.js",
   "typings": "types/index.d.ts",
@@ -35,7 +35,7 @@
   "bugs": {
     "url": "https://github.com/hai2007/clunch/issues"
   },
-  "homepage": "https://github.com/hai2007/clunch#readme",
+  "homepage": "https://hai2007.gitee.io/clunch/",
   "devDependencies": {
     "@hai2007/tool": "^0.4.0",
     "@babel/core": "^7.12.3",

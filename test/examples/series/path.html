@@ -22,7 +22,7 @@
 
     <div id="root">
 
-        <path>
+        <!-- <path>
             <move-to x='100' y='100'></move-to>
             <line-to x='300' c-bind:y='_height-100'></line-to>
             <line-to x='400' y='400'></line-to>
@@ -33,6 +33,11 @@
         <path stroke-color='red'>
             <move-to x='300' y='300'></move-to>
             <bezier-to x='700' y='300' cp1x='500' cp1y='400'></bezier-to>
+        </path> -->
+
+        <path stroke-color='blue'>
+            <move-to x='100' y='100'></move-to>
+            <line-to :x='150*index' :y='item' c-for='(item,index) in dots'></line-to>
         </path>
 
     </div>
@@ -40,7 +45,12 @@
     <script>
 
         window.clunch = new Clunch({
-            el: document.getElementById('root')
+            el: document.getElementById('root'),
+            data() {
+                return {
+                    dots: [100, 340, 200]
+                };
+            }
         });
 
 
