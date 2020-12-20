@@ -160,7 +160,12 @@ export function updateMixin(Clunch) {
                     for (let forKey in data_for) {
                         renderAOP[i].scope[cFor.value] = data_for[forKey];
                         if (cFor.key != null) renderAOP[i].scope[cFor.key] = isArray(data_for) ? (+forKey) : forKey;
-                        doit([renderAOP[i]], {}, false, id + "for" + forKey + "-", true);
+                        let temp = doit([renderAOP[i]], {}, isSubAttrs, id + "for" + forKey + "-", true);
+                        if (isSubAttrs) {
+                            for (let j = 0; j < temp.length; j++) {
+                                subRenderSeries.push(temp[j]);
+                            }
+                        }
                     }
 
                     continue;

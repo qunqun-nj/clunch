@@ -1,10 +1,6 @@
-/**
- * 绘制具体的一条wave
- * @param {image2D.painter} painter image2D画笔
- * @param {number} rate 比率
- * @param {number} deep 动画进度
- * @param {number} help wave类型，去1或-1，分二种：开始上波和开始下波
- */
+
+// 绘制具体的一条wave
+
 let drawerWave = function ($rotate, cx, cy, radius, painter, rate, deep, help) {
 
     // wave的起点和终点
