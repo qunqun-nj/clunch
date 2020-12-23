@@ -125,7 +125,7 @@ new Clunch({
     },
     mounted(){
 
-        // 每隔1500秒改变一下数据
+        // 每隔1500毫秒改变一下数据
         setInterval(()=>{
             this.value = (Math.random() * 100).toFixed(0);
         },1500);
@@ -230,7 +230,7 @@ new Clunch({
                 },
                 mounted() {
 
-                    // 每隔1500秒改变一下数据
+                    // 每隔1500毫秒改变一下数据
                     help1 = setInterval(() => {
                         this.value = (Math.random() * 100).toFixed(0);
                     }, 1500);
@@ -259,7 +259,7 @@ new Clunch({
                 },
                 mounted() {
 
-                    // 每隔1500秒改变一下数据
+                    // 每隔1500毫秒改变一下数据
                     help2 = setInterval(() => {
                         this.value = (Math.random() * 100).toFixed(0);
                     }, 1500);
