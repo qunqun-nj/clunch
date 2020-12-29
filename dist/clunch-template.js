@@ -4,12 +4,12 @@
  *
  * author hai2007 < https://hai2007.gitee.io/sweethome >
  *
- * version 0.2.2
+ * version 0.3.0-alpha
  *
  * Copyright (c) 2020 hai2007 走一步，再走一步。
  * Released under the MIT license
  *
- * Date:Sat Dec 19 2020 20:21:18 GMT+0800 (GMT+08:00)
+ * Date:Tue Dec 29 2020 16:31:19 GMT+0800 (GMT+08:00)
  */
 (function () {
   'use strict';
@@ -1164,9 +1164,6 @@
 
 
   function arc (beginA, rotateA, cx, cy, r1, r2, doback) {
-    // 有了前置的判断，这里可以省略了
-    // if (rotateA > Math.PI * 2) rotateA = Math.PI * 2;
-    // if (rotateA < -Math.PI * 2) rotateA = -Math.PI * 2;
     // 保证逆时针也是可以的
     if (rotateA < 0) {
       beginA += rotateA;
@@ -1192,11 +1189,17 @@
     doback(beginA, beginA + rotateA, temp[0] + cx, temp[1] + cy, temp[4] + cx, temp[5] + cy, temp[2] + cx, temp[3] + cy, temp[6] + cx, temp[7] + cy, (r2 - r1) * 0.5);
   }
 
-  var initText = function initText(painter, config, x, y, deg) {
+  var initText = function initText(painter, config, x, y, deg, platform) {
     painter.beginPath();
     painter.translate(x, y);
     painter.rotate(deg);
-    painter.font = config['font-size'] + "px " + config['font-family'];
+
+    if (platform == 'uni-app') {
+      painter.setFontSize(config['font-size']); // font-family目前无视了
+    } else {
+      painter.font = config['font-size'] + "px " + config['font-family'];
+    }
+
     return painter;
   }; // 画弧统一设置方法
 
@@ -1275,22 +1278,34 @@
   };
 
   function painter (canvas, width, height) {
-    // 获取canvas2D画笔
-    var painter = canvas.getContext("2d"); //  如果画布隐藏或大小为0
+    var painter; // 如果是uni-app
 
-    if (width == 0 || height == 0) throw new Error('Canvas is hidden or size is zero!'); // 设置显示大小
+    if (canvas.platform == 'uni-app') {
+      painter = canvas.painter;
+      painter.setTextBaseline('middle');
+      painter.setTextAlign('left');
+    } // 默认就是h5
+    else {
+        // 获取canvas2D画笔
+        var _painter = canvas.getContext("2d"); //  如果画布隐藏或大小为0
 
-    canvas.style.width = width + "px";
-    canvas.style.height = height + "px"; // 设置画布大小（画布大小设置为显示的二倍，使得显示的时候更加清晰）
 
-    canvas.setAttribute('width', width * 2);
-    canvas.setAttribute('height', height * 2); // 通过缩放实现模糊问题
+        if (width == 0 || height == 0) throw new Error('Canvas is hidden or size is zero!'); // 设置显示大小
 
-    painter.scale(2, 2); // 默认配置canvas2D对象已经存在的属性
+        canvas.style.width = width + "px";
+        canvas.style.height = height + "px"; // 设置画布大小（画布大小设置为显示的二倍，使得显示的时候更加清晰）
 
-    painter.textBaseline = 'middle';
-    painter.textAlign = 'left'; // 默认配置不应该有canvas2D对象已经存在的属性
+        canvas.setAttribute('width', width * 2);
+        canvas.setAttribute('height', height * 2); // 通过缩放实现模糊问题
+
+        _painter.scale(2, 2); // 默认配置canvas2D对象已经存在的属性
+
+
+        _painter.textBaseline = 'middle';
+        _painter.textAlign = 'left';
+      } // 默认配置不应该有canvas2D对象已经存在的属性
     // 这里是为了简化或和svg统一接口而自定义的属性
+
 
     var config = {
       "font-size": "16",
@@ -1303,7 +1318,16 @@
 
     }; // 配置生效方法
 
-    var useConfig = function useConfig(key, value) {
+    var useConfig = canvas.platform == 'uni-app' ? // uni-app
+    function (key, value) {
+      // 如果已经存在默认配置中，说明只需要缓存起来即可
+      if (config[key]) {
+        config[key] = value;
+      } else {
+        painter['set' + key[0].toUpperCase() + key.substr(1)](value);
+      }
+    } : // h5
+    function (key, value) {
       /**
        * -----------------------------
        * 特殊的设置开始
@@ -1326,7 +1350,6 @@
           }
     }; // 画笔
 
-
     var enhancePainter = {
       // 属性设置或获取
       "config": function config() {
@@ -1345,19 +1368,19 @@
       // 文字
       "fillText": function fillText(text, x, y, deg) {
         painter.save();
-        initText(painter, config, x, y, deg || 0).fillText(text, 0, 0);
+        initText(painter, config, x, y, deg || 0, canvas.type).fillText(text, 0, 0);
         painter.restore();
         return enhancePainter;
       },
       "strokeText": function strokeText(text, x, y, deg) {
         painter.save();
-        initText(painter, config, x, y, deg || 0).strokeText(text, 0, 0);
+        initText(painter, config, x, y, deg || 0, canvas.type).strokeText(text, 0, 0);
         painter.restore();
         return enhancePainter;
       },
       "fullText": function fullText(text, x, y, deg) {
         painter.save();
-        initText(painter, config, x, y, deg || 0);
+        initText(painter, config, x, y, deg || 0, canvas.type);
         painter.fillText(text, 0, 0);
         painter.strokeText(text, 0, 0);
         painter.restore();
@@ -1669,7 +1692,9 @@
       this._min = 0;
       this._max = 0; // 区域管理者
 
-      this.__regionManager = region(this);
+      if (this.__platform == 'h5') this.__regionManager = region(this); // 记录平台
+
+      this.__platform = 'none';
     };
   }
 
@@ -2369,8 +2394,7 @@
       if (!this._isMounted || !this.__painter) return;
       this.$$lifecycle('beforeDraw'); // 清空区域信息
 
-      this.__regionManager.erase(); // 清空画布
-
+      if (this.__platform == 'h5') this.__regionManager.erase(); // 清空画布
 
       this.__painter.clearRect();
 
@@ -2402,26 +2426,30 @@
         _this.__defineSerirs[_this.__renderSeries[i].name].link(_this.__painter, attr); // 记录区域
 
 
-        var region = _this.__defineSerirs[_this.__renderSeries[i].name].region;
+        if (_this.__platform == 'h5') {
+          var region = _this.__defineSerirs[_this.__renderSeries[i].name].region;
 
-        if (region) {
-          var _loop2 = function _loop2(regionName) {
-            region[regionName](function (subName) {
-              subName = subName || "default";
-              return _this.__regionManager.painter(i + "@" + regionName + "::" + subName);
-            }, attr);
-          };
+          if (region) {
+            var _loop2 = function _loop2(regionName) {
+              region[regionName](function (subName) {
+                subName = subName || "default";
+                return _this.__regionManager.painter(i + "@" + regionName + "::" + subName);
+              }, attr);
+            };
 
-          for (var regionName in region) {
-            _loop2(regionName);
+            for (var regionName in region) {
+              _loop2(regionName);
+            }
           }
         }
       };
 
       for (var i = 0; i < this.__renderSeries.length; i++) {
         _loop(i);
-      }
+      } // 对于uni-app，最后需要绘制一下才会显示
 
+
+      if (this.__platform == 'uni-app') this.__uniapp_painter.draw();
       this.$$lifecycle('drawed');
     }; // 画布大小改变的时候，更新
 
@@ -2653,14 +2681,9 @@
      */
 
     watcher(this);
-    this.$$lifecycle('created'); // 如果初始化创建的时候没有传递el
-    // 表示开始的时候不需要挂载
-    // 可以后续主动挂载
+    this.$$lifecycle('created'); // 挂载
 
-    if (isElement(options.el)) {
-      // 挂载
-      this.$mount(options.el);
-    }
+    this.$mount(options.el);
   } // 在对象上挂载最基础的一些功能
 
 
@@ -2780,9 +2803,17 @@
     }
 
     if (!isElement(el)) {
-      // 如果挂载结点不正确，自然不能挂载
-      console.warn('Mount node does not exist!');
-      return;
+      if (el.platform == 'uni-app') {
+        // 如果是uni-app
+        this.__platform = 'uni-app';
+      } else {
+        // 如果挂载结点不正确，自然不能挂载
+        console.warn('Mount node does not exist!');
+        return;
+      }
+    } else {
+      // 默认就是h5平台
+      this.__platform = 'h5';
     }
 
     this.$$lifecycle('beforeMount'); // 如果我们没有在初始化对象的时候传递render（template也算传递了）
@@ -2794,89 +2825,106 @@
     } // 一切正确以后，记录新的挂载结点
 
 
-    this.__el = el; // 初始化添加画布
+    this.__el = el;
 
-    el.innerHTML = '<canvas>非常抱歉，您的浏览器不支持canvas!</canvas>';
-    this.__canvas = el.getElementsByTagName('canvas')[0]; // 挂载后以后，启动画布大小监听
+    if (this.__platform == 'h5') {
+      // 初始化添加画布
+      el.innerHTML = '<canvas>非常抱歉，您的浏览器不支持canvas!</canvas>';
+      this.__canvas = el.getElementsByTagName('canvas')[0]; // 挂载后以后，启动画布大小监听
 
-    resize(this); // 触发数据改变更新
+      resize(this);
+    } else if (this.__platform == 'uni-app') {
+      this.$$lifecycle('beforeResize');
+      this.__painter = painter(el, el.width, el.height);
+      this.__uniapp_painter = el.painter;
+      this._width = el.width;
+      this._height = el.height;
+      this._max = el.width > el.height ? el.width : el.height;
+      this._min = el.width < el.height ? el.width : el.height;
+      this.$$updateWithData(true);
+      this.$$lifecycle('resized');
+    } // 触发数据改变更新
 
-    this.$$updateWithData(); // 添加区域交互
 
-    ['click', 'dblclick', 'mousemove', 'mousedown', 'mouseup'].forEach(function (eventName) {
-      bind(_this.__canvas, eventName, function (event) {
-        var region = _this.__regionManager.getRegion(event);
+    this.$$updateWithData(); // 目前只有h5支持event
 
-        if (region[0] != null) {
-          var regionSplit = region[0].split('::');
-          var doback = _this.__events[eventName][regionSplit[0]];
+    if (this.__platform == 'h5') {
+      // 添加区域交互
+      ['click', 'dblclick', 'mousemove', 'mousedown', 'mouseup'].forEach(function (eventName) {
+        bind(_this.__canvas, eventName, function (event) {
+          var region = _this.__regionManager.getRegion(event);
 
-          if (isFunction(doback)) {
+          if (region[0] != null) {
+            var regionSplit = region[0].split('::');
+            var doback = _this.__events[eventName][regionSplit[0]];
+
+            if (isFunction(doback)) {
+              var regionNameSplit = regionSplit[0].split('@');
+              var curSeires = _this.__renderSeries[regionNameSplit[0]]; // 整理属性信息
+
+              var attr = {};
+
+              for (var attrKey in curSeires.attr) {
+                attr[attrKey] = curSeires.attr[attrKey].value;
+              } // 调用回调
+
+
+              doback.call(_this, {
+                id: curSeires.id,
+                series: curSeires.name,
+                region: regionNameSplit[1],
+                subRegion: regionSplit[1],
+                attr: attr,
+                left: region[1],
+                top: region[2]
+              });
+            }
+          }
+        });
+      }); // 这里的回调函数doback和上面区域事件回调保持一致
+
+      this.$bind = function (eventName, doback) {
+        var _this2 = this;
+
+        bind(this.__canvas, eventName, function (event) {
+          var region = _this2.__regionManager.getRegion(event);
+
+          var callbackValue;
+
+          if (region[0] != null) {
+            var regionSplit = region[0].split('::');
             var regionNameSplit = regionSplit[0].split('@');
-            var curSeires = _this.__renderSeries[regionNameSplit[0]]; // 整理属性信息
+            var curSeires = _this2.__renderSeries[regionNameSplit[0]]; // 整理属性信息
 
             var attr = {};
 
             for (var attrKey in curSeires.attr) {
               attr[attrKey] = curSeires.attr[attrKey].value;
-            } // 调用回调
+            }
 
-
-            doback.call(_this, {
+            callbackValue = {
               id: curSeires.id,
               series: curSeires.name,
               region: regionNameSplit[1],
               subRegion: regionSplit[1],
-              attr: attr,
-              left: region[1],
-              top: region[2]
-            });
-          }
-        }
-      });
-    }); // 这里的回调函数doback和上面区域事件回调保持一致
-
-    this.$bind = function (eventName, doback) {
-      var _this2 = this;
-
-      bind(this.__canvas, eventName, function (event) {
-        var region = _this2.__regionManager.getRegion(event);
-
-        var callbackValue;
-
-        if (region[0] != null) {
-          var regionSplit = region[0].split('::');
-          var regionNameSplit = regionSplit[0].split('@');
-          var curSeires = _this2.__renderSeries[regionNameSplit[0]]; // 整理属性信息
-
-          var attr = {};
-
-          for (var attrKey in curSeires.attr) {
-            attr[attrKey] = curSeires.attr[attrKey].value;
+              attr: attr
+            };
+          } else {
+            callbackValue = {
+              series: null,
+              region: null,
+              subRegion: null,
+              attr: {}
+            };
           }
 
-          callbackValue = {
-            id: curSeires.id,
-            series: curSeires.name,
-            region: regionNameSplit[1],
-            subRegion: regionSplit[1],
-            attr: attr
-          };
-        } else {
-          callbackValue = {
-            series: null,
-            region: null,
-            subRegion: null,
-            attr: {}
-          };
-        }
-
-        callbackValue.left = region[1];
-        callbackValue.top = region[2];
-        doback.call(_this2, callbackValue);
-      });
-      return this;
-    }; // 挂载完毕以后，同步标志
+          callbackValue.left = region[1];
+          callbackValue.top = region[2];
+          doback.call(_this2, callbackValue);
+        });
+        return this;
+      };
+    } // 挂载完毕以后，同步标志
 
 
     this._isMounted = true;

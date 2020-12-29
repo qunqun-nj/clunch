@@ -18,7 +18,7 @@ export function updateMixin(Clunch) {
         this.$$lifecycle('beforeDraw');
 
         // 清空区域信息
-        this.__regionManager.erase();
+        if (this.__platform == 'h5') this.__regionManager.erase();
 
         // 清空画布
         this.__painter.clearRect();
@@ -53,18 +53,23 @@ export function updateMixin(Clunch) {
             this.__defineSerirs[this.__renderSeries[i].name].link(this.__painter, attr);
 
             // 记录区域
-            let region = this.__defineSerirs[this.__renderSeries[i].name].region;
-            if (region) {
-                for (let regionName in region) {
+            if (this.__platform == 'h5') {
+                let region = this.__defineSerirs[this.__renderSeries[i].name].region;
+                if (region) {
+                    for (let regionName in region) {
 
-                    region[regionName](subName => {
-                        subName = subName || "default";
-                        return this.__regionManager.painter(i + "@" + regionName + "::" + subName);
-                    }, attr);
+                        region[regionName](subName => {
+                            subName = subName || "default";
+                            return this.__regionManager.painter(i + "@" + regionName + "::" + subName);
+                        }, attr);
 
+                    }
                 }
             }
         }
+
+        // 对于uni-app，最后需要绘制一下才会显示
+        if (this.__platform == 'uni-app') this.__uniapp_painter.draw();
 
         this.$$lifecycle('drawed');
     };

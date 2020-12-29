@@ -5,26 +5,42 @@ import { linearGradient, radialGradient } from './Gradient';
 
 export default function (canvas, width, height) {
 
-    // 获取canvas2D画笔
-    let painter = canvas.getContext("2d");
+    let painter;
 
-    //  如果画布隐藏或大小为0
-    if (width == 0 || height == 0) throw new Error('Canvas is hidden or size is zero!');
+    // 如果是uni-app
+    if (canvas.platform == 'uni-app') {
 
-    // 设置显示大小
-    canvas.style.width = width + "px";
-    canvas.style.height = height + "px";
+        painter = canvas.painter;
 
-    // 设置画布大小（画布大小设置为显示的二倍，使得显示的时候更加清晰）
-    canvas.setAttribute('width', width * 2);
-    canvas.setAttribute('height', height * 2);
+        painter.setTextBaseline('middle');
+        painter.setTextAlign('left');
 
-    // 通过缩放实现模糊问题
-    painter.scale(2, 2);
+    }
 
-    // 默认配置canvas2D对象已经存在的属性
-    painter.textBaseline = 'middle';
-    painter.textAlign = 'left';
+    // 默认就是h5
+    else {
+
+        // 获取canvas2D画笔
+        let painter = canvas.getContext("2d");
+
+        //  如果画布隐藏或大小为0
+        if (width == 0 || height == 0) throw new Error('Canvas is hidden or size is zero!');
+
+        // 设置显示大小
+        canvas.style.width = width + "px";
+        canvas.style.height = height + "px";
+
+        // 设置画布大小（画布大小设置为显示的二倍，使得显示的时候更加清晰）
+        canvas.setAttribute('width', width * 2);
+        canvas.setAttribute('height', height * 2);
+
+        // 通过缩放实现模糊问题
+        painter.scale(2, 2);
+
+        // 默认配置canvas2D对象已经存在的属性
+        painter.textBaseline = 'middle';
+        painter.textAlign = 'left';
+    }
 
     // 默认配置不应该有canvas2D对象已经存在的属性
     // 这里是为了简化或和svg统一接口而自定义的属性
@@ -36,34 +52,49 @@ export default function (canvas, width, height) {
     };
 
     // 配置生效方法
-    let useConfig = (key, value) => {
+    let useConfig = canvas.platform == 'uni-app' ?
 
-        /**
-         * -----------------------------
-         * 特殊的设置开始
-         * -----------------------------
-         */
+        // uni-app
+        (key, value) => {
 
-        if (key == 'lineDash') {
-            painter.setLineDash(value);
-        }
+            // 如果已经存在默认配置中，说明只需要缓存起来即可
+            if (config[key]) {
+                config[key] = value;
+            } else {
+                painter['set' + key[0].toUpperCase() + key.substr(1)](value);
+            }
 
-        /**
-         * -----------------------------
-         * 常规的配置开始
-         * -----------------------------
-         */
+        } :
 
-        // 如果已经存在默认配置中，说明只需要缓存起来即可
-        else if (config[key]) {
-            config[key] = value;
-        }
+        // h5
+        (key, value) => {
 
-        // 其它情况直接生效即可
-        else {
-            painter[key] = value;
-        }
-    };
+            /**
+             * -----------------------------
+             * 特殊的设置开始
+             * -----------------------------
+             */
+
+            if (key == 'lineDash') {
+                painter.setLineDash(value);
+            }
+
+            /**
+             * -----------------------------
+             * 常规的配置开始
+             * -----------------------------
+             */
+
+            // 如果已经存在默认配置中，说明只需要缓存起来即可
+            else if (config[key]) {
+                config[key] = value;
+            }
+
+            // 其它情况直接生效即可
+            else {
+                painter[key] = value;
+            }
+        };
 
     // 画笔
     let enhancePainter = {
@@ -84,19 +115,19 @@ export default function (canvas, width, height) {
         // 文字
         "fillText": function (text, x, y, deg) {
             painter.save();
-            initText(painter, config, x, y, deg || 0).fillText(text, 0, 0);
+            initText(painter, config, x, y, deg || 0, canvas.type).fillText(text, 0, 0);
             painter.restore();
             return enhancePainter;
         },
         "strokeText": function (text, x, y, deg) {
             painter.save();
-            initText(painter, config, x, y, deg || 0).strokeText(text, 0, 0);
+            initText(painter, config, x, y, deg || 0, canvas.type).strokeText(text, 0, 0);
             painter.restore();
             return enhancePainter;
         },
         "fullText": function (text, x, y, deg) {
             painter.save();
-            initText(painter, config, x, y, deg || 0);
+            initText(painter, config, x, y, deg || 0, canvas.type);
             painter.fillText(text, 0, 0);
             painter.strokeText(text, 0, 0);
             painter.restore();

@@ -46,15 +46,8 @@ function Clunch(options) {
 
     this.$$lifecycle('created');
 
-    // 如果初始化创建的时候没有传递el
-    // 表示开始的时候不需要挂载
-    // 可以后续主动挂载
-    if (isElement(options.el)) {
-
-        // 挂载
-        this.$mount(options.el);
-
-    }
+    // 挂载
+    this.$mount(options.el);
 
 }
 

@@ -3,6 +3,7 @@ import { isElement, isFunction } from '@hai2007/tool/type';
 import resize from './clunch/observe/resize';
 import aopRender from './clunch/vnode/AOP-render';
 import { bind } from '../tool/event';
+import painter from './painter/index';
 
 // 挂载一些静态方法
 import initGlobalApi from './clunch/global-api/index';
@@ -25,9 +26,23 @@ Clunch.prototype.$mount = function (el) {
     }
 
     if (!isElement(el)) {
-        // 如果挂载结点不正确，自然不能挂载
-        console.warn('Mount node does not exist!');
-        return;
+
+        if (el.platform == 'uni-app') {
+
+            // 如果是uni-app
+            this.__platform = 'uni-app';
+
+        } else {
+
+            // 如果挂载结点不正确，自然不能挂载
+            console.warn('Mount node does not exist!');
+            return;
+        }
+    } else {
+
+        // 默认就是h5平台
+        this.__platform = 'h5';
+
     }
 
     this.$$lifecycle('beforeMount');
@@ -42,27 +57,82 @@ Clunch.prototype.$mount = function (el) {
     // 一切正确以后，记录新的挂载结点
     this.__el = el;
 
-    // 初始化添加画布
-    el.innerHTML = '<canvas>非常抱歉，您的浏览器不支持canvas!</canvas>';
-    this.__canvas = el.getElementsByTagName('canvas')[0];
+    if (this.__platform == 'h5') {
 
-    // 挂载后以后，启动画布大小监听
-    resize(this);
+        // 初始化添加画布
+        el.innerHTML = '<canvas>非常抱歉，您的浏览器不支持canvas!</canvas>';
+        this.__canvas = el.getElementsByTagName('canvas')[0];
+
+        // 挂载后以后，启动画布大小监听
+        resize(this);
+
+    } else if (this.__platform == 'uni-app') {
+
+        this.$$lifecycle('beforeResize');
+
+        this.__painter = painter(el, el.width, el.height);
+        this.__uniapp_painter=el.painter;
+
+        this._width = el.width;
+        this._height = el.height;
+        this._max = el.width > el.height ? el.width : el.height;
+        this._min = el.width < el.height ? el.width : el.height;
+
+        this.$$updateWithData(true);
+
+        this.$$lifecycle('resized');
+
+    }
 
     // 触发数据改变更新
     this.$$updateWithData();
 
-    // 添加区域交互
-    ['click', 'dblclick', 'mousemove', 'mousedown', 'mouseup'].forEach(eventName => {
-        bind(this.__canvas, eventName, event => {
+    // 目前只有h5支持event
+    if (this.__platform == 'h5') {
 
-            let region = this.__regionManager.getRegion(event);
-            if (region[0] != null) {
-                let regionSplit = region[0].split('::');
-                let doback = this.__events[eventName][regionSplit[0]];
-                if (isFunction(doback)) {
+        // 添加区域交互
+        ['click', 'dblclick', 'mousemove', 'mousedown', 'mouseup'].forEach(eventName => {
+            bind(this.__canvas, eventName, event => {
+
+                let region = this.__regionManager.getRegion(event);
+                if (region[0] != null) {
+                    let regionSplit = region[0].split('::');
+                    let doback = this.__events[eventName][regionSplit[0]];
+                    if (isFunction(doback)) {
+                        let regionNameSplit = regionSplit[0].split('@');
+
+                        let curSeires = this.__renderSeries[regionNameSplit[0]];
+
+                        // 整理属性信息
+                        let attr = {};
+                        for (let attrKey in curSeires.attr) {
+                            attr[attrKey] = curSeires.attr[attrKey].value;
+                        }
+
+                        // 调用回调
+                        doback.call(this, {
+                            id: curSeires.id,
+                            series: curSeires.name,
+                            region: regionNameSplit[1],
+                            subRegion: regionSplit[1],
+                            attr,
+                            left: region[1],
+                            top: region[2]
+                        });
+                    }
+                }
+
+            });
+        });
+
+        // 这里的回调函数doback和上面区域事件回调保持一致
+        this.$bind = function (eventName, doback) {
+            bind(this.__canvas, eventName, event => {
+                let region = this.__regionManager.getRegion(event);
+                let callbackValue;
+                if (region[0] != null) {
+                    let regionSplit = region[0].split('::');
                     let regionNameSplit = regionSplit[0].split('@');
-
                     let curSeires = this.__renderSeries[regionNameSplit[0]];
 
                     // 整理属性信息
@@ -71,63 +141,32 @@ Clunch.prototype.$mount = function (el) {
                         attr[attrKey] = curSeires.attr[attrKey].value;
                     }
 
-                    // 调用回调
-                    doback.call(this, {
-                        id:curSeires.id,
+                    callbackValue = {
+                        id: curSeires.id,
                         series: curSeires.name,
                         region: regionNameSplit[1],
                         subRegion: regionSplit[1],
-                        attr,
-                        left: region[1],
-                        top: region[2]
-                    });
-                }
-            }
-
-        });
-    });
-
-    // 这里的回调函数doback和上面区域事件回调保持一致
-    this.$bind = function (eventName, doback) {
-        bind(this.__canvas, eventName, event => {
-            let region = this.__regionManager.getRegion(event);
-            let callbackValue;
-            if (region[0] != null) {
-                let regionSplit = region[0].split('::');
-                let regionNameSplit = regionSplit[0].split('@');
-                let curSeires = this.__renderSeries[regionNameSplit[0]];
-
-                // 整理属性信息
-                let attr = {};
-                for (let attrKey in curSeires.attr) {
-                    attr[attrKey] = curSeires.attr[attrKey].value;
+                        attr
+                    };
+                } else {
+                    callbackValue = {
+                        series: null,
+                        region: null,
+                        subRegion: null,
+                        attr: {}
+                    };
                 }
 
-                callbackValue = {
-                    id:curSeires.id,
-                    series: curSeires.name,
-                    region: regionNameSplit[1],
-                    subRegion: regionSplit[1],
-                    attr
-                };
-            } else {
-                callbackValue = {
-                    series: null,
-                    region: null,
-                    subRegion: null,
-                    attr: {}
-                };
-            }
+                callbackValue.left = region[1];
+                callbackValue.top = region[2];
 
-            callbackValue.left = region[1];
-            callbackValue.top = region[2];
+                doback.call(this, callbackValue);
 
-            doback.call(this, callbackValue);
+            });
 
-        });
-
-        return this;
-    };
+            return this;
+        };
+    }
 
     // 挂载完毕以后，同步标志
     this._isMounted = true;

@@ -83,7 +83,10 @@ export function initMixin(Clunch) {
         this._max = 0;
 
         // 区域管理者
-        this.__regionManager = region(this);
+        if (this.__platform == 'h5') this.__regionManager = region(this);
+
+        // 记录平台
+        this.__platform = 'none';
 
     };
 
