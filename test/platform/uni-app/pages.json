@@ -1,12 +1,32 @@
 {
-	"pages": [ //pages数组中第一项表示应用启动页，参考：https://uniapp.dcloud.io/collocation/pages
+	"pages": [
 		{
 			"path": "pages/index/index"
+		}, {
+			"path": "pages/series/series",
+			"style": {
+				"navigationBarTitleText": "内置组件"
+			}
+
+		}, {
+			"path": "pages/clunch/clunch",
+			"style": {
+				"navigationBarTitleText": "对象本身",
+				"enablePullDownRefresh": false
+			}
+
+		}, {
+			"path": "pages/defineSeries/defineSeries",
+			"style": {
+				"navigationBarTitleText": "自定义组件",
+				"enablePullDownRefresh": false
+			}
+
 		}
 	],
 	"globalStyle": {
 		"navigationBarTextStyle": "black",
-		"navigationBarTitleText": "clunch of uni-app",
+		"navigationBarTitleText": "clunch.js 测试",
 		"navigationBarBackgroundColor": "#F8F8F8",
 		"backgroundColor": "#F8F8F8"
 	}
