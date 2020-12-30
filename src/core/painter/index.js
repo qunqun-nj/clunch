@@ -3,12 +3,12 @@ import { linearGradient, radialGradient } from './Gradient';
 
 // 画笔对象，具体的绘制方法
 
-export default function (canvas, width, height) {
+export default function (platform, canvas, width, height) {
 
     let painter;
 
     // 如果是uni-app
-    if (canvas.platform == 'uni-app') {
+    if (platform == 'uni-app') {
 
         painter = canvas.painter;
 
@@ -17,11 +17,11 @@ export default function (canvas, width, height) {
 
     }
 
-    // 默认就是h5
+    // 默认就是web
     else {
 
         // 获取canvas2D画笔
-        let painter = canvas.getContext("2d");
+        painter = canvas.getContext("2d");
 
         //  如果画布隐藏或大小为0
         if (width == 0 || height == 0) throw new Error('Canvas is hidden or size is zero!');
@@ -52,7 +52,7 @@ export default function (canvas, width, height) {
     };
 
     // 配置生效方法
-    let useConfig = canvas.platform == 'uni-app' ?
+    let useConfig = platform == 'uni-app' ?
 
         // uni-app
         (key, value) => {
@@ -66,7 +66,7 @@ export default function (canvas, width, height) {
 
         } :
 
-        // h5
+        // web
         (key, value) => {
 
             /**
@@ -115,19 +115,19 @@ export default function (canvas, width, height) {
         // 文字
         "fillText": function (text, x, y, deg) {
             painter.save();
-            initText(painter, config, x, y, deg || 0, canvas.type).fillText(text, 0, 0);
+            initText(painter, config, x, y, deg || 0, platform).fillText(text, 0, 0);
             painter.restore();
             return enhancePainter;
         },
         "strokeText": function (text, x, y, deg) {
             painter.save();
-            initText(painter, config, x, y, deg || 0, canvas.type).strokeText(text, 0, 0);
+            initText(painter, config, x, y, deg || 0, platform).strokeText(text, 0, 0);
             painter.restore();
             return enhancePainter;
         },
         "fullText": function (text, x, y, deg) {
             painter.save();
-            initText(painter, config, x, y, deg || 0, canvas.type);
+            initText(painter, config, x, y, deg || 0, platform);
             painter.fillText(text, 0, 0);
             painter.strokeText(text, 0, 0);
             painter.restore();

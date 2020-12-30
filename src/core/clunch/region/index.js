@@ -12,7 +12,7 @@ export default function (that) {
 
     // 用于计算包含关系的画板
     let canvas = document.createElement('canvas');
-    let painter = _painter(canvas, 1, 1);
+    let painter = _painter('web', canvas, 1, 1);
 
     let _width = 1, _height = 1;
 
@@ -30,7 +30,7 @@ export default function (that) {
 
             _width = width;
             _height = height;
-            painter = _painter(canvas, width, height);
+            painter = _painter('web', canvas, width, height);
 
         },
 

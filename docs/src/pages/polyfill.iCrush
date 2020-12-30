@@ -1,0 +1,104 @@
+<template>
+    <div class='doc-view' id='polyfill-id'>
+        <header id='fixed-top' @click='doScroll("header")'>
+            更多平台支持
+        </header>
+        <p>
+            默认情况下，我们只支持
+            <span class="important">普通的Web端</span>
+            ，如果想兼容更多的平台可以查询下面的说明，我们会不断的新增对更多平台的支持，有什么不清楚的或者想法可以
+            <a href="https://github.com/hai2007/clunch/issues" target="_blank">进入issue</a>
+            反馈给我们！
+        </p>
+        <h1 id='fixed-uni-app' @click='doScroll("uni-app")'>uni-app</h1>
+        <p>
+            首先，由于
+            <span class="important">uni-app</span>
+            中无法像web端一样进行
+            <span class="public">DOM操作</span>
+            ，因此我们在新建对象的时候，传递的参数会有一些差异：
+        </p>
+        <pre ui-code>
+new Clunch({
+    platform:"uni-app", // 多了一个配置项，用来明确当前环境
+    el:{
+
+        // 传递的画笔
+        painter: uni.createCanvasContext(canvas-id, this),
+
+        // 画布大小，单位px
+        width: number,
+        height: number
+    },
+    // 其余的不变
+    // ......
+});
+        </pre>
+        <h2>
+            主动触发画布大小更新的方法调用参数有所改变：
+        </h2>
+        <pre ui-code>
+            this.$resize(width, height);
+        </pre>
+        <p>
+            你需要主动设置最新的画布大小。
+        </p>
+        <h3>
+            不支持的服务
+        </h3>
+        <p>
+            由于部分服务依赖DOM操作，目前（主要是由于时间不足等原因）没有进行兼容处理，因此在
+            <span class="important">uni-app</span>
+            中可能无法正常使用。
+        </p>
+        <p>
+            下面我们列出所有无法正常使用的服务：
+        </p>
+        <ul>
+            <li>
+                $formatColor
+            </li>
+        </ul>
+        <h3>
+            不支持事件
+        </h3>
+        <p>
+            目前我们没有对事件交互进行兼容，因此绘制的图形无法进行交互，如果后续添加支持会在此处更新说明。
+        </p>
+    </div>
+</template>
+<script>
+    import changeActive from '../Service/changeActive.js';
+    import fixedScroll from '../Service/fixedScroll.js';
+    export default {
+        created() {
+            changeActive('menu-1', 'polyfill');
+        },
+        mounted() {
+            fixedScroll(document.getElementById('polyfill-id'), 44);
+        },
+        methods: {
+            doScroll(fixedName) {
+                window.location.href = (window.location.href + "").replace(/\?fixed=.*$/, '') + "?fixed=" + fixedName;
+                fixedScroll(document.getElementById('polyfill-id'), 44);
+            }
+        }
+    };
+
+</script>
+<style>
+    .doc-view {
+
+        /* 添加是为了可以控制滚动 */
+        height: calc(100vh - .44rem);
+        overflow: auto;
+        width: 100vw;
+        min-width: 7rem;
+        padding: .3rem calc(50vw - 3.5rem);
+    }
+
+    header,
+    h1 {
+        cursor: pointer;
+    }
+</style>

@@ -190,6 +190,13 @@
             <span class="important">unmounted</span>
             钩子。
         </p>
+        <h3 id="fixed-resize">
+            $resize
+        </h3>
+        <p>
+            如果监听画布大小的机制失效了（比如IE浏览器），可以使用下面的方法主动更新画布大小：
+        </p>
+        <pre ui-code>this.$resize();</pre>
         <h3 id="fixed-destroy">
             $destroy
         </h3>

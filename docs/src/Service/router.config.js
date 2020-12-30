@@ -62,7 +62,7 @@ const pages = {
     },
 
     /**
-     * 教程
+     * 用例
      */
 
     "examples": {
@@ -92,6 +92,14 @@ const pages = {
             "content": () => import('../pages/examples/page7/index.iCrush')
         },
         "_default_": "menu"
+    },
+
+    /**
+    * 更多平台支持
+    */
+
+    "polyfill": {
+        "content": () => import('../pages/polyfill.iCrush')
     },
 
     "_default_": "guide"

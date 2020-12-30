@@ -86,6 +86,12 @@ new Clunch({
 
 具体的请查看[在线文档](https://hai2007.gitee.io/clunch/)了解详情！
 
+## 更多平台兼容
+
+默认情况下，我们只支持普通的Web端，如果想兼容更多的平台可以查询下面对应的说明，我们会不断的新增对更多平台的支持，有什么不清楚的或者想法可以进入[issue](https://github.com/hai2007/clunch/issues)反馈给我们！
+
+- [uni-app](https://hai2007.gitee.io/clunch/#/polyfill?fixed=uni-app)
+
 ## 联系我们
 
 - QQ: 2501482523

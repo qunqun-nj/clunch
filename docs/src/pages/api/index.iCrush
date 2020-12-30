@@ -32,6 +32,9 @@
                                     <h5 @click='doScroll("unmount")'>$unmount</h5>
                                 </li>
                                 <li>
+                                    <h5 @click='doScroll("resize")'>$resize</h5>
+                                </li>
+                                <li>
                                     <h5 @click='doScroll("destroy")'>$destroy</h5>
                                 </li>
                                 <li>

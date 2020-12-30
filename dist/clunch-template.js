@@ -4,12 +4,12 @@
  *
  * author hai2007 < https://hai2007.gitee.io/sweethome >
  *
- * version 0.3.0-alpha
+ * version 0.3.0
  *
  * Copyright (c) 2020 hai2007 走一步，再走一步。
  * Released under the MIT license
  *
- * Date:Tue Dec 29 2020 16:31:19 GMT+0800 (GMT+08:00)
+ * Date:Wed Dec 30 2020 13:25:01 GMT+0800 (GMT+08:00)
  */
 (function () {
   'use strict';
@@ -92,6 +92,17 @@
   }
 
   /**
+   * 判断一个值是不是number。
+   *
+   * @param {*} value 需要判断类型的值
+   * @returns {boolean} 如果是number返回true，否则返回false
+   */
+
+  function _isNumber (value) {
+    return typeof value === 'number' || value !== null && _typeof(value) === 'object' && getType(value) === '[object Number]';
+  }
+
+  /**
    * 判断一个值是不是String。
    *
    * @param {*} value 需要判断类型的值
@@ -150,6 +161,7 @@
   var domTypeHelp = function domTypeHelp(types, value) {
     return value !== null && _typeof(value) === 'object' && types.indexOf(value.nodeType) > -1 && !_isPlainObject(value);
   };
+  var isNumber = _isNumber;
   var isString = _isString;
 
   var isFunction = _isFunction;
@@ -1277,18 +1289,17 @@
     return enhanceGradient;
   };
 
-  function painter (canvas, width, height) {
+  function painter (platform, canvas, width, height) {
     var painter; // 如果是uni-app
 
-    if (canvas.platform == 'uni-app') {
+    if (platform == 'uni-app') {
       painter = canvas.painter;
       painter.setTextBaseline('middle');
       painter.setTextAlign('left');
-    } // 默认就是h5
+    } // 默认就是web
     else {
         // 获取canvas2D画笔
-        var _painter = canvas.getContext("2d"); //  如果画布隐藏或大小为0
-
+        painter = canvas.getContext("2d"); //  如果画布隐藏或大小为0
 
         if (width == 0 || height == 0) throw new Error('Canvas is hidden or size is zero!'); // 设置显示大小
 
@@ -1298,11 +1309,10 @@
         canvas.setAttribute('width', width * 2);
         canvas.setAttribute('height', height * 2); // 通过缩放实现模糊问题
 
-        _painter.scale(2, 2); // 默认配置canvas2D对象已经存在的属性
+        painter.scale(2, 2); // 默认配置canvas2D对象已经存在的属性
 
-
-        _painter.textBaseline = 'middle';
-        _painter.textAlign = 'left';
+        painter.textBaseline = 'middle';
+        painter.textAlign = 'left';
       } // 默认配置不应该有canvas2D对象已经存在的属性
     // 这里是为了简化或和svg统一接口而自定义的属性
 
@@ -1318,7 +1328,7 @@
 
     }; // 配置生效方法
 
-    var useConfig = canvas.platform == 'uni-app' ? // uni-app
+    var useConfig = platform == 'uni-app' ? // uni-app
     function (key, value) {
       // 如果已经存在默认配置中，说明只需要缓存起来即可
       if (config[key]) {
@@ -1326,7 +1336,7 @@
       } else {
         painter['set' + key[0].toUpperCase() + key.substr(1)](value);
       }
-    } : // h5
+    } : // web
     function (key, value) {
       /**
        * -----------------------------
@@ -1368,19 +1378,19 @@
       // 文字
       "fillText": function fillText(text, x, y, deg) {
         painter.save();
-        initText(painter, config, x, y, deg || 0, canvas.type).fillText(text, 0, 0);
+        initText(painter, config, x, y, deg || 0, platform).fillText(text, 0, 0);
         painter.restore();
         return enhancePainter;
       },
       "strokeText": function strokeText(text, x, y, deg) {
         painter.save();
-        initText(painter, config, x, y, deg || 0, canvas.type).strokeText(text, 0, 0);
+        initText(painter, config, x, y, deg || 0, platform).strokeText(text, 0, 0);
         painter.restore();
         return enhancePainter;
       },
       "fullText": function fullText(text, x, y, deg) {
         painter.save();
-        initText(painter, config, x, y, deg || 0, canvas.type);
+        initText(painter, config, x, y, deg || 0, platform);
         painter.fillText(text, 0, 0);
         painter.strokeText(text, 0, 0);
         painter.restore();
@@ -1562,7 +1572,7 @@
 
     var canvas = document.createElement('canvas');
 
-    var _painter2 = painter(canvas, 1, 1);
+    var _painter2 = painter('web', canvas, 1, 1);
 
     var _width = 1,
         _height = 1;
@@ -1577,7 +1587,7 @@
       "updateSize": function updateSize(width, height) {
         _width = width;
         _height = height;
-        _painter2 = painter(canvas, width, height);
+        _painter2 = painter('web', canvas, width, height);
       },
       // 绘制（添加）区域范围
 
@@ -1632,7 +1642,9 @@
   function initMixin(Clunch) {
     // 对对象进行初始化
     Clunch.prototype.$$init = function (options) {
-      this.__options = options; // 需要双向绑定的数据
+      this.__options = options; // 记录平台
+
+      this._platform = "platform" in options ? options.platform : "web"; // 需要双向绑定的数据
 
       this.__data = isArray(options.data) ? serviceFactory(options.data) : isFunction(options.data) ? options.data() : options.data; // 数据改变是否需要过渡动画
 
@@ -1692,9 +1704,7 @@
       this._min = 0;
       this._max = 0; // 区域管理者
 
-      if (this.__platform == 'h5') this.__regionManager = region(this); // 记录平台
-
-      this.__platform = 'none';
+      if (this._platform == 'web') this.__regionManager = region(this);
     };
   }
 
@@ -2394,7 +2404,7 @@
       if (!this._isMounted || !this.__painter) return;
       this.$$lifecycle('beforeDraw'); // 清空区域信息
 
-      if (this.__platform == 'h5') this.__regionManager.erase(); // 清空画布
+      if (this._platform == 'web') this.__regionManager.erase(); // 清空画布
 
       this.__painter.clearRect();
 
@@ -2426,7 +2436,7 @@
         _this.__defineSerirs[_this.__renderSeries[i].name].link(_this.__painter, attr); // 记录区域
 
 
-        if (_this.__platform == 'h5') {
+        if (_this._platform == 'web') {
           var region = _this.__defineSerirs[_this.__renderSeries[i].name].region;
 
           if (region) {
@@ -2449,7 +2459,7 @@
       } // 对于uni-app，最后需要绘制一下才会显示
 
 
-      if (this.__platform == 'uni-app') this.__uniapp_painter.draw();
+      if (this._platform == 'uni-app') this.__uniapp_painter.draw();
       this.$$lifecycle('drawed');
     }; // 画布大小改变的时候，更新
 
@@ -2461,7 +2471,7 @@
       var width = this.__el.clientWidth - (getStyle(this.__el, 'padding-left') + "").replace('px', '') - (getStyle(this.__el, 'padding-right') + "").replace('px', '');
       var height = this.__el.clientHeight - (getStyle(this.__el, 'padding-top') + "").replace('px', '') - (getStyle(this.__el, 'padding-bottom') + "").replace('px', ''); // 更新画布
 
-      this.__painter = painter(this.__canvas, width, height);
+      this.__painter = painter(this._platform, this.__canvas, width, height);
       this._width = width;
       this._height = height;
       this._max = width > height ? width : height;
@@ -2793,7 +2803,7 @@
     if (this._isDestroyed) {
       // 已经销毁的组件不能重新挂载
       console.warn('The clunch has been destroyed!');
-      return;
+      return this;
     }
 
     if (this._isMounted) {
@@ -2802,18 +2812,10 @@
       return;
     }
 
-    if (!isElement(el)) {
-      if (el.platform == 'uni-app') {
-        // 如果是uni-app
-        this.__platform = 'uni-app';
-      } else {
-        // 如果挂载结点不正确，自然不能挂载
-        console.warn('Mount node does not exist!');
-        return;
-      }
-    } else {
-      // 默认就是h5平台
-      this.__platform = 'h5';
+    if (this._platform == 'web' && !isElement(el)) {
+      // 如果挂载结点不正确，自然不能挂载
+      console.warn('Mount node does not exist!');
+      return this;
     }
 
     this.$$lifecycle('beforeMount'); // 如果我们没有在初始化对象的时候传递render（template也算传递了）
@@ -2827,28 +2829,22 @@
 
     this.__el = el;
 
-    if (this.__platform == 'h5') {
+    if (this._platform == 'web') {
       // 初始化添加画布
       el.innerHTML = '<canvas>非常抱歉，您的浏览器不支持canvas!</canvas>';
       this.__canvas = el.getElementsByTagName('canvas')[0]; // 挂载后以后，启动画布大小监听
 
       resize(this);
-    } else if (this.__platform == 'uni-app') {
-      this.$$lifecycle('beforeResize');
-      this.__painter = painter(el, el.width, el.height);
+    } else if (this._platform == 'uni-app') {
+      this.__painter = painter(this._platform, el, el.width, el.height);
       this.__uniapp_painter = el.painter;
-      this._width = el.width;
-      this._height = el.height;
-      this._max = el.width > el.height ? el.width : el.height;
-      this._min = el.width < el.height ? el.width : el.height;
-      this.$$updateWithData(true);
-      this.$$lifecycle('resized');
+      this.$resize(el.width, el.height, 'uni-app');
     } // 触发数据改变更新
 
 
-    this.$$updateWithData(); // 目前只有h5支持event
+    this.$$updateWithData(); // 目前只有web支持event
 
-    if (this.__platform == 'h5') {
+    if (this._platform == 'web') {
       // 添加区域交互
       ['click', 'dblclick', 'mousemove', 'mousedown', 'mouseup'].forEach(function (eventName) {
         bind(_this.__canvas, eventName, function (event) {
@@ -2938,12 +2934,12 @@
   Clunch.prototype.$unmount = function () {
     if (this._isDestroyed) {
       console.warn('The object has been destroyed!');
-      return;
+      return this;
     }
 
     if (!this._isMounted) {
       console.warn('Object not mounted!');
-      return;
+      return this;
     }
 
     this.$$lifecycle('beforeUnmount'); // 解除对画布大小改变的监听
@@ -2963,7 +2959,7 @@
   Clunch.prototype.$destroy = function () {
     if (this._isDestroyed) {
       console.warn('The object has been destroyed!');
-      return;
+      return this;
     } // 先解除绑定
 
 
@@ -2975,6 +2971,39 @@
     this.__observeWatcher = {};
     this._isDestroyed = true;
     this.$$lifecycle('destroyed');
+    return this;
+  };
+
+  Clunch.prototype.$resize = function (width, height, __platform) {
+    if (this._isMounted || arguments.length >= 3) {
+      // uni-app
+      if (this._platform == 'uni-app' || __platform == 'uni-app') {
+        if (!isNumber(width)) {
+          console.warn('The width undefined!');
+          return this;
+        }
+
+        if (!isNumber(height)) {
+          console.warn('The height undefined!');
+          return this;
+        }
+
+        this.$$lifecycle('beforeResize');
+        this._width = width;
+        this._height = height;
+        this._max = width > height ? width : height;
+        this._min = width < height ? width : height;
+        this.$$updateWithData(true);
+        this.$$lifecycle('resized');
+      } // 默认web
+      else {
+          this.$$updateWithSize();
+        }
+    } else {
+      // 如果组件未挂载，无法更新大小
+      console.warn('The clunch not mounted!');
+    }
+
     return this;
   };
   /**

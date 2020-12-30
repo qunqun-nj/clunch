@@ -142,7 +142,7 @@ cardinal.setP([[X1,Y1],[X2,Y2],...,[Xn, Yn]]);
         </p>
         <pre ui-code>var p=dot.value();</pre>
         <h1 id="fixed-formatColor">
-            颜色
+            格式化颜色
             <span class='sub-title'>
                 $formatColor
             </span>
@@ -152,7 +152,7 @@ cardinal.setP([[X1,Y1],[X2,Y2],...,[Xn, Yn]]);
         </p>
         <pre ui-code>$formatColor(colorString);</pre>
         <h1 id="fixed-getRandomColors">
-            颜色
+            随机颜色
             <span class='sub-title'>
                 $getRandomColors
             </span>

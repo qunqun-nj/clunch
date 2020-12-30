@@ -17,6 +17,11 @@ declare class Clunch {
     $unmount(): this;
 
     /**
+     * 主动更新画布大小
+     */
+    $resize(): this;
+
+    /**
      * 销毁对象
      */
     $destroy(): this;

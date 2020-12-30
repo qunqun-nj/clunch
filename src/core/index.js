@@ -1,5 +1,5 @@
 import Clunch from './clunch/instance/index';
-import { isElement, isFunction } from '@hai2007/tool/type';
+import { isElement, isFunction, isNumber } from '@hai2007/tool/type';
 import resize from './clunch/observe/resize';
 import aopRender from './clunch/vnode/AOP-render';
 import { bind } from '../tool/event';
@@ -16,7 +16,7 @@ Clunch.prototype.$mount = function (el) {
     if (this._isDestroyed) {
         // 已经销毁的组件不能重新挂载
         console.warn('The clunch has been destroyed!');
-        return;
+        return this;
     }
 
     if (this._isMounted) {
@@ -25,25 +25,14 @@ Clunch.prototype.$mount = function (el) {
         return;
     }
 
-    if (!isElement(el)) {
+    if (this._platform == 'web' && !isElement(el)) {
 
-        if (el.platform == 'uni-app') {
-
-            // 如果是uni-app
-            this.__platform = 'uni-app';
-
-        } else {
-
-            // 如果挂载结点不正确，自然不能挂载
-            console.warn('Mount node does not exist!');
-            return;
-        }
-    } else {
-
-        // 默认就是h5平台
-        this.__platform = 'h5';
+        // 如果挂载结点不正确，自然不能挂载
+        console.warn('Mount node does not exist!');
+        return this;
 
     }
+
 
     this.$$lifecycle('beforeMount');
 
@@ -57,7 +46,7 @@ Clunch.prototype.$mount = function (el) {
     // 一切正确以后，记录新的挂载结点
     this.__el = el;
 
-    if (this.__platform == 'h5') {
+    if (this._platform == 'web') {
 
         // 初始化添加画布
         el.innerHTML = '<canvas>非常抱歉，您的浏览器不支持canvas!</canvas>';
@@ -66,29 +55,20 @@ Clunch.prototype.$mount = function (el) {
         // 挂载后以后，启动画布大小监听
         resize(this);
 
-    } else if (this.__platform == 'uni-app') {
+    } else if (this._platform == 'uni-app') {
 
-        this.$$lifecycle('beforeResize');
+        this.__painter = painter(this._platform, el, el.width, el.height);
+        this.__uniapp_painter = el.painter;
 
-        this.__painter = painter(el, el.width, el.height);
-        this.__uniapp_painter=el.painter;
-
-        this._width = el.width;
-        this._height = el.height;
-        this._max = el.width > el.height ? el.width : el.height;
-        this._min = el.width < el.height ? el.width : el.height;
-
-        this.$$updateWithData(true);
-
-        this.$$lifecycle('resized');
+        this.$resize(el.width, el.height, 'uni-app');
 
     }
 
     // 触发数据改变更新
     this.$$updateWithData();
 
-    // 目前只有h5支持event
-    if (this.__platform == 'h5') {
+    // 目前只有web支持event
+    if (this._platform == 'web') {
 
         // 添加区域交互
         ['click', 'dblclick', 'mousemove', 'mousedown', 'mouseup'].forEach(eventName => {
@@ -183,12 +163,12 @@ Clunch.prototype.$unmount = function () {
 
     if (this._isDestroyed) {
         console.warn('The object has been destroyed!');
-        return;
+        return this;
     }
 
     if (!this._isMounted) {
         console.warn('Object not mounted!');
-        return;
+        return this;
     }
 
     this.$$lifecycle('beforeUnmount');
@@ -211,7 +191,7 @@ Clunch.prototype.$destroy = function () {
 
     if (this._isDestroyed) {
         console.warn('The object has been destroyed!');
-        return;
+        return this;
     }
 
     // 先解除绑定
@@ -226,6 +206,50 @@ Clunch.prototype.$destroy = function () {
 
     this._isDestroyed = true;
     this.$$lifecycle('destroyed');
+
+    return this;
+};
+
+Clunch.prototype.$resize = function (width, height, __platform) {
+
+    if (this._isMounted || arguments.length >= 3) {
+
+        // uni-app
+        if (this._platform == 'uni-app' || __platform == 'uni-app') {
+
+            if (!isNumber(width)) {
+                console.warn('The width undefined!');
+                return this;
+            }
+
+            if (!isNumber(height)) {
+                console.warn('The height undefined!');
+                return this;
+            }
+
+            this.$$lifecycle('beforeResize');
+
+            this._width = width;
+            this._height = height;
+            this._max = width > height ? width : height;
+            this._min = width < height ? width : height;
+
+            this.$$updateWithData(true);
+
+            this.$$lifecycle('resized');
+
+        }
+
+        // 默认web
+        else {
+            this.$$updateWithSize();
+        }
+
+    } else {
+
+        // 如果组件未挂载，无法更新大小
+        console.warn('The clunch not mounted!');
+    }
 
     return this;
 };

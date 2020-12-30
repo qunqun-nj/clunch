@@ -18,7 +18,7 @@ export function updateMixin(Clunch) {
         this.$$lifecycle('beforeDraw');
 
         // 清空区域信息
-        if (this.__platform == 'h5') this.__regionManager.erase();
+        if (this._platform == 'web') this.__regionManager.erase();
 
         // 清空画布
         this.__painter.clearRect();
@@ -53,7 +53,7 @@ export function updateMixin(Clunch) {
             this.__defineSerirs[this.__renderSeries[i].name].link(this.__painter, attr);
 
             // 记录区域
-            if (this.__platform == 'h5') {
+            if (this._platform == 'web') {
                 let region = this.__defineSerirs[this.__renderSeries[i].name].region;
                 if (region) {
                     for (let regionName in region) {
@@ -69,7 +69,7 @@ export function updateMixin(Clunch) {
         }
 
         // 对于uni-app，最后需要绘制一下才会显示
-        if (this.__platform == 'uni-app') this.__uniapp_painter.draw();
+        if (this._platform == 'uni-app') this.__uniapp_painter.draw();
 
         this.$$lifecycle('drawed');
     };
@@ -83,7 +83,7 @@ export function updateMixin(Clunch) {
         let height = this.__el.clientHeight - ((getStyle(this.__el, 'padding-top') + "").replace('px', '')) - ((getStyle(this.__el, 'padding-bottom') + "").replace('px', ''));
 
         // 更新画布
-        this.__painter = painter(this.__canvas, width, height);
+        this.__painter = painter(this._platform, this.__canvas, width, height);
         this._width = width;
         this._height = height;
         this._max = width > height ? width : height;
