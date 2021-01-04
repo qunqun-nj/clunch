@@ -149,8 +149,8 @@ export function updateMixin(Clunch) {
 
                 // id可以采用默认的计算机制，也可以由用户自定义
                 let id;
-                if ('$id' in renderAOP[i]) {
-                    id = renderAOP[i].$id.isBind ? evalExpress(that, renderAOP[i].$id.express, renderAOP[i].scope) : renderAOP[i].$id.express;
+                if ('_id' in renderAOP[i]) {
+                    id = renderAOP[i]._id.isBind ? evalExpress(that, renderAOP[i]._id.express, renderAOP[i].scope) : renderAOP[i]._id.express;
                 } else {
                     id = pid + renderAOP[i].index;
                 }

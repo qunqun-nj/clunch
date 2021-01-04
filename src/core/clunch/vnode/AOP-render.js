@@ -139,8 +139,8 @@ export default function (initRender, series) {
                     if (/^c\-/.test(attrKey)) {
                         // todo
                     }
-                    else if (attrKey == '$id') {
-                        aopRender.$id = render.attrs.$id;
+                    else if (attrKey == '_id') {
+                        aopRender._id = render.attrs._id;
                     } else if (!(attrKey in curSeries.attrs)) {
                         console.warn("attrs." + attrKey + ' is not defined for ' + (pName ? pName + " > " + render.name : render.name) + '!');
                     }

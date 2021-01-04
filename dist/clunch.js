@@ -4,12 +4,12 @@
  *
  * author hai2007 < https://hai2007.gitee.io/sweethome >
  *
- * version 0.3.1
+ * version 0.4.0
  *
  * Copyright (c) 2020-2021 hai2007 走一步，再走一步。
  * Released under the MIT license
  *
- * Date:Mon Jan 04 2021 15:10:22 GMT+0800 (GMT+08:00)
+ * Date:Mon Jan 04 2021 22:43:29 GMT+0800 (GMT+08:00)
  */
 (function () {
   'use strict';
@@ -1100,8 +1100,8 @@
 
 
           for (var _attrKey in render.attrs) {
-            if (/^c\-/.test(_attrKey)) ; else if (_attrKey == '$id') {
-              aopRender.$id = render.attrs.$id;
+            if (/^c\-/.test(_attrKey)) ; else if (_attrKey == '_id') {
+              aopRender._id = render.attrs._id;
             } else if (!(_attrKey in curSeries.attrs)) {
               console.warn("attrs." + _attrKey + ' is not defined for ' + (pName ? pName + " > " + render.name : render.name) + '!');
             }
@@ -2534,8 +2534,8 @@
 
           var id = void 0;
 
-          if ('$id' in renderAOP[i]) {
-            id = renderAOP[i].$id.isBind ? evalExpress(that, renderAOP[i].$id.express, renderAOP[i].scope) : renderAOP[i].$id.express;
+          if ('_id' in renderAOP[i]) {
+            id = renderAOP[i]._id.isBind ? evalExpress(that, renderAOP[i]._id.express, renderAOP[i].scope) : renderAOP[i]._id.express;
           } else {
             id = pid + renderAOP[i].index;
           } // c-for指令
