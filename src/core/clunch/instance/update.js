@@ -50,7 +50,7 @@ export function updateMixin(Clunch) {
             }
 
             // 绘制
-            this.__defineSerirs[this.__renderSeries[i].name].link(this.__painter, attr);
+            this.__defineSerirs[this.__renderSeries[i].name].link.call(this, this.__painter, attr);
 
             // 记录区域
             if (this._platform == 'web') {

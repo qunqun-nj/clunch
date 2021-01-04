@@ -1,0 +1,64 @@
+<template>
+    <div class='doc-view'>
+        <header id='fixed-top'>
+            组件复用
+        </header>
+        <h2 id='fixed-option'>配置option前置说明</h2>
+        <p>
+            由于下面要说明的方法中都会设计到这个选项，在这里提前统一说明一下：
+        </p>
+        <pre ui-code>
+option = {
+    attr:{},
+    subSeries:[
+        {
+            name:"",
+            attr:{}
+        },
+        // ......
+    ],
+    texts:[]
+})
+            </pre>
+        <ul>
+            <li>
+                <span class="important">option.attr</span>
+                ：表示需要被复用的组件的属性配置。
+            </li>
+            <li>
+                <span class="important">option.subSeries</span>
+                ：可选，表示需要被复用的组件的子组件，是一个数组，数组条目的
+                <span class="public">name</span>
+                和
+                <span class="public">attr</span>
+                方便表示子组件的名称和属性配置。
+            </li>
+            <li>
+                <span class="important">option.texts</span>
+                ：可选，文本数组。
+            </li>
+        </ul>
+        <h3 id='fixed-link'>图形复用</h3>
+        <pre ui-code>
+this.$reuseSeriesLink(seriesName, options);
+        </pre>
+        <p>
+            该方法表示复用组件
+            <span class="important">seriesName</span>
+            ，第二个参数按照开头说明的传递即可。
+        </p>
+    </div>
+</template>
+<script>
+    import changeActive from '../../../Service/changeActive.js';
+    import fixedScroll from '../../../Service/fixedScroll.js';
+    export default {
+        created() {
+            changeActive('menu-2', 'series-reuse');
+        },
+        mounted() {
+            fixedScroll(document.getElementById('api-id'), 44);
+        }
+    };
+
+</script>

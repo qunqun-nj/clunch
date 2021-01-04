@@ -38,6 +38,9 @@ const pages = {
         "series-list": {
             "content": () => import('../pages/api/series/list.iCrush')
         },
+        "series-reuse": {
+            "content": () => import('../pages/api/series/reuse.iCrush')
+        },
 
         "_default_": "object"
 

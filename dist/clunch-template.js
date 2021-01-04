@@ -4,12 +4,12 @@
  *
  * author hai2007 < https://hai2007.gitee.io/sweethome >
  *
- * version 0.3.0
+ * version 0.3.1
  *
- * Copyright (c) 2020 hai2007 走一步，再走一步。
+ * Copyright (c) 2020-2021 hai2007 走一步，再走一步。
  * Released under the MIT license
  *
- * Date:Wed Dec 30 2020 13:25:01 GMT+0800 (GMT+08:00)
+ * Date:Mon Jan 04 2021 15:10:22 GMT+0800 (GMT+08:00)
  */
 (function () {
   'use strict';
@@ -2433,7 +2433,7 @@
         } // 绘制
 
 
-        _this.__defineSerirs[_this.__renderSeries[i].name].link(_this.__painter, attr); // 记录区域
+        _this.__defineSerirs[_this.__renderSeries[i].name].link.call(_this, _this.__painter, attr); // 记录区域
 
 
         if (_this._platform == 'web') {
@@ -2771,8 +2771,51 @@
     return temp;
   }
 
+  function initGlobal(Clunch) {
+    // 组件图形复用
+    Clunch.prototype.$reuseSeriesLink = function (seriesName, _attrs) {
+      var reuseSeries = this.__defineSerirs[seriesName];
+      var attrs = {
+        _subAttr: [],
+        _subTexts: "texts" in _attrs ? _attrs.texts : []
+      }; // 先是属性
+
+      for (var attrKey in reuseSeries.attrs) {
+        if (attrKey in _attrs.attr) {
+          attrs[attrKey] = _attrs.attr[attrKey];
+        } else {
+          attrs[attrKey] = reuseSeries.attrs[attrKey]["default"];
+        }
+      }
+
+      if ("subSeries" in _attrs) {
+        for (var i = 0; i < _attrs.subSeries.length; i++) {
+          var _subSeries = _attrs.subSeries[i];
+          var _subReuesSeriesAttr = reuseSeries.subAttrs[_subSeries.name];
+          var subSeries = {
+            series: _subSeries.name,
+            attr: {}
+          }; // 然后是子属性
+
+          for (var subAttrKey in _subSeries.attr) {
+            if (subAttrKey in _subSeries.attr) {
+              subSeries.attr[subAttrKey] = _subSeries.attr[subAttrKey];
+            } else {
+              subSeries.attr[subAttrKey] = _subReuesSeriesAttr[subAttrKey]["default"];
+            }
+          }
+
+          attrs._subAttr.push(subSeries);
+        }
+      }
+
+      reuseSeries.link.call(this, this.__painter, attrs);
+    };
+  }
+
   function initGlobalApi (Clunch) {
-    // 挂载小组件
+    initGlobal(Clunch); // 挂载小组件
+
     Clunch.series = function (name, series) {
       // 如果传递的是json的方式
       if (arguments.length == 1) {

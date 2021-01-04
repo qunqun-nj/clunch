@@ -1,7 +1,7 @@
 import { initMixin } from './init';
 import { lifecycleMixin } from './lifecycle';
 import { updateMixin } from './update';
-import { isArray, isElement } from '@hai2007/tool/type';
+import { isArray } from '@hai2007/tool/type';
 import serviceFactory from '../../service/index';
 import watcher from '../observe/watcher';
 

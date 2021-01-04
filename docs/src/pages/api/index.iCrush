@@ -207,6 +207,23 @@
                         </li>
                     </ul>
                 </li>
+                <li>
+                    <h3 @click='openRouter("series-reuse")' class='menu-2 series-reuse'>
+                        组件复用
+                    </h3>
+                    <ul>
+                        <li>
+                            <ul>
+                                <li>
+                                    <h5 @click='doScroll("option")'>配置option前置说明</h5>
+                                </li>
+                            </ul>
+                        </li>
+                        <li>
+                            <h4 @click='doScroll("link")'>图形复用</h4>
+                        </li>
+                    </ul>
+                </li>
             </ul>
         </div>
         <div id='api-id'>

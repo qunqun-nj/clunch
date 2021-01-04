@@ -37,3 +37,7 @@ v0.3.0:
     changes:
       - 添加对uni-app的支持
       - 新增画布大小主动更新方法
+v0.3.1:
+    date:2021-01-04
+    changes:
+      - 添加组件复用方法 ```this.$reuseSeriesLink()```
