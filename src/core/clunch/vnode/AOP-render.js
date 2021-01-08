@@ -7,7 +7,7 @@ let calcValue = (type, express) => {
 
         // boolean
         case 'boolean': {
-            return express == 'true' ? true : false;
+            return express == 'false' || express == false ? false : true;
         }
 
         // 数字
