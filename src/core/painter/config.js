@@ -1,17 +1,12 @@
 import arc from './arc';
 
 // 文字统一设置方法
-export let initText = function (painter, config, x, y, deg, platform) {
+export let initText = function (painter, config, x, y, deg) {
 
     painter.beginPath();
     painter.translate(x, y);
     painter.rotate(deg);
-    if (platform == 'uni-app') {
-        painter.setFontSize(config['font-size']);
-        // font-family目前无视了
-    } else {
-        painter.font = config['font-size'] + "px " + config['font-family'];
-    }
+    painter.font = config['font-size'] + "px " + config['font-family'];
     return painter;
 };
 

@@ -15,9 +15,6 @@
                 <li title='一些使用例子' class='menu-1 examples'>
                     <a href="#/examples" target="_blank">用例</a>
                 </li>
-                <li title='教你如何兼容除web外的平台' @click='openRouter("polyfill")' class='menu-1 polyfill'>
-                    更多平台支持
-                </li>
                 <li onclick="window.location.href='https://github.com/hai2007/clunch'" class='git-url'
                     title='clunch.js 源码'>
                     Fork-me-on-Github

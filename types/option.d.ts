@@ -1,11 +1,6 @@
 export interface option {
 
     /**
-     * 用来明确当前环境
-     */
-    platform: "web" | "uni-app",
-
-    /**
      * 挂载点
      */
     el: Element,

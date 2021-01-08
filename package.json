@@ -1,6 +1,6 @@
 {
   "name": "clunch",
-  "version": "0.4.0",
+  "version": "1.0.0",
   "description": "🎨 The Progressive JavaScript Interactive Picture Framework.",
   "main": "dist/clunch.min.js",
   "typings": "types/index.d.ts",
@@ -8,7 +8,7 @@
     "start": "npm install && npm run dev",
     "dev": "rollup --config rollup.config.js -i ./src/entry-template.js -o ./dist/clunch-template.js --watch",
     "dev:core": "rollup --config rollup.config.js -i ./src/entry.core.js -o ./dist/clunch.core.js --watch",
-    "build": "npm run rollup && npm run uglifyjs && cuf --config ./cuf.config.js",
+    "build": "npm run rollup && npm run uglifyjs && hai2007_nodejs --config ./hai2007_nodejs.config.js",
     "rollup": "npm run rollup:core && npm run rollup:clunch && npm run rollup:core@template && npm run rollup:clunch@template",
     "rollup:clunch": "rollup --config rollup.config.js -i ./src/entry.js -o ./dist/clunch.js",
     "rollup:clunch@template": "rollup --config rollup.config.js -i ./src/entry-template.js -o ./dist/clunch-template.js",
@@ -28,8 +28,7 @@
     "javascript",
     "framework",
     "picture",
-    "chart",
-    "uni-app"
+    "image"
   ],
   "author": "你好2007",
   "license": "MIT",
@@ -38,11 +37,11 @@
   },
   "homepage": "https://hai2007.gitee.io/clunch/",
   "devDependencies": {
-    "@hai2007/tool": "^0.4.0",
     "@babel/core": "^7.12.3",
     "@babel/preset-env": "^7.12.1",
+    "@hai2007/nodejs": "^0.1.0",
+    "@hai2007/tool": "^0.4.0",
     "@rollup/plugin-babel": "^5.2.1",
-    "cuf": "^1.2.0",
     "rollup": "^2.33.2",
     "rollup-plugin-commonjs": "^10.1.0",
     "rollup-plugin-node-resolve": "^5.2.0",

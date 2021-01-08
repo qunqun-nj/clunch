@@ -13,9 +13,6 @@ export function initMixin(Clunch) {
 
         this.__options = options;
 
-        // 记录平台
-        this._platform = "platform" in options ? options.platform : "web";
-
         // 需要双向绑定的数据
         this.__data = isArray(options.data) ? serviceFactory(options.data) : (isFunction(options.data) ? options.data() : options.data);
 
@@ -86,7 +83,7 @@ export function initMixin(Clunch) {
         this._max = 0;
 
         // 区域管理者
-        if (this._platform == 'web') this.__regionManager = region(this);
+        this.__regionManager = region(this);
 
     };
 
