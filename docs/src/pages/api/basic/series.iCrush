@@ -14,7 +14,7 @@
             // 类型生成方法的参数defaultValue可选，如果没有默认值可以不传递，表示必输
             // 类型生成方法执行以后返回的是一个函数，
             // 如果此属性参与动画，可以传递true或函数，否则可以省略：$type1(defaultValue)
-            // 如果传递函数，格式：(newValue, oldValue, depp)=>{ 返回结果 }
+            // 如果传递函数，格式：(newValue, oldValue, deep)=>{ 返回结果 }
             attrName1:$type1(defaultValue)(boolean|function),
             ......
         },

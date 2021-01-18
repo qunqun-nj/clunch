@@ -4,12 +4,12 @@
  *
  * author 你好2007 < https://hai2007.gitee.io/sweethome >
  *
- * version 1.0.1
+ * version 1.2.0
  *
  * Copyright (c) 2020-2021 hai2007 走一步，再走一步。
  * Released under the MIT license
  *
- * Date:Fri Jan 08 2021 11:56:33 GMT+0800 (GMT+08:00)
+ * Date:Mon Jan 18 2021 14:20:35 GMT+0800 (GMT+08:00)
  */
 (function () {
   'use strict';
@@ -453,7 +453,7 @@
     var temp = [];
 
     for (var flag = 1; flag <= num; flag++) {
-      temp.push('rgba(' + (Math.random(1) * 230 + 20).toFixed(0) + ',' + (Math.random(1) * 230 + 20).toFixed(0) + ',' + (Math.random(1) * 230 + 20).toFixed(0) + ',' + alpha + ')');
+      temp.push('rgba(' + (Math.random() * 230 + 20).toFixed(0) + ',' + (Math.random() * 230 + 20).toFixed(0) + ',' + (Math.random() * 230 + 20).toFixed(0) + ',' + alpha + ')');
     }
 
     return temp;
@@ -867,16 +867,10 @@
     }, _config);
 
     var map = function map(longitude, latitude) {
-      switch (config.type) {
-        case 'eoap':
-          {
-            return eoap(config, longitude, latitude);
-          }
-
-        default:
-          {
-            throw new Error('Map type configuration error!');
-          }
+      if (config.type == 'eoap') {
+        return eoap(config, longitude, latitude);
+      } else {
+        throw new Error('Map type configuration error!');
       }
     }; // 修改配置
 
@@ -1250,11 +1244,9 @@
     canvas.setAttribute('width', width * 2);
     canvas.setAttribute('height', height * 2); // 通过缩放实现模糊问题
 
-    painter.scale(2, 2); // 默认配置canvas2D对象已经存在的属性
-
+    painter.scale(2, 2);
     painter.textBaseline = 'middle';
-    painter.textAlign = 'left'; // 默认配置不应该有canvas2D对象已经存在的属性
-    // 这里是为了简化或和svg统一接口而自定义的属性
+    painter.textAlign = 'left'; // 默认配置
 
     var config = {
       "font-size": "16",
@@ -1481,7 +1473,7 @@
     } else {
       target.addEventListener(eventType, callback, false); // 捕获
     }
-  }
+  } // 获取鼠标相对特定元素左上角位置
 
   var position = function position(target, event) {
     // 返回元素的大小及其相对于视口的位置
@@ -1661,6 +1653,37 @@
       return this;
     };
   }
+
+  var toString$1 = Object.prototype.toString;
+  /**
+   * 获取一个值的类型字符串[object type]
+   *
+   * @param {*} value 需要返回类型的值
+   * @returns {string} 返回类型字符串
+   */
+
+  function getType$1 (value) {
+    if (value == null) {
+      return value === undefined ? '[object Undefined]' : '[object Null]';
+    }
+
+    return toString$1.call(value);
+  }
+
+  /**
+   * 判断一个值是不是String。
+   *
+   * @param {*} value 需要判断类型的值
+   * @returns {boolean} 如果是String返回true，否则返回false
+   */
+
+  function _isString$1 (value) {
+    var type = _typeof(value);
+
+    return type === 'string' || type === 'object' && value != null && !Array.isArray(value) && getType$1(value) === '[object String]';
+  }
+
+  var isString$1 = _isString$1;
 
   var $RegExp = {
     // 空白字符:http://www.w3.org/TR/css3-selectors/#whitespace
@@ -1866,7 +1889,7 @@
                     var tempKey = nextNValue(len - 1); // 如果不是有前置.，那就是需要求解了
 
                     var tempValue = tempKey in scope ? scope[tempKey] : target[tempKey];
-                    expressArray.push(isString(tempValue) ? tempValue + "@string" : tempValue);
+                    expressArray.push(isString$1(tempValue) ? tempValue + "@string" : tempValue);
                   }
 
                   i += len - 2;
@@ -2072,7 +2095,7 @@
           if (flag == 0) {
             var _value = evalValue(doit1(target, temp));
 
-            newExpressArray.push(isString(_value) ? _value + '@string' : _value);
+            newExpressArray.push(isString$1(_value) ? _value + '@string' : _value);
             temp = [];
           }
         } else {
@@ -2123,7 +2146,7 @@
 
             var tempValue = evalValue(temp);
             var _value = newExpressArray[newExpressArray.length - 1][tempValue];
-            newExpressArray[newExpressArray.length - 1] = isString(_value) ? _value + "@string" : _value; // 状态恢复
+            newExpressArray[newExpressArray.length - 1] = isString$1(_value) ? _value + "@string" : _value; // 状态恢复
 
             flag = false;
           } else {
@@ -2230,20 +2253,26 @@
     return path[0];
   }; // 获取
 
-  // 属性deep值计算
   var calcDeepValue = function calcDeepValue(oldValue, newValue, deep) {
     // 首先，参与动画,而且值不一样
     if (newValue.animation && oldValue.value != newValue.value) {
-      switch (newValue.type) {
-        // 数字类型
-        case 'number':
-          {
-            return {
-              type: newValue.type,
-              animation: true,
-              value: (newValue.value - oldValue.value) * deep + oldValue.value
-            };
-          }
+      // 1.先判断是否在组件中自定义了计算方法
+      if (isFunction(newValue.animation)) {
+        return {
+          type: newValue.type,
+          animation: true,
+          value: newValue.animation(newValue.value, oldValue.value, deep)
+        };
+      } // 2.内置计算
+      // 数字类型
+
+
+      if (newValue.type == 'number') {
+        return {
+          type: newValue.type,
+          animation: true,
+          value: (newValue.value - oldValue.value) * deep + oldValue.value
+        };
       }
     } // 其它情况原样返回
 

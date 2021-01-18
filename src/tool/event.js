@@ -7,7 +7,7 @@ export function bind(target, eventType, callback) {
     } else {
         target.addEventListener(eventType, callback, false);// 捕获
     }
-};
+}
 
 // 获取鼠标相对特定元素左上角位置
 

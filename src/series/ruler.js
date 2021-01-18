@@ -81,7 +81,6 @@ export default ['number', "json", 'string', 'color', '$dot', function ($number, 
 
                 // 错误提示
                 throw new Error('Type error!' + JSON.stringify({ series: "ruler", type }));
-                return;
             }
 
             // 绘制主轴

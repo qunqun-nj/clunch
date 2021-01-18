@@ -1,3 +1,4 @@
+import { isFunction } from '@hai2007/tool/type';
 
 // 属性deep值计算
 
@@ -6,17 +7,25 @@ let calcDeepValue = (oldValue, newValue, deep) => {
     // 首先，参与动画,而且值不一样
     if (newValue.animation && oldValue.value != newValue.value) {
 
-        switch (newValue.type) {
+        // 1.先判断是否在组件中自定义了计算方法
 
-            // 数字类型
-            case 'number': {
-                return {
-                    type: newValue.type,
-                    animation: true,
-                    value: (newValue.value - oldValue.value) * deep + oldValue.value
-                };
-            }
+        if (isFunction(newValue.animation)) {
+            return {
+                type: newValue.type,
+                animation: true,
+                value: newValue.animation(newValue.value, oldValue.value, deep)
+            };
+        }
 
+        // 2.内置计算
+
+        // 数字类型
+        if (newValue.type == 'number') {
+            return {
+                type: newValue.type,
+                animation: true,
+                value: (newValue.value - oldValue.value) * deep + oldValue.value
+            };
         }
 
     }

@@ -44,4 +44,4 @@ export function initGlobal(Clunch) {
         reuseSeries.link.call(this, this.__painter, attrs);
     };
 
-};
+}

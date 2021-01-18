@@ -16,7 +16,7 @@ export let getRandomColors = function (num, alpha) {
     if (!(alpha && alpha >= 0 && alpha <= 1)) alpha = 1;
     let temp = [];
     for (let flag = 1; flag <= num; flag++) {
-        temp.push('rgba(' + (Math.random(1) * 230 + 20).toFixed(0) + ',' + (Math.random(1) * 230 + 20).toFixed(0) + ',' + (Math.random(1) * 230 + 20).toFixed(0) + ',' + alpha + ')');
+        temp.push('rgba(' + (Math.random() * 230 + 20).toFixed(0) + ',' + (Math.random() * 230 + 20).toFixed(0) + ',' + (Math.random() * 230 + 20).toFixed(0) + ',' + alpha + ')');
     }
     return temp;
 };
