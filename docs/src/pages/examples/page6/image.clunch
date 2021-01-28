@@ -3,7 +3,7 @@
     :info='value.info' />
 
 <!-- 绘制结点 -->
-<ui-node c-for="(value, key) in lct.nodes" c-on:mousedown="doSelectWhoDrag" :$id='key' :type='value.type'
+<ui-node c-for="(value, key) in lct.nodes" c-on:mousedown="doSelectWhoDrag" :_id='key' :type='value.type'
     :title='value.title' :x='value.position.x' :y='value.position.y' />
 
 <!-- 提示文字 -->

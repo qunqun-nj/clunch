@@ -1,16 +1,16 @@
-import iCrush from 'icrush';
+import QuickPaper from 'quick-paper';
 
 let doit = function (el, binding) {
 
     if (binding.value == binding.type) {
-       el.setAttribute('isactive','yes');
+        el.setAttribute('isactive', 'yes');
     } else {
-        el.setAttribute('isactive','no');
+        el.setAttribute('isactive', 'no');
     }
 
 }
 
-iCrush.directive('uiActive', {
+QuickPaper.directive('uiActive', {
 
     inserted: doit,
     update: doit

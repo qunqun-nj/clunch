@@ -22,12 +22,10 @@ export default function (canvas, width, height) {
     // 通过缩放实现模糊问题
     painter.scale(2, 2);
 
-    // 默认配置canvas2D对象已经存在的属性
     painter.textBaseline = 'middle';
     painter.textAlign = 'left';
 
-    // 默认配置不应该有canvas2D对象已经存在的属性
-    // 这里是为了简化或和svg统一接口而自定义的属性
+    // 默认配置
     let config = {
         "font-size": "16", // 文字大小
         "font-family": "sans-serif", // 字体

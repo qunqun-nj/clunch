@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="zh-cn">
+
+<head>
+    <meta charset="UTF-8">
+    <title>clunch.js - 用例测试</title>
+    <script src="../../../dist/clunch-template.js"></script>
+    <link rel="shortcut icon" href="../../../clunch.png">
+    <style>
+        body {
+            margin: 0;
+        }
+
+        #root {
+            width: 100vw;
+            height: 100vh;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div id="root">
+
+        <ui-demo></ui-demo>
+
+    </div>
+
+    <script>
+
+        Clunch.series('ui-demo', ['number', function ($number) {
+            return {
+                attrs: {
+                    // cx: $number()
+                },
+                link: function (painter, attr) {
+
+                    // 复用圆形
+                    this.$reuseSeriesLink('circle', {
+                        attr: {
+                            cx: 100,
+                            cy: 100,
+                            radius: 100,
+                            type: 'stroke',
+                            dash: [10, 20]
+                        }
+                    });
+
+                    // 复用路径
+                    this.$reuseSeriesLink('path', {
+                        attr: {
+                            'stroke-color': 'blue',
+                            'line-width': 10
+                        },
+                        subSeries: [
+                            {
+                                name: "move-to",
+                                attr: {
+                                    x: 0,
+                                    y: 0
+                                }
+                            }, {
+                                name: "line-to",
+                                attr: {
+                                    x: 300,
+                                    y: 300
+                                }
+                            }
+                        ]
+                    });
+
+                    // 复用文字
+                    this.$reuseSeriesLink('text', {
+                        attr: {
+                            x: 300,
+                            y: 300,
+                            "fill-color": 'red'
+                        },
+                        texts: ['你好呀']
+                    });
+
+                }
+            };
+        }]);
+
+        window.clunch = new Clunch({
+            el: document.getElementById('root'),
+            data: function () {
+                return {
+
+                };
+            }
+        });
+
+
+    </script>
+
+</body>
+
+</html>

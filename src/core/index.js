@@ -15,7 +15,7 @@ Clunch.prototype.$mount = function (el) {
     if (this._isDestroyed) {
         // 已经销毁的组件不能重新挂载
         console.warn('The clunch has been destroyed!');
-        return;
+        return this;
     }
 
     if (this._isMounted) {
@@ -25,10 +25,13 @@ Clunch.prototype.$mount = function (el) {
     }
 
     if (!isElement(el)) {
+
         // 如果挂载结点不正确，自然不能挂载
         console.warn('Mount node does not exist!');
-        return;
+        return this;
+
     }
+
 
     this.$$lifecycle('beforeMount');
 
@@ -73,7 +76,7 @@ Clunch.prototype.$mount = function (el) {
 
                     // 调用回调
                     doback.call(this, {
-                        id:curSeires.id,
+                        id: curSeires.id,
                         series: curSeires.name,
                         region: regionNameSplit[1],
                         subRegion: regionSplit[1],
@@ -104,7 +107,7 @@ Clunch.prototype.$mount = function (el) {
                 }
 
                 callbackValue = {
-                    id:curSeires.id,
+                    id: curSeires.id,
                     series: curSeires.name,
                     region: regionNameSplit[1],
                     subRegion: regionSplit[1],
@@ -144,12 +147,12 @@ Clunch.prototype.$unmount = function () {
 
     if (this._isDestroyed) {
         console.warn('The object has been destroyed!');
-        return;
+        return this;
     }
 
     if (!this._isMounted) {
         console.warn('Object not mounted!');
-        return;
+        return this;
     }
 
     this.$$lifecycle('beforeUnmount');
@@ -172,7 +175,7 @@ Clunch.prototype.$destroy = function () {
 
     if (this._isDestroyed) {
         console.warn('The object has been destroyed!');
-        return;
+        return this;
     }
 
     // 先解除绑定
@@ -187,6 +190,19 @@ Clunch.prototype.$destroy = function () {
 
     this._isDestroyed = true;
     this.$$lifecycle('destroyed');
+
+    return this;
+};
+
+Clunch.prototype.$resize = function () {
+
+    if (this._isMounted) {
+        this.$$updateWithSize();
+    } else {
+
+        // 如果组件未挂载，无法更新大小
+        console.warn('The clunch not mounted!');
+    }
 
     return this;
 };

@@ -1,9 +1,13 @@
 import { isFunction } from '@hai2007/tool/type';
 import compileSeries from './compile-series';
 
+import { initGlobal } from './instance';
+
 // 挂载一些通用的全局方法
 
 export default function (Clunch) {
+
+    initGlobal(Clunch);
 
     // 挂载小组件
     Clunch.series = function (name, series) {

@@ -22,6 +22,8 @@
 
     <div id="root">
 
+        <ui-demo :len='len'></ui-demo>
+
         <circle cx='300' cy='300' :radius='radius1'></circle>
 
         <circle cx='300' cy='300' :radius='radius2' type='stroke' line-width='40' stroke-color='pink'></circle>
@@ -30,15 +32,33 @@
 
     <script>
 
+        Clunch.series('ui-demo', ['number', function ($number) {
+            return {
+                attrs: {
+                    len: $number()(function (newVal, oldVal, deep) {
+                        return Math.random() * newVal;
+                    })
+                    // len: $number()(true)
+                },
+                link: function (painter, attr) {
+
+                    painter.config('fillStyle', 'red').fillRect(10, 10, attr.len, 50);
+
+
+                }
+            };
+        }]);
+
         window.clunch = new Clunch({
             el: document.getElementById('root'),
 
             // 设置数据改变无需过渡动画
-            animation: false,
+            // animation: false,
             data: function () {
                 return {
                     radius1: 200,
-                    radius2: 100
+                    radius2: 100,
+                    len: 100
                 };
             }
         });

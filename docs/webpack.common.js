@@ -1,4 +1,4 @@
-const iCrushLoaderPlugin = require('icrush-loader-plug');
+const QuickPaperLoaderPlugin = require('quick-paper/loader-plug/index.js');
 const fs = require('fs');
 
 const pkg = JSON.parse(fs.readFileSync('./package.json'));
@@ -21,12 +21,12 @@ module.exports = {
             exclude: /node_modules/,
             loader: ['../loader.js']
         }, {
-            test: /\.iCrush$/,
-            loader: ['icrush-loader'],
-            exclude: /node_modules/
+            test: /\.paper$/,
+            exclude: /node_modules/,
+            loader: ['quick-paper/loader/index.js']
         }, {
             test: /\.css$/,
-            loader: ['icrush-style-loader', 'css-loader', 'postcss-loader']
+            loader: ['quick-paper/style-loader/index.js', 'css-loader', 'postcss-loader']
         }, {
             test: /\.js$/,
             loader: 'babel-loader',
@@ -44,6 +44,6 @@ module.exports = {
         }]
     },
     plugins: [
-        new iCrushLoaderPlugin()
+        new QuickPaperLoaderPlugin()
     ]
 };

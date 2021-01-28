@@ -5,7 +5,7 @@ const pages = {
      */
 
     "guide": {
-        "content": () => import('../pages/guide.iCrush')
+        "content": () => import('../pages/guide.paper')
     },
 
     /**
@@ -13,30 +13,33 @@ const pages = {
      */
 
     "api": {
-        "content": () => import('../pages/api/index.iCrush'),
+        "content": () => import('../pages/api/index.paper'),
 
         // 基础
 
         "object": {
-            "content": () => import('../pages/api/basic/object.iCrush')
+            "content": () => import('../pages/api/basic/object.paper')
         },
         "series": {
-            "content": () => import('../pages/api/basic/series.iCrush')
+            "content": () => import('../pages/api/basic/series.paper')
         },
         "painter": {
-            "content": () => import('../pages/api/basic/painter.iCrush')
+            "content": () => import('../pages/api/basic/painter.paper')
         },
         "directive": {
-            "content": () => import('../pages/api/basic/directive.iCrush')
+            "content": () => import('../pages/api/basic/directive.paper')
         },
         "service": {
-            "content": () => import('../pages/api/basic/service.iCrush')
+            "content": () => import('../pages/api/basic/service.paper')
         },
 
         // 组件
 
         "series-list": {
-            "content": () => import('../pages/api/series/list.iCrush')
+            "content": () => import('../pages/api/series/list.paper')
+        },
+        "series-reuse": {
+            "content": () => import('../pages/api/series/reuse.paper')
         },
 
         "_default_": "object"
@@ -48,48 +51,48 @@ const pages = {
      */
 
     "course": {
-        "content": () => import('../pages/course/index.iCrush'),
+        "content": () => import('../pages/course/index.paper'),
         "author": {
-            "content": () => import('../pages/course/author.iCrush')
+            "content": () => import('../pages/course/author.paper')
         },
         "install": {
-            "content": () => import('../pages/course/install.iCrush')
+            "content": () => import('../pages/course/install.paper')
         },
         "introduce": {
-            "content": () => import('../pages/course/introduce.iCrush')
+            "content": () => import('../pages/course/introduce.paper')
         },
         "_default_": "introduce"
     },
 
     /**
-     * 教程
+     * 用例
      */
 
     "examples": {
-        "content": () => import('../pages/examples/index.iCrush'),
+        "content": () => import('../pages/examples/index.paper'),
         "menu": {
-            "content": () => import('../pages/examples/menu.iCrush')
+            "content": () => import('../pages/examples/menu.paper')
         },
         "page1": {
-            "content": () => import('../pages/examples/page1/index.iCrush')
+            "content": () => import('../pages/examples/page1/index.paper')
         },
         "page2": {
-            "content": () => import('../pages/examples/page2/index.iCrush')
+            "content": () => import('../pages/examples/page2/index.paper')
         },
         "page3": {
-            "content": () => import('../pages/examples/page3/index.iCrush')
+            "content": () => import('../pages/examples/page3/index.paper')
         },
         "page4": {
-            "content": () => import('../pages/examples/page4/index.iCrush')
+            "content": () => import('../pages/examples/page4/index.paper')
         },
         "page5": {
-            "content": () => import('../pages/examples/page5/index.iCrush')
+            "content": () => import('../pages/examples/page5/index.paper')
         },
         "page6": {
-            "content": () => import('../pages/examples/page6/index.iCrush')
+            "content": () => import('../pages/examples/page6/index.paper')
         },
         "page7": {
-            "content": () => import('../pages/examples/page7/index.iCrush')
+            "content": () => import('../pages/examples/page7/index.paper')
         },
         "_default_": "menu"
     },

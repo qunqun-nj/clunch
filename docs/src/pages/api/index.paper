@@ -1,0 +1,261 @@
+<template>
+    <div class='menu-view'>
+        <div>
+            <h2>核心</h2>
+            <ul>
+                <li>
+                    <h3 @click='openRouter("object")' class='menu-2 object'>绘图对象</h3>
+                    <ul>
+                        <li>
+                            <h4 @click='doScroll("config")'>配置项</h4>
+                            <ul>
+                                <li>
+                                    <h5 @click='doScroll("template")'>template</h5>
+                                </li>
+                            </ul>
+                        </li>
+                        <li>
+                            <h4 @click='doScroll("liefcycle")'>生命周期</h4>
+                            <ul>
+                                <li>
+                                    <h5 @click='doScroll("what")'>有哪些钩子</h5>
+                                </li>
+                            </ul>
+                        </li>
+                        <li>
+                            <h4 @click='doScroll("method")'>对象上的方法</h4>
+                            <ul>
+                                <li>
+                                    <h5 @click='doScroll("mount")'>$mount</h5>
+                                </li>
+                                <li>
+                                    <h5 @click='doScroll("unmount")'>$unmount</h5>
+                                </li>
+                                <li>
+                                    <h5 @click='doScroll("resize")'>$resize</h5>
+                                </li>
+                                <li>
+                                    <h5 @click='doScroll("destroy")'>$destroy</h5>
+                                </li>
+                                <li>
+                                    <h5 @click='doScroll("bind")'>$bind</h5>
+                                </li>
+                            </ul>
+                        </li>
+                    </ul>
+                </li>
+                <li>
+                    <h3 @click='openRouter("series")' class='menu-2 series'>图形小组件</h3>
+                    <ul>
+                        <li>
+                            <h4 @click='doScroll("create")'>如何自定义小组件</h4>
+                        </li>
+                        <li>
+                            <h4 @click='doScroll("attribute")'>组件属性</h4>
+                            <ul>
+                                <li>
+                                    <h5 @click='doScroll("number")'>number类型</h5>
+                                </li>
+                                <li>
+                                    <h5 @click='doScroll("inner-attr")'>内置属性</h5>
+                                </li>
+                            </ul>
+                        </li>
+                        <li>
+                            <h4 @click='doScroll("core")'>核心组件</h4>
+                            <ul>
+                                <li>
+                                    <h5 @click='doScroll("group")'>group</h5>
+                                </li>
+                            </ul>
+                        </li>
+                    </ul>
+                </li>
+                <li>
+                    <h3 @click='openRouter("painter")' class='menu-2 painter'>画笔</h3>
+                    <ul>
+                        <li>
+                            <h4 @click='doScroll("config")'>配置画笔</h4>
+                            <ul>
+                                <li>
+                                    <h5 @click='doScroll("gradient")'>渐变色</h5>
+                                </li>
+                            </ul>
+                        </li>
+                        <li>
+                            <h4 @click='doScroll("method")'>绘图方法</h4>
+                            <ul>
+                                <li>
+                                    <h5 @click='doScroll("text")'>文字</h5>
+                                </li>
+                                <li>
+                                    <h5 @click='doScroll("arc")'>弧形</h5>
+                                </li>
+                                <li>
+                                    <h5 @click='doScroll("circle")'>圆</h5>
+                                </li>
+                                <li>
+                                    <h5 @click='doScroll("rect")'>矩形</h5>
+                                </li>
+                                <li>
+                                    <h5 @click='doScroll("path")'>路径</h5>
+                                </li>
+                                <li>
+                                    <h5 @click='doScroll("image")'>图片</h5>
+                                </li>
+                            </ul>
+                        </li>
+                    </ul>
+                </li>
+                <li>
+                    <h3 @click='openRouter("directive")' class='menu-2 directive'>指令</h3>
+                    <ul>
+                        <ul>
+                            <li>
+                                <ul>
+                                    <li>
+                                        <h4 @click='doScroll("expression")'>表达式</h4>
+                                    </li>
+                                </ul>
+                            </li>
+                        </ul>
+                        <li>
+                            <h4 @click='doScroll("c-on")'>c-on</h4>
+                        </li>
+                        <li>
+                            <h4 @click='doScroll("c-for")'>c-for</h4>
+                        </li>
+                        <li>
+                            <h4 @click='doScroll("c-if")'>c-if</h4>
+                        </li>
+                        <li>
+                            <h4 @click='doScroll("c-bind")'>c-bind</h4>
+                        </li>
+                    </ul>
+                </li>
+                <li>
+                    <h3 @click='openRouter("service")' class='menu-2 service'>服务</h3>
+                    <ul>
+                        <li>
+                            <h4 @click='doScroll("tree")'>$tree</h4>
+                        </li>
+                        <li>
+                            <h4 @click='doScroll("animation")'>$animation</h4>
+                        </li>
+                        <li>
+                            <h4 @click='doScroll("cardinal")'>$cardinal</h4>
+                        </li>
+                        <li>
+                            <h4 @click='doScroll("rotate")'>$rotate</h4>
+                        </li>
+                        <li>
+                            <h4 @click='doScroll("move")'>$move</h4>
+                        </li>
+                        <li>
+                            <h4 @click='doScroll("scale")'>$scale</h4>
+                        </li>
+                        <li>
+                            <h4 @click='doScroll("dot")'>$dot</h4>
+                        </li>
+                        <li>
+                            <h4 @click='doScroll("formatColor")'>$formatColor</h4>
+                        </li>
+                        <li>
+                            <h4 @click='doScroll("getRandomColors")'>$getRandomColors</h4>
+                        </li>
+                        <li>
+                            <h4 @click='doScroll("map")'>$map</h4>
+                        </li>
+                    </ul>
+                </li>
+            </ul>
+            <h2>组件</h2>
+            <ul>
+                <li>
+                    <h3 @click='openRouter("series-list")' class='menu-2 series-list'>
+                        内置组件
+                    </h3>
+                    <ul>
+                        <li>
+                            <h4 @click='doScroll("basic")'>单一组件</h4>
+                            <ul>
+                                <li>
+                                    <h5 @click='doScroll("arc")'>arc</h5>
+                                </li>
+                                <li>
+                                    <h5 @click='doScroll("circle")'>circle</h5>
+                                </li>
+                                <li>
+                                    <h5 @click='doScroll("path")'>path</h5>
+                                </li>
+                                <li>
+                                    <h5 @click='doScroll("rect")'>rect</h5>
+                                </li>
+                                <li>
+                                    <h5 @click='doScroll("text")'>text</h5>
+                                </li>
+                            </ul>
+                            <h4 @click='doScroll("combine")'>复合组件</h4>
+                            <ul>
+                                <li>
+                                    <h5 @click='doScroll("ruler")'>ruler</h5>
+                                </li>
+                                <li>
+                                    <h5 @click='doScroll("polar-ruler")'>polar-ruler</h5>
+                                </li>
+                            </ul>
+                        </li>
+                    </ul>
+                </li>
+                <li>
+                    <h3 @click='openRouter("series-reuse")' class='menu-2 series-reuse'>
+                        组件复用
+                    </h3>
+                    <ul>
+                        <li>
+                            <ul>
+                                <li>
+                                    <h5 @click='doScroll("option")'>配置option前置说明</h5>
+                                </li>
+                            </ul>
+                        </li>
+                        <li>
+                            <h4 @click='doScroll("link")'>图形复用</h4>
+                        </li>
+                    </ul>
+                </li>
+            </ul>
+        </div>
+        <div id='api-id'>
+            <component :is='page' />
+        </div>
+    </div>
+</template>
+<script>
+    import changeActive from '../../Service/changeActive.js';
+    import fixedScroll from '../../Service/fixedScroll.js';
+    export default {
+        data() {
+            return {
+                page: null
+            };
+        },
+        mounted() {
+            this.loadRouter(page => this.page = page, 2);
+        },
+        created() {
+            changeActive('menu-1', 'api');
+        },
+        methods: {
+            openRouter(pagename) {
+                this.goRouter(page => this.page = page, ['api', pagename]);
+                this.doScroll("top");
+            },
+            doScroll(fixedName) {
+                window.location.href = (window.location.href + "").replace(/\?fixed=.*$/, '') + "?fixed=" + fixedName;
+                fixedScroll(document.getElementById('api-id'), 44);
+            }
+        }
+    };
+
+</script>

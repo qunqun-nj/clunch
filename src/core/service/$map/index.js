@@ -21,13 +21,10 @@ export default function (_config) {
 
     let map = function (longitude, latitude) {
 
-        switch (config.type) {
-            case 'eoap': {
-                return eoap(config, longitude, latitude);
-            }
-            default: {
-                throw new Error('Map type configuration error!');
-            }
+        if (config.type == 'eoap') {
+            return eoap(config, longitude, latitude);
+        } else {
+            throw new Error('Map type configuration error!');
         }
 
     };
