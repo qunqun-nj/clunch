@@ -1,0 +1,187 @@
+<template>
+    <div class='doc-view'>
+        <header id='fixed-top'>
+            内置组件
+        </header>
+        <h1 id="fixed-basic">单一组件</h1>
+        <h3 id="fixed-arc">
+            弧形
+            <span class='sub-title'>
+                arc
+            </span>
+        </h3>
+        <pre q-code='html'>
+<!-- 分别表示：圆心坐标、内外半径和跨越弧度 -->
+<arc cx='number' cy='number' radius1='number' radius2='number' deg='number' />
+        </pre>
+        <p>
+            除了上面那些必输项外，还有以下可选参数：
+        </p>
+        <ul>
+            <li><span class="important">fill-color</span>：string，填充颜色，默认'black'；</li>
+            <li><span class="important">stroke-color</span>：string，轮廓颜色，默认'black'；</li>
+            <li><span class="important">line-width</span>：number，线条粗细程度，默认1；</li>
+            <li><span class="important">dash</span>：array，线条类型，默认[]，表示实线；</li>
+            <li><span class="important">type</span>：string，弧形类型，默认'fill'，还有二种类型可选：'stroke'和'full';</li>
+            <li><span class="important">begin</span>：number，弧度开始角度，默认0。</li>
+        </ul>
+        <h3 id="fixed-circle">
+            圆
+            <span class='sub-title'>
+                circle
+            </span>
+        </h3>
+        <pre q-code='html'>
+<!-- 分别表示：圆心坐标、半径 -->
+<circle cx='number' cy='number' radius='number' />
+        </pre>
+        <p>
+            除了上面那些必输项外，还有以下可选参数：
+        </p>
+        <ul>
+            <li><span class="important">fill-color</span>：string，填充颜色，默认'black'；</li>
+            <li><span class="important">stroke-color</span>：string，轮廓颜色，默认'black'；</li>
+            <li><span class="important">line-width</span>：number，线条粗细程度，默认1；</li>
+            <li><span class="important">dash</span>：array，线条类型，默认[]，表示实线；</li>
+            <li><span class="important">type</span>：string，圆形类型，默认'fill'，还有二种类型可选：'stroke'和'full'。</li>
+        </ul>
+        <h3 id="fixed-path">
+            路径
+            <span class='sub-title'>
+                path
+            </span>
+        </h3>
+        <pre q-code='html'>
+<path>
+
+    <!-- 移动到指定点（画笔离开画布） -->
+    <move-to x='number' y='number' />
+
+    <!-- 连线到指定点（画笔没有离开画布） -->
+    <line-to x='number' y='number' />
+
+    <!--
+        cp1x和cp1y表示第一个控制点，必输，只有一个控制点就是二次贝塞尔到
+        cp2x和cp2y表示第二个控制点，非必输，如果设置了，表示三次贝塞尔到
+        x和y表示终点坐标，必输
+    -->
+    <bezier-to x='number' y='number'
+        cp1x='number' cp1y='number' cp2x='number' cp2y='number' />
+
+</path>
+        </pre>
+        <p>
+            路径是一种绘图方式，具体的绘图需要通过子标签的形式来表达（上面列举的子标签可以随意组合）。先来看看
+            <span class="public">path</span>
+            有哪些可选参数：
+        </p>
+        <ul>
+            <li><span class="important">fill-color</span>：string，填充颜色，默认'black'；</li>
+            <li><span class="important">stroke-color</span>：string，轮廓颜色，默认'black'；</li>
+            <li><span class="important">line-width</span>：number，线条粗细程度，默认1；</li>
+            <li><span class="important">dash</span>：array，线条类型，默认[]，表示实线；</li>
+            <li><span class="important">type</span>：string，图形类型，默认'stroke'，还有二种类型可选：'full'和'fill'；</li>
+            <li><span class="important">close</span>：boolean，是否闭合，默认false，不自动闭合。</li>
+        </ul>
+        <h3 id="fixed-rect">
+            矩形
+            <span class='sub-title'>
+                rect
+            </span>
+        </h3>
+        <pre q-code='html'>
+<!-- 分别表示：矩形坐标、宽和高 -->
+<rect x='number' y='number' width='number' height='number' />
+        </pre>
+        <p>
+            除了上面那些必输项外，还有以下可选参数：
+        </p>
+        <ul>
+            <li><span class="important">fill-color</span>：string，填充颜色，默认'black'；</li>
+            <li><span class="important">stroke-color</span>：string，轮廓颜色，默认'black'；</li>
+            <li><span class="important">line-width</span>：number，线条粗细程度，默认1；</li>
+            <li><span class="important">dash</span>：array，线条类型，默认[]，表示实线；</li>
+            <li><span class="important">type</span>：string，矩形类型，默认'fill'，还有二种类型可选：'stroke'和'full'；</li>
+            <li><span class="important">align</span>：string，水平对齐方式，默认'left'，还有二种类型可选：'center'和'right'；</li>
+            <li><span class="important">baseline</span>：string，垂直对齐方式，默认'top'，还有二种类型可选：'middle'和'bottom'。</li>
+        </ul>
+        <h3 id="fixed-text">
+            文字
+            <span class='sub-title'>
+                text
+            </span>
+        </h3>
+        <pre q-code='html'>
+<!-- 分别表示：文字坐标和内容 -->
+<text x='number' y='number' content='string' />
+        </pre>
+        <p>
+            除了上面那些必输项外，还有以下可选参数：
+        </p>
+        <ul>
+            <li><span class="important">fill-color</span>：string，填充颜色，默认'black'；</li>
+            <li><span class="important">stroke-color</span>：string，轮廓颜色，默认'black'；</li>
+            <li><span class="important">line-width</span>：number，线条粗细程度，默认1；</li>
+            <li><span class="important">dash</span>：array，线条类型，默认[]，表示实线；</li>
+            <li><span class="important">font-size</span>：number，文字大小，默认16；</li>
+            <li><span class="important">type</span>：string，矩形类型，默认'full'，还有二种类型可选：'stroke'和'fill'；</li>
+            <li><span class="important">font-family</span>：string，字体类型，默认'sans-serif'；</li>
+            <li><span class="important">align</span>：string，文字水平对齐方式，默认'left'，还有二种类型可选：'center'和'right'；</li>
+            <li><span class="important">baseline</span>：string，文字垂直对齐方式，默认'middle'，还有二种类型可选：'top'和'bottom'；</li>
+            <li><span class="important">deg</span>：number，文字旋转角度，默认0。</li>
+        </ul>
+        <h1 id='fixed-combine'>复合组件</h1>
+        <h3 id="fixed-ruler">
+            直线刻度尺
+            <span class='sub-title'>
+                ruler
+            </span>
+        </h3>
+        <pre q-code='html'>
+<!-- 分别表示：刻度尺坐标、长度和数据 -->
+<ruler x='number' y='number' length='number' value='array' />
+        </pre>
+        <p>
+            除了上面那些必输项外，还有以下可选参数：
+        </p>
+        <ul>
+            <li><span class="important">direction</span>：string，刻度尺的方向，默认'LR'，表示从左到右，还有三种方向可选：'RL'、'TB'和'BT'；</li>
+            <li><span class="important">mark-direction</span>：string，小刻度的位置，默认'right'，表示在前进方向右边，还有一种可选：'left'；</li>
+            <li><span class="important">value-position</span>：string，刻度文字的位置，默认'mark'，表示文字和刻度对齐，还有一种可选：'between'；</li>
+            <li><span class="important">color</span>：string，刻度尺颜色，默认'black'。</li>
+        </ul>
+        <h3 id="fixed-polar-ruler">
+            弧形刻度尺
+            <span class='sub-title'>
+                polar-ruler
+            </span>
+        </h3>
+        <pre q-code='html'>
+<!-- 分别表示：刻度尺圆心、半径和数据 -->
+<polar-ruler cx='number' cy='number' radius='number' value='array' />
+        </pre>
+        <p>
+            除了上面那些必输项外，还有以下可选参数：
+        </p>
+        <ul>
+            <li><span class="important">begin</span>：number，开始弧度，默认0；</li>
+            <li><span class="important">deg</span>：number，跨越弧度，默认2*Math.PI；</li>
+            <li><span class="important">mark-direction</span>：string，小刻度的位置，默认'outer'，表示在刻度对外，还有一种可选：'inner'；</li>
+            <li><span class="important">value-position</span>：string，刻度文字的位置，默认'mark'，表示文字和刻度对齐，还有一种可选：'between'；</li>
+            <li><span class="important">color</span>：string，刻度尺颜色，默认'black'。</li>
+        </ul>
+    </div>
+</template>
+<script>
+    import changeActive from '../../../Service/changeActive.js';
+    import fixedScroll from '../../../Service/fixedScroll.js';
+    export default {
+        created() {
+            changeActive('menu-2', 'series-list');
+        },
+        mounted() {
+            fixedScroll(document.getElementById('api-id'), 44);
+        }
+    };
+
+</script>

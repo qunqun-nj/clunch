@@ -14,13 +14,13 @@ export interface option {
      * 表示当前图形内容
      * （JSON格式，一般由loader生成）
      */
-    render:Array<any>,
+    render: Array<any>,
 
     /**
      * 表示当前图形内容
      * (模板字符串)
      */
-    template:string,
+    template: string,
 
     /**
      * 默认true，表示数据改变提供动画，如果设置为false，就会取消数据改变动画
@@ -30,7 +30,7 @@ export interface option {
     /**
      *默认500，表示数据改变动画进行时长，单位ms
      */
-    time:number,
+    time: number,
 
     /**
      * 内置方法

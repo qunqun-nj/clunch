@@ -2,14 +2,14 @@
  * clunch.js - 🎨 The Progressive JavaScript Interactive Picture Framework.
  * git+https://github.com/hai2007/clunch.git
  *
- * author hai2007 < https://hai2007.gitee.io/sweethome >
+ * author 你好2007 < https://hai2007.gitee.io/sweethome >
  *
- * version 0.2.2
+ * version 1.2.0
  *
- * Copyright (c) 2020 hai2007 走一步，再走一步。
+ * Copyright (c) 2020-2021 hai2007 走一步，再走一步。
  * Released under the MIT license
  *
- * Date:Sat Dec 19 2020 20:21:17 GMT+0800 (GMT+08:00)
+ * Date:Mon Jan 18 2021 14:20:35 GMT+0800 (GMT+08:00)
  */
 (function () {
   'use strict';
@@ -486,7 +486,7 @@
     var temp = [];
 
     for (var flag = 1; flag <= num; flag++) {
-      temp.push('rgba(' + (Math.random(1) * 230 + 20).toFixed(0) + ',' + (Math.random(1) * 230 + 20).toFixed(0) + ',' + (Math.random(1) * 230 + 20).toFixed(0) + ',' + alpha + ')');
+      temp.push('rgba(' + (Math.random() * 230 + 20).toFixed(0) + ',' + (Math.random() * 230 + 20).toFixed(0) + ',' + (Math.random() * 230 + 20).toFixed(0) + ',' + alpha + ')');
     }
 
     return temp;
@@ -900,16 +900,10 @@
     }, _config);
 
     var map = function map(longitude, latitude) {
-      switch (config.type) {
-        case 'eoap':
-          {
-            return eoap(config, longitude, latitude);
-          }
-
-        default:
-          {
-            throw new Error('Map type configuration error!');
-          }
+      if (config.type == 'eoap') {
+        return eoap(config, longitude, latitude);
+      } else {
+        throw new Error('Map type configuration error!');
       }
     }; // 修改配置
 
@@ -982,7 +976,7 @@
       // boolean
       case 'boolean':
         {
-          return express == 'true' ? true : false;
+          return express == 'false' || express == false ? false : true;
         }
       // 数字
 
@@ -1088,8 +1082,8 @@
 
 
           for (var _attrKey in render.attrs) {
-            if (/^c\-/.test(_attrKey)) ; else if (_attrKey == '$id') {
-              aopRender.$id = render.attrs.$id;
+            if (/^c\-/.test(_attrKey)) ; else if (_attrKey == '_id') {
+              aopRender._id = render.attrs._id;
             } else if (!(_attrKey in curSeries.attrs)) {
               console.warn("attrs." + _attrKey + ' is not defined for ' + (pName ? pName + " > " + render.name : render.name) + '!');
             }
@@ -1164,9 +1158,6 @@
 
 
   function arc (beginA, rotateA, cx, cy, r1, r2, doback) {
-    // 有了前置的判断，这里可以省略了
-    // if (rotateA > Math.PI * 2) rotateA = Math.PI * 2;
-    // if (rotateA < -Math.PI * 2) rotateA = -Math.PI * 2;
     // 保证逆时针也是可以的
     if (rotateA < 0) {
       beginA += rotateA;
@@ -1286,11 +1277,9 @@
     canvas.setAttribute('width', width * 2);
     canvas.setAttribute('height', height * 2); // 通过缩放实现模糊问题
 
-    painter.scale(2, 2); // 默认配置canvas2D对象已经存在的属性
-
+    painter.scale(2, 2);
     painter.textBaseline = 'middle';
-    painter.textAlign = 'left'; // 默认配置不应该有canvas2D对象已经存在的属性
-    // 这里是为了简化或和svg统一接口而自定义的属性
+    painter.textAlign = 'left'; // 默认配置
 
     var config = {
       "font-size": "16",
@@ -1517,7 +1506,7 @@
     } else {
       target.addEventListener(eventType, callback, false); // 捕获
     }
-  }
+  } // 获取鼠标相对特定元素左上角位置
 
   var position = function position(target, event) {
     // 返回元素的大小及其相对于视口的位置
@@ -1697,6 +1686,37 @@
       return this;
     };
   }
+
+  var toString$1 = Object.prototype.toString;
+  /**
+   * 获取一个值的类型字符串[object type]
+   *
+   * @param {*} value 需要返回类型的值
+   * @returns {string} 返回类型字符串
+   */
+
+  function getType$1 (value) {
+    if (value == null) {
+      return value === undefined ? '[object Undefined]' : '[object Null]';
+    }
+
+    return toString$1.call(value);
+  }
+
+  /**
+   * 判断一个值是不是String。
+   *
+   * @param {*} value 需要判断类型的值
+   * @returns {boolean} 如果是String返回true，否则返回false
+   */
+
+  function _isString$1 (value) {
+    var type = _typeof(value);
+
+    return type === 'string' || type === 'object' && value != null && !Array.isArray(value) && getType$1(value) === '[object String]';
+  }
+
+  var isString$1 = _isString$1;
 
   var $RegExp = {
     // 空白字符:http://www.w3.org/TR/css3-selectors/#whitespace
@@ -1902,7 +1922,7 @@
                     var tempKey = nextNValue(len - 1); // 如果不是有前置.，那就是需要求解了
 
                     var tempValue = tempKey in scope ? scope[tempKey] : target[tempKey];
-                    expressArray.push(isString(tempValue) ? tempValue + "@string" : tempValue);
+                    expressArray.push(isString$1(tempValue) ? tempValue + "@string" : tempValue);
                   }
 
                   i += len - 2;
@@ -2108,7 +2128,7 @@
           if (flag == 0) {
             var _value = evalValue(doit1(target, temp));
 
-            newExpressArray.push(isString(_value) ? _value + '@string' : _value);
+            newExpressArray.push(isString$1(_value) ? _value + '@string' : _value);
             temp = [];
           }
         } else {
@@ -2159,7 +2179,7 @@
 
             var tempValue = evalValue(temp);
             var _value = newExpressArray[newExpressArray.length - 1][tempValue];
-            newExpressArray[newExpressArray.length - 1] = isString(_value) ? _value + "@string" : _value; // 状态恢复
+            newExpressArray[newExpressArray.length - 1] = isString$1(_value) ? _value + "@string" : _value; // 状态恢复
 
             flag = false;
           } else {
@@ -2266,20 +2286,26 @@
     return path[0];
   }; // 获取
 
-  // 属性deep值计算
   var calcDeepValue = function calcDeepValue(oldValue, newValue, deep) {
     // 首先，参与动画,而且值不一样
     if (newValue.animation && oldValue.value != newValue.value) {
-      switch (newValue.type) {
-        // 数字类型
-        case 'number':
-          {
-            return {
-              type: newValue.type,
-              animation: true,
-              value: (newValue.value - oldValue.value) * deep + oldValue.value
-            };
-          }
+      // 1.先判断是否在组件中自定义了计算方法
+      if (isFunction(newValue.animation)) {
+        return {
+          type: newValue.type,
+          animation: true,
+          value: newValue.animation(newValue.value, oldValue.value, deep)
+        };
+      } // 2.内置计算
+      // 数字类型
+
+
+      if (newValue.type == 'number') {
+        return {
+          type: newValue.type,
+          animation: true,
+          value: (newValue.value - oldValue.value) * deep + oldValue.value
+        };
       }
     } // 其它情况原样返回
 
@@ -2399,7 +2425,7 @@
         } // 绘制
 
 
-        _this.__defineSerirs[_this.__renderSeries[i].name].link(_this.__painter, attr); // 记录区域
+        _this.__defineSerirs[_this.__renderSeries[i].name].link.call(_this, _this.__painter, attr); // 记录区域
 
 
         var region = _this.__defineSerirs[_this.__renderSeries[i].name].region;
@@ -2496,8 +2522,8 @@
 
           var id = void 0;
 
-          if ('$id' in renderAOP[i]) {
-            id = renderAOP[i].$id.isBind ? evalExpress(that, renderAOP[i].$id.express, renderAOP[i].scope) : renderAOP[i].$id.express;
+          if ('_id' in renderAOP[i]) {
+            id = renderAOP[i]._id.isBind ? evalExpress(that, renderAOP[i]._id.express, renderAOP[i].scope) : renderAOP[i]._id.express;
           } else {
             id = pid + renderAOP[i].index;
           } // c-for指令
@@ -2653,14 +2679,9 @@
      */
 
     watcher(this);
-    this.$$lifecycle('created'); // 如果初始化创建的时候没有传递el
-    // 表示开始的时候不需要挂载
-    // 可以后续主动挂载
+    this.$$lifecycle('created'); // 挂载
 
-    if (isElement(options.el)) {
-      // 挂载
-      this.$mount(options.el);
-    }
+    this.$mount(options.el);
   } // 在对象上挂载最基础的一些功能
 
 
@@ -2738,8 +2759,51 @@
     return temp;
   }
 
+  function initGlobal(Clunch) {
+    // 组件图形复用
+    Clunch.prototype.$reuseSeriesLink = function (seriesName, _attrs) {
+      var reuseSeries = this.__defineSerirs[seriesName];
+      var attrs = {
+        _subAttr: [],
+        _subTexts: "texts" in _attrs ? _attrs.texts : []
+      }; // 先是属性
+
+      for (var attrKey in reuseSeries.attrs) {
+        if (attrKey in _attrs.attr) {
+          attrs[attrKey] = _attrs.attr[attrKey];
+        } else {
+          attrs[attrKey] = reuseSeries.attrs[attrKey]["default"];
+        }
+      }
+
+      if ("subSeries" in _attrs) {
+        for (var i = 0; i < _attrs.subSeries.length; i++) {
+          var _subSeries = _attrs.subSeries[i];
+          var _subReuesSeriesAttr = reuseSeries.subAttrs[_subSeries.name];
+          var subSeries = {
+            series: _subSeries.name,
+            attr: {}
+          }; // 然后是子属性
+
+          for (var subAttrKey in _subSeries.attr) {
+            if (subAttrKey in _subSeries.attr) {
+              subSeries.attr[subAttrKey] = _subSeries.attr[subAttrKey];
+            } else {
+              subSeries.attr[subAttrKey] = _subReuesSeriesAttr[subAttrKey]["default"];
+            }
+          }
+
+          attrs._subAttr.push(subSeries);
+        }
+      }
+
+      reuseSeries.link.call(this, this.__painter, attrs);
+    };
+  }
+
   function initGlobalApi (Clunch) {
-    // 挂载小组件
+    initGlobal(Clunch); // 挂载小组件
+
     Clunch.series = function (name, series) {
       // 如果传递的是json的方式
       if (arguments.length == 1) {
@@ -2770,7 +2834,7 @@
     if (this._isDestroyed) {
       // 已经销毁的组件不能重新挂载
       console.warn('The clunch has been destroyed!');
-      return;
+      return this;
     }
 
     if (this._isMounted) {
@@ -2782,7 +2846,7 @@
     if (!isElement(el)) {
       // 如果挂载结点不正确，自然不能挂载
       console.warn('Mount node does not exist!');
-      return;
+      return this;
     }
 
     this.$$lifecycle('beforeMount'); // 如果我们没有在初始化对象的时候传递render（template也算传递了）
@@ -2890,12 +2954,12 @@
   Clunch.prototype.$unmount = function () {
     if (this._isDestroyed) {
       console.warn('The object has been destroyed!');
-      return;
+      return this;
     }
 
     if (!this._isMounted) {
       console.warn('Object not mounted!');
-      return;
+      return this;
     }
 
     this.$$lifecycle('beforeUnmount'); // 解除对画布大小改变的监听
@@ -2915,7 +2979,7 @@
   Clunch.prototype.$destroy = function () {
     if (this._isDestroyed) {
       console.warn('The object has been destroyed!');
-      return;
+      return this;
     } // 先解除绑定
 
 
@@ -2927,6 +2991,17 @@
     this.__observeWatcher = {};
     this._isDestroyed = true;
     this.$$lifecycle('destroyed');
+    return this;
+  };
+
+  Clunch.prototype.$resize = function () {
+    if (this._isMounted) {
+      this.$$updateWithSize();
+    } else {
+      // 如果组件未挂载，无法更新大小
+      console.warn('The clunch not mounted!');
+    }
+
     return this;
   };
   /**

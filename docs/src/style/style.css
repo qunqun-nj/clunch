@@ -6,16 +6,6 @@ body {
     font-size: .16rem;
 }
 
-/* 复制按钮 */
-.copy-btn {
-    background-color: #f8f8f8;
-}
-
-.copy-btn:hover {
-    background-color: #0a0a0a;
-    color: white;
-}
-
 /* 底部切页 */
 div.bottom-link {
     width: 100%;
