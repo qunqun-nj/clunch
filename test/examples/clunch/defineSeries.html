@@ -22,7 +22,7 @@
 
     <div id="root">
 
-        <ui-demo></ui-demo>
+        <ui-demo c-on:dblclick='doit'></ui-demo>
 
     </div>
 
@@ -32,6 +32,15 @@
             return {
                 attrs: {
                     // cx: $number()
+                },
+                region: {
+                    default: function (render, attr) {
+
+                        render(0, {
+                            info: "保存起来的数据"
+                        }).fillRect(0, 0, 300, 300);
+
+                    }
                 },
                 link: function (painter, attr) {
 
@@ -89,7 +98,14 @@
                 return {
 
                 };
+            },
+            methods: {
+                doit(target) {
+                    console.log(target);
+                }
             }
+        }).$bind('click', function (target) {
+            console.error(target);
         });
 
 

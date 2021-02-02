@@ -32,7 +32,8 @@
                 // 获取画笔，用这只画笔绘制的区域就被标识为默认区域
                 // 其中subRegionName表示子区域表示，可选，可以是任意字符串
                 // 这意味着一个区域可以有任意多的子区域
-                var painter=render(subRegionName);
+                // data，可选，子区域传递给交互事件的数据，这里传递的话，可以在交互方法的形参里面获取到
+                var painter=render(subRegionName, data);
             },
 
             // 除了默认区域外，我们还可以添加待名称的区域
