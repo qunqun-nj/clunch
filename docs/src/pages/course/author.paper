@@ -55,7 +55,7 @@
         </ul>
         <div class="bottom-link">
             <a class='left'></a>
-            <a href="#/course/install?fixed=top" target="_blank" class='right'>下一节：说明</a>
+            <a href="#/course/install?fixed=top" target="_blank" class='right'>下一节：基本说明</a>
         </div>
     </div>
 </template>

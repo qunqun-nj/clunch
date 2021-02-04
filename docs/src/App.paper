@@ -12,8 +12,11 @@
                 <li title='带你一步步学习使用' @click='openRouter("course")' class='menu-1 course'>
                     教程
                 </li>
-                <li title='一些使用例子' class='menu-1 examples'>
-                    <a href="#/examples" target="_blank">用例</a>
+                <li title='基于clunch开发的例子' class='menu-1 examples'>
+                    <a href="#/examples" target="_blank">小例子</a>
+                </li>
+                <li title='issue'>
+                    <a href="https://github.com/hai2007/clunch/issues" target="_blank">联系我们</a>
                 </li>
                 <li onclick="window.location.href='https://github.com/hai2007/clunch'" class='git-url'
                     title='clunch.js 源码'>

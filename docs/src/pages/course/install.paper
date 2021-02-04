@@ -1,7 +1,7 @@
 <template>
     <div class='doc-view'>
         <header id='fixed-top'>
-            说明
+            基本说明
         </header>
         <h1 id="fixed-compatibility">兼容性</h1>
         <p>
@@ -90,7 +90,7 @@
         </pre>
         <div class="bottom-link">
             <a href="#/course/author?fixed=top" target="_blank" class='left'>上一节：关于我们</a>
-            <a href="#/course/introduce?fixed=top" target="_blank" class='right'>下一节：开始使用</a>
+            <a href="#/course/introduce?fixed=top" target="_blank" class='right'>下一节：环境搭建和基本使用</a>
         </div>
     </div>
 </template>

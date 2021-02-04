@@ -1,0 +1,17 @@
+<group c-for='(value,index) in values'>
+
+    <!-- 背景灰色 -->
+    <rect :x="( _width - 100 ) / values.length * ( index + 0.1 ) + 50" :y="_height - 50"
+        :width="( _width - 100 ) / values.length * 0.8" :height='-1 * ( _height - 100 )'
+        fill-color='rgba(220, 220, 220, 0.8)' type='fill' />
+
+    <!-- 值红色 -->
+    <rect :x="( _width - 100 ) / values.length * ( index + 0.1 ) + 50" :y="_height - 50"
+        :width="( _width - 100 ) / values.length * 0.8" :height='-0.005 * value * ( _height - 100 )'
+        fill-color='red' type='fill' c-on:click='doit' :_id='index'/>
+
+</group>
+
+<!-- 横坐标 -->
+<ruler x="50" :y="_height - 50" :length="_width - 100"
+    value='["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"]' value-position='between' />
