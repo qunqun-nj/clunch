@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="zh-cn">
+
+<head>
+    <meta charset="UTF-8">
+    <title>clunch.js - 用例测试</title>
+    <script src="../../../dist/clunch-template.js"></script>
+    <link rel="shortcut icon" href="../../../clunch.png">
+    <style>
+        body {
+            margin: 0;
+        }
+
+        #root {
+            width: 100vw;
+            height: 100vh;
+        }
+
+    </style>
+</head>
+
+<body>
+
+    <div id="root">
+
+        <group c-for='index1 in 50'>
+            <rect :x="index*10+10" :y="index1*10+10" width='10' height='10' :fill-color='loopColors[index]'
+                c-for='index in index1'>
+            </rect>
+            <rect :x="1020 - index*10+10" :y="index1*10+10" width='10' height='10' :fill-color='randomsColors[index]'
+                c-for='index in index1'>
+            </rect>
+        </group>
+
+    </div>
+
+    <script>
+        window.clunch = new Clunch({
+            el: document.getElementById('root'),
+            data: ['$getLoopColors', "$getRandomColors", function ($getLoopColors, $getRandomColors) {
+                return {
+                    loopColors: $getLoopColors(50),
+                    randomsColors: $getRandomColors(50)
+                };
+            }]
+        });
+
+        console.log(window.clunch);
+
+    </script>
+
+</body>
+
+</html>

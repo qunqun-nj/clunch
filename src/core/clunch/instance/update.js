@@ -1,6 +1,6 @@
 import { evalExpress } from '@hai2007/algorithm/value';
 import animation from '@hai2007/tool/animation';
-import { isFunction, isArray } from '@hai2007/tool/type';
+import { isFunction, isArray, isNumber } from '@hai2007/tool/type';
 import calcDeepSeries from '../../../tool/calcDeepSeries';
 import painter from '../../painter/index';
 import getStyle from '../../../tool/get-style';
@@ -161,12 +161,29 @@ export function updateMixin(Clunch) {
                 if (!ignoreFor && 'c-for' in renderAOP[i]) {
 
                     let cFor = renderAOP[i]['c-for'];
-                    let data_for = evalExpress(that, cFor.data, renderAOP[i].scope);
+
+                    let data_for;
+                    if (isArray(cFor.data)) {
+                        data_for = cFor.data;
+                    } else {
+                        data_for = evalExpress(that, cFor.data, renderAOP[i].scope);
+
+                        if (isNumber(data_for)) {
+                            let len = data_for;
+                            data_for = [];
+                            for (let k = 0; k < len; k++) {
+                                data_for.push(k);
+                            }
+                        }
+                    }
 
                     for (let forKey in data_for) {
                         renderAOP[i].scope[cFor.value] = data_for[forKey];
                         if (cFor.key != null) renderAOP[i].scope[cFor.key] = isArray(data_for) ? (+forKey) : forKey;
-                        let temp = doit([renderAOP[i]], {}, isSubAttrs, id + "for" + forKey + "-", true);
+
+                        // 考虑到子组件会修改scope，目前没有好的方法恢复
+                        // 后续找到更好的方法会替换这里
+                        let temp = doit([JSON.parse(JSON.stringify(renderAOP[i]))], {}, isSubAttrs, id + "for" + forKey + "-", true);
                         if (isSubAttrs) {
                             for (let j = 0; j < temp.length; j++) {
                                 subRenderSeries.push(temp[j]);

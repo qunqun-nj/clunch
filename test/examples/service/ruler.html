@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="zh-cn">
+
+<head>
+    <meta charset="UTF-8">
+    <title>clunch.js - 用例测试</title>
+    <script src="../../../dist/clunch-template.js"></script>
+    <link rel="shortcut icon" href="../../../clunch.png">
+    <style>
+        body {
+            margin: 0;
+        }
+
+        #root {
+            width: 100vw;
+            height: 100vh;
+        }
+
+    </style>
+</head>
+
+<body>
+
+    <div id="root">
+
+
+
+    </div>
+
+    <script>
+        window.clunch = new Clunch({
+            el: document.getElementById('root'),
+            data: ['$ruler', function ($ruler) {
+                return {
+                    ruler: $ruler(97, 12, 4)
+                };
+            }]
+        });
+
+        console.log(window.clunch);
+
+    </script>
+
+</body>
+
+</html>

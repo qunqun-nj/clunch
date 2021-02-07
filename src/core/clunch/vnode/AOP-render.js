@@ -116,6 +116,16 @@ export default function (initRender, series) {
                             value: temp[1],
                             data: flag ? temp[3] : temp[2]
                         };
+
+                        // 如果是一个数字
+                        if (/^\d{1,}$/.test(aopRender['c-for'].data)) {
+                            let len = +aopRender['c-for'].data;
+                            aopRender['c-for'].data = [];
+                            for (let i = 0; i < len; i++) {
+                                aopRender['c-for'].data.push(i);
+                            }
+                        }
+
                     }
 
                     // c-if='flag'

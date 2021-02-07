@@ -9,7 +9,7 @@
  * Copyright (c) 2020-2021 hai2007 走一步，再走一步。
  * Released under the MIT license
  *
- * Date:Tue Feb 02 2021 17:23:07 GMT+0800 (GMT+08:00)
+ * Date:Sun Feb 07 2021 16:20:06 GMT+0800 (GMT+08:00)
  */
 (function () {
   'use strict';
@@ -92,6 +92,17 @@
   }
 
   /**
+   * 判断一个值是不是number。
+   *
+   * @param {*} value 需要判断类型的值
+   * @returns {boolean} 如果是number返回true，否则返回false
+   */
+
+  function _isNumber (value) {
+    return typeof value === 'number' || value !== null && _typeof(value) === 'object' && getType(value) === '[object Number]';
+  }
+
+  /**
    * 判断一个值是不是String。
    *
    * @param {*} value 需要判断类型的值
@@ -150,6 +161,7 @@
   var domTypeHelp = function domTypeHelp(types, value) {
     return value !== null && _typeof(value) === 'object' && types.indexOf(value.nodeType) > -1 && !_isPlainObject(value);
   };
+  var isNumber = _isNumber;
   var isString = _isString;
 
   var isFunction = _isFunction;
@@ -491,6 +503,39 @@
     }
 
     return temp;
+  }; // 获取一组循环色彩
+
+  var getLoopColors = function getLoopColors(num, alpha) {
+    if (!(alpha && alpha >= 0 && alpha <= 1)) alpha = 1; // 颜色集合
+
+    var colorList = ['rgba(84,112,198,' + alpha + ")", 'rgba(145,204,117,' + alpha + ")", 'rgba(250,200,88,' + alpha + ")", 'rgba(238,102,102,' + alpha + ")", 'rgba(115,192,222,' + alpha + ")", 'rgba(59,162,114,' + alpha + ")", 'rgba(252,132,82,' + alpha + ")", 'rgba(154,96,180,' + alpha + ")", 'rgba(234,124,204,' + alpha + ")"];
+    var colors = []; // 根据情况返回颜色数组
+
+    if (num <= colorList.length) ; else {
+      // 如果正好是集合长度的倍数
+      if (num % colorList.length == 0) {
+        // 将颜色数组循环加入后再返回
+        for (var i = 0; i < num / colorList.length; i++) {
+          colors = colors.concat(colorList);
+        }
+      } else {
+        for (var j = 1; j < num / colorList.length; j++) {
+          colors = colors.concat(colorList);
+        } // 防止最后一个颜色和第一个颜色重复
+
+
+        if (num % colorList.length == 1) {
+          colors = colors.concat(colorList[4]);
+        } else {
+          for (var k = 0; k < num % colorList.length; k++) {
+            colors = colors.concat(colorList[k]);
+          }
+        }
+      }
+    } // 返回结果
+
+
+    return colors;
   };
 
   /*!
@@ -917,6 +962,124 @@
     return map;
   }
 
+  var Math_trunc = function Math_trunc(value) {
+    return value < 0 ? Math.ceil(value) : Math.floor(value);
+  }; // 刻度计算
+
+
+  function ruler(cormax, cormin, cornumber) {
+    var tmpstep;
+    cornumber = 5; //先判断所有数据都相等的情况
+
+    if (cormax == cormin) {
+
+
+      var temp;
+
+      if (Math.pow(10, Math_trunc(Math.log(corstep) / Math.log(10))) == corstep) {
+        temp = Math.pow(10, Math_trunc(Math.log(corstep) / Math.log(10)));
+      } else {
+        temp = Math.pow(10, Math_trunc(Math.log(corstep) / Math.log(10)) + 1);
+      } //将间隔corstep进行归一化，求出tmpstep(tpmstep在0.1 0.2 0.25 0.5 1之间取值)
+
+
+      tmpstep = corstep / temp;
+
+      if (tmpstep >= 0 && tmpstep <= 0.1) {
+        tmpstep = 0.1;
+      } else if (tmpstep >= 0.100001 && tmpstep <= 0.2) {
+        tmpstep = 0.2;
+      } else if (tmpstep >= 0.200001 && tmpstep <= 0.25) {
+        tmpstep = 0.25;
+      } else if (tmpstep >= 0.250001 && tmpstep <= 0.5) {
+        tmpstep = 0.5;
+      } else {
+        tmpstep = 1;
+      } //将间隔恢复，求出实际间隔距离
+
+
+      tmpstep = tmpstep * temp; //刻度尺最小必须从0开始
+
+      cormin = 0; //调整刻度尺的最大刻度
+
+      cormax = Math_trunc(cormax / tmpstep + 1) * tmpstep; //求出刻度尺的间隔
+
+      cornumber = (cormax - cormin) / tmpstep;
+    } else if (cormax != cormin) {
+      //根据传入的数据初步求出刻度数之间的间隔corstep
+      var _corstep3 = (cormax - cormin) / cornumber; //求间隔corstep的数量级temp (10,100,1000)
+
+
+      var _temp;
+
+      if (Math.pow(10, Math_trunc(Math.log(_corstep3) / Math.log(10))) == _corstep3) {
+        _temp = Math.pow(10, Math_trunc(Math.log(_corstep3) / Math.log(10)));
+      } else {
+        _temp = Math.pow(10, Math_trunc(Math.log(_corstep3) / Math.log(10)) + 1);
+      } //将间隔corstep进行归一化，求出tmpstep(tpmstep在0.1 0.2 0.25 0.5 1之间取值)
+
+
+      tmpstep = _corstep3 / _temp;
+
+      if (tmpstep >= 0 && tmpstep <= 0.1) {
+        tmpstep = 0.1;
+      } else if (tmpstep >= 0.100001 && tmpstep <= 0.2) {
+        tmpstep = 0.2;
+      } else if (tmpstep >= 0.200001 && tmpstep <= 0.25) {
+        tmpstep = 0.25;
+      } else if (tmpstep >= 0.250001 && tmpstep <= 0.5) {
+        tmpstep = 0.5;
+      } else {
+        tmpstep = 1;
+      } //将间隔恢复，求出实际间隔距离
+
+
+      tmpstep = tmpstep * _temp; //调整刻度尺的最小刻度
+
+      if (Math_trunc(cormin / tmpstep) != cormin / tmpstep) {
+        if (cormin < 0) {
+          cormin = -1 * Math.ceil(Math.abs(cormin / tmpstep)) * tmpstep;
+        } else {
+          cormin = Math_trunc(Math.abs(cormin / tmpstep)) * tmpstep;
+        }
+      } //调整刻度尺的最大刻度
+
+
+      cormax = Math_trunc(cormax / tmpstep + 1) * tmpstep; //求新的cornumber、cormax、cormin
+
+      var tmpnumber = (cormax - cormin) / tmpstep;
+
+      if (tmpnumber < cornumber) {
+        var extranumber = cornumber - tmpnumber;
+        tmpnumber = cornumber;
+
+        if (extranumber % 2 == 0) {
+          cormax = cormax + tmpstep * Math_trunc(extranumber / 2);
+        } else {
+          cormax = cormax + tmpstep * Math_trunc(extranumber / 2 + 1);
+        }
+
+        cormin = cormin - tmpstep * Math_trunc(extranumber / 2);
+      }
+
+      cornumber = tmpnumber;
+    }
+
+    var resultData = {
+      min: cormin,
+      max: cormax,
+      distance: tmpstep,
+      num: cornumber,
+      ruler: []
+    }; // 得出最终的刻度数组
+
+    for (var i = 0; i <= cornumber; i++) {
+      resultData.ruler.push(cormin + tmpstep * i);
+    }
+
+    return resultData;
+  }
+
   // 引入第三方提供的服务
   /**
    * 把类似
@@ -960,7 +1123,9 @@
             "$rotate": _rotate,
             "$move": _move,
             "$scale": _scale,
-            "$map": map
+            "$map": map,
+            "$getLoopColors": getLoopColors,
+            "$ruler": ruler
           }[inputArray[i]]);
         }
     };
@@ -1067,7 +1232,16 @@
                     key: flag ? _temp[2] : null,
                     value: _temp[1],
                     data: flag ? _temp[3] : _temp[2]
-                  };
+                  }; // 如果是一个数字
+
+                  if (/^\d{1,}$/.test(aopRender['c-for'].data)) {
+                    var len = +aopRender['c-for'].data;
+                    aopRender['c-for'].data = [];
+
+                    for (var _i = 0; _i < len; _i++) {
+                      aopRender['c-for'].data.push(_i);
+                    }
+                  }
                 } // c-if='flag'
                 else if ('c-if' == attrKey) {
                     aopRender['c-if'] = render.attrs[attrKey];
@@ -1121,16 +1295,16 @@
           if (render.children) {
             // 开始区分是独立的子节点还是当前组件的子组件
             // 文字比较特殊，提前初步记录在当前结点
-            for (var _i = 0; _i < render.children.length; _i++) {
+            for (var _i2 = 0; _i2 < render.children.length; _i2++) {
               // 文字
-              if (isString(render.children[_i])) {
-                text_temp.push(render.children[_i]);
+              if (isString(render.children[_i2])) {
+                text_temp.push(render.children[_i2]);
               } // 如果这个组件存在于当前组件的子属性中，就应该是子组件
-              else if (curSeries.subAttrs && render.children[_i].name in curSeries.subAttrs) {
-                  subRender_temp.push(render.children[_i]);
+              else if (curSeries.subAttrs && render.children[_i2].name in curSeries.subAttrs) {
+                  subRender_temp.push(render.children[_i2]);
                 } // 独立的子组件
                 else {
-                    children_temp.push(render.children[_i]);
+                    children_temp.push(render.children[_i2]);
                   }
             }
           }
@@ -2542,12 +2716,29 @@
 
           if (!ignoreFor && 'c-for' in renderAOP[i]) {
             var cFor = renderAOP[i]['c-for'];
-            var data_for = evalExpress(that, cFor.data, renderAOP[i].scope);
+            var data_for = void 0;
+
+            if (isArray(cFor.data)) {
+              data_for = cFor.data;
+            } else {
+              data_for = evalExpress(that, cFor.data, renderAOP[i].scope);
+
+              if (isNumber(data_for)) {
+                var len = data_for;
+                data_for = [];
+
+                for (var k = 0; k < len; k++) {
+                  data_for.push(k);
+                }
+              }
+            }
 
             for (var forKey in data_for) {
               renderAOP[i].scope[cFor.value] = data_for[forKey];
-              if (cFor.key != null) renderAOP[i].scope[cFor.key] = isArray(data_for) ? +forKey : forKey;
-              var temp = doit([renderAOP[i]], {}, isSubAttrs, id + "for" + forKey + "-", true);
+              if (cFor.key != null) renderAOP[i].scope[cFor.key] = isArray(data_for) ? +forKey : forKey; // 考虑到子组件会修改scope，目前没有好的方法恢复
+              // 后续找到更好的方法会替换这里
+
+              var temp = doit([JSON.parse(JSON.stringify(renderAOP[i]))], {}, isSubAttrs, id + "for" + forKey + "-", true);
 
               if (isSubAttrs) {
                 for (var j = 0; j < temp.length; j++) {
@@ -3310,7 +3501,7 @@
   }];
 
   // 直线刻度尺
-  var ruler = ['number', "json", 'string', 'color', '$dot', function ($number, $json, $string, $color, $dot) {
+  var ruler$1 = ['number', "json", 'string', 'color', '$dot', function ($number, $json, $string, $color, $dot) {
     return {
       attrs: {
         // 刻度尺的起点位置
@@ -3483,7 +3674,7 @@
     path: path,
     "polar-ruler": polarRuler,
     rect: rect,
-    ruler: ruler,
+    ruler: ruler$1,
     text: text
   }); // 对外暴露调用接口
 
