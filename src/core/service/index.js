@@ -4,10 +4,11 @@ import animation from '@hai2007/tool/animation';
 
 // 引入内置的常规服务
 import cardinal from './$cardinal';
-import { formatColor, getRandomColors } from './$color';
+import { formatColor, getRandomColors, getLoopColors } from './$color';
 import tree from './$tree';
 import { dot, rotate, move, scale } from './$transform';
 import map from './$map/index';
+import ruler from './$ruler';
 
 /**
  * 把类似
@@ -61,7 +62,9 @@ export default function (inputArray) {
                 "$rotate": rotate,
                 "$move": move,
                 "$scale": scale,
-                "$map": map
+                "$map": map,
+                "$getLoopColors": getLoopColors,
+                "$ruler": ruler
             }[inputArray[i]]);
         }
     }

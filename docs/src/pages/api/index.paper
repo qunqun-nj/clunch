@@ -164,7 +164,13 @@
                             <h4 @click='doScroll("getRandomColors")'>$getRandomColors</h4>
                         </li>
                         <li>
+                            <h4 @click='doScroll("getLoopColors")'>$getLoopColors</h4>
+                        </li>
+                        <li>
                             <h4 @click='doScroll("map")'>$map</h4>
+                        </li>
+                        <li>
+                            <h4 @click='doScroll("ruler")'>$ruler</h4>
                         </li>
                     </ul>
                 </li>

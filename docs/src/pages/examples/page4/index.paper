@@ -17,10 +17,10 @@
             window.clunch = new Clunch({
                 el: document.getElementById('canvas'),
                 render: image,
-                data: ["$getRandomColors", $getRandomColors => {
+                data: ["$getLoopColors", $getLoopColors => {
                     return {
                         chinaGenJson,
-                        colors: $getRandomColors(chinaGenJson.features.length),
+                        colors: $getLoopColors(chinaGenJson.features.length),
                         selectIndex: -1
                     };
                 }],
@@ -33,6 +33,7 @@
             });
         }
     };
+
 </script>
 <style>
     div {
@@ -40,4 +41,5 @@
         height: 100vh;
         background-color: rgb(156, 164, 170);
     }
+
 </style>
