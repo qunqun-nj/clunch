@@ -16,6 +16,8 @@ export default function (that) {
 
     let _width = 1, _height = 1;
 
+    let regions_data = {};
+
     return {
 
         // 擦除
@@ -23,6 +25,9 @@ export default function (that) {
             painter.config({
                 fillStyle: 'rgb(255,255,255)'
             }).fillRect(0, 0, _width, _height);
+
+            // 清空记录的数据
+            regions_data = {};
         },
 
         // 更新大小
@@ -38,7 +43,7 @@ export default function (that) {
         /**
          * region_id：区域唯一标识（一个标签上可以维护多个区域）
          */
-        "painter": function (region_id) {
+        "painter": function (region_id, data) {
 
             if (regions[region_id] == undefined) regions[region_id] = {
                 'r': function () {
@@ -63,6 +68,9 @@ export default function (that) {
                 strokeStyle: regions[region_id]
             });
 
+            // 记录数据
+            regions_data[region_id] = data;
+
             return painter;
 
         },
@@ -75,12 +83,12 @@ export default function (that) {
             let currentRGBA = canvas.getContext("2d").getImageData(pos.x * 2 - 0.5, pos.y * 2 - 0.5, 1, 1).data;
             for (let i in regions) {
                 if ("rgb(" + currentRGBA[0] + "," + currentRGBA[1] + "," + currentRGBA[2] + ")" == regions[i]) {
-                    return [i, pos.x, pos.y];
+                    return [i, pos.x, pos.y, regions_data[i]];
                 }
             }
 
             // 说明当前不在任何区域
-            return [null, pos.x, pos.y];
+            return [null, pos.x, pos.y, null];
         }
 
     };

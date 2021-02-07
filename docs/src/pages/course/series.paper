@@ -1,0 +1,271 @@
+<template>
+    <div class='doc-view'>
+        <header id='fixed-top'>
+            自定义图形组件
+        </header>
+        <p>
+            虽然通过
+            <a href="#/api/series-list?fixed=top" target="_blank">内置组件</a>
+            也可以绘制各种图表，可是如果我们希望拥有带着一定业务场景的组件，被我们很方便的复用，那就必须学习如何自定义组件了。
+        </p>
+        <h1 id='fixed-what'>
+            需求分析
+        </h1>
+        <p>
+            为了方便说明，我们就决定对
+            <a href="#/course/event?fixed=top" target="_blank">上一节：如何添加图形交互事件</a>
+            中柱状图进行封装。
+        </p>
+        <p>
+            我们定义这个图形的名称为：
+            <span class="public">ui-rects</span>
+            ，图形可以通过
+            <a href="#/api/directive?fixed=c-on" target="_blank" class="link">c-on</a>
+            添加交互，并且回调数据里面包含了有用的信息（由于当前组件是单一的，我们需要知道点击的具体小矩形的信息）。
+        </p>
+        <h1 id='fixed-define'>
+            定义组件
+        </h1>
+        <h3 id='fixed-define-frame'>
+            基本结构
+        </h3>
+        <p>
+            下面是本次定义组件部分代码的主体结构：
+        </p>
+        <pre q-code>
+import Clunch from 'clunch';
+Clunch.series('ui-rects', ["number", "json", function ($number, $json) {
+    return {
+        // 定义属性
+        attrs: {},
+        // 定义区域或子区域
+        region: {
+            default: function (render, attr) {}
+        },
+        // 具体的绘制方法
+        link(painter, attr) {}
+    };
+}]);
+
+        </pre>
+        <p>
+            主要分三个配置项：
+        </p>
+        <ul>
+            <li>
+                <span class="important">
+                    attrs
+                </span>
+                ：规定使用此组件的时候应该配置哪些属性。
+            </li>
+            <li>
+                <span class="important">
+                    link
+                </span>
+                ：根据属性绘图，也就是这里规定了你的组件长什么样子。
+            </li>
+            <li>
+                <span class="important">
+                    region
+                </span>
+                ：用于管理哪些区域被标记了，只有标记的区域才可以有交互。
+            </li>
+        </ul>
+        <p>
+            接下来，我们分别说明这三个地方的代码。
+        </p>
+        <h3 id='fixed-define-attrs'>
+            定义属性
+        </h3>
+        <pre q-code>
+attrs: {
+    x: $number(0)(true),
+    y: $number(0)(true),
+    width: $number(700)(true),
+    height: $number(360)(true),
+    data: $json(),
+    ruler: $json()
+}
+        </pre>
+        <p>
+            <span class="public">x</span>
+            、
+            <span class="public">y</span>
+            分别表示图形左上角的位置，
+            <span class="public">width</span>
+            、
+            <span class="public">height</span>
+            表示图形的大小，都参与动画（参与动画的意思是，数据改变后会一点点改变，不会突然改变）且都有默认值，因此非必输。
+        </p>
+        <p>
+            <span class="public">data</span>
+            和
+            <span class="public">ruler</span>
+            分别表示矩形数据和刻度尺的数据，必输。
+        </p>
+        <h3 id='fixed-define-link'>
+            具体的绘制方法
+        </h3>
+        <pre q-code>
+link(painter, attr) {
+
+    // 得出每个小条目的宽(包括了两边的留白)
+    let disWidth = (attr.width - 100) / attr.data.length;
+
+    for (let i = 0; i < attr.data.length; i++) {
+
+        // 背景灰色
+        painter.config('fillStyle', 'rgba(220, 220, 220, 0.8)').fillRect(
+            attr.x + 50 + disWidth * (i + 0.1), attr.y + 50,
+            disWidth * 0.8, attr.height - 100
+        );
+
+        // 值红色
+        painter.config('fillStyle', 'red').fillRect(
+            attr.x + 50 + disWidth * (i + 0.1), attr.y + attr.height - 50,
+            disWidth * 0.8, -0.005 * attr.data[i] * (attr.height - 100)
+        );
+
+    }
+
+    // 横坐标
+    this.$reuseSeriesLink('ruler', {
+        attr: {
+            x: attr.x + 50,
+            y: attr.y + attr.height - 50,
+            length: attr.width - 100,
+            value: attr.ruler,
+            "value-position": 'between'
+        }
+    });
+
+}
+        </pre>
+        <p>
+            简单的看就是使用
+            <a href="#/api/painter?fixed=top" target="_blank">painter</a>
+            这只画笔来绘制图形。除此之外，你还可以复用已有的组件，使用
+            <a href="#/api/series-reuse?fixed=top" target="_blank">this.$reuseSeriesLink</a>
+            方法来实现复用。
+        </p>
+        <h3 id='fixed-define-region'>
+            定义区域或子区域
+        </h3>
+        <p>
+            最后是区域，区域其实也是绘制，只不过是通过绘图的方式记录区域，还是看看代码：
+        </p>
+        <pre q-code>
+region: {
+    default: function (render, attr) {
+
+        // 得出每个小条目的宽(包括了两边的留白)
+        let disWidth = (attr.width - 100) / attr.data.length;
+
+        for (let i = 0; i < attr.data.length; i++) {
+
+            // 定义子区域
+            render("no-"+i,{
+                // 记录当前的值
+                value:attr.data[i]
+            })
+
+            // 绘制子区域
+            .fillRect(
+                attr.x + 50 + disWidth * (i + 0.1), attr.y + attr.height - 50,
+                disWidth * 0.8, -0.005 * attr.data[i] * (attr.height - 100)
+            );
+
+        }
+    }
+}
+        </pre>
+        <p>
+            因为有很多个条目，我们给每个小条目起了个名字：
+            <span class="public">"no"+i</span>
+            ，并且把数据保存起来了，在接下来使用中你可以对比看一下打印结果。
+        </p>
+        <h1 id='fixed-use'>
+            使用组件
+        </h1>
+        <p>
+            还是先看看
+            <span class="important">
+                .clunch文件
+            </span>
+            的内容（当前，别忘了引入刚刚定义的组件）：
+        </p>
+        <p>
+            其余的和之前的一样，下面是运行效果：
+        </p>
+        <pre q-code='html'>
+<ui-rects :data='values' ruler='["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"]' c-on:click='doit' />
+        </pre>
+        <h2>运行效果</h2>
+        <div id='canvas-5' style='height:360px;'></div>
+        <p>
+            打开控制台，点击的时候就会打印你点击结点的信息：
+        </p>
+        <pre q-code>
+attr: {x: 0, y: 0, width: 700, height: 360, data: Array(7), …}
+data: {value: 120}
+id: "0"
+left: 105
+region: "default"
+series: "ui-rects"
+subRegion: "no-0"
+top: 182
+__proto__: Object
+        </pre>
+        <p>
+            我们点击的是第一个组件，可以看见子组件名称是
+            <span class="public">no-0</span>
+            ，没有问题，记录的数据data是
+            <span class="public">{value:120}</span>
+            ，也没有问题。我们推荐你打开控制台，点击不同的地方看看打印的结果。
+        </p>
+        <h1 id='fixed-series-end'>
+            小结
+        </h1>
+        <p>
+            到这里，你就学会了如何自定义组件、如何复用组件、区域如何定义、定义区域的时候如何传递数据给事件回调和自定义组件的属性如何配置等基本使用。
+        </p>
+        <div class="bottom-link">
+            <a href="#/course/event?fixed=top" target="_blank" class='left'>上一节：如何添加图形交互事件</a>
+        </div>
+    </div>
+</template>
+<script>
+    import changeActive from '../../Service/changeActive.js';
+    import fixedScroll from '../../Service/fixedScroll.js';
+
+    import Clunch from 'clunch';
+    import './demos/ui-rects.js';
+
+    import demo5 from './demos/demo5.clunch';
+
+    export default {
+        created() {
+            changeActive('menu-2', 'series');
+        },
+        mounted() {
+            fixedScroll(document.getElementById('course-id'), 44);
+
+            // 例子5
+            new Clunch({
+                el: document.getElementById('canvas-5'),
+                render: demo5,
+                data() {
+                    return {
+                        values: [120, 200, 150, 80, 70, 110, 130]
+                    };
+                },
+                methods: {
+                    doit(target) {
+                        console.log(target);
+                    }
+                }
+            });
+        }
+    };
+
+</script>

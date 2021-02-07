@@ -4,12 +4,12 @@
  *
  * author 你好2007 < https://hai2007.gitee.io/sweethome >
  *
- * version 1.2.0
+ * version 1.3.1
  *
  * Copyright (c) 2020-2021 hai2007 走一步，再走一步。
  * Released under the MIT license
  *
- * Date:Mon Jan 18 2021 14:20:35 GMT+0800 (GMT+08:00)
+ * Date:Tue Feb 02 2021 17:23:07 GMT+0800 (GMT+08:00)
  */
 (function () {
   'use strict';
@@ -155,6 +155,8 @@
    */
 
   function animation (doback, duration, callback) {
+    // 如果没有传递时间，使用内置默认值
+    if (arguments.length < 2) duration = $speeds;
     var clock = {
       //把tick函数推入堆栈
       "timer": function timer(tick, duration, callback) {
@@ -162,7 +164,6 @@
           throw new Error('Tick is required!');
         }
 
-        duration = duration || $speeds;
         var id = new Date().valueOf() + "_" + (Math.random() * 1000).toFixed(0);
         $timers.push({
           "id": id,
@@ -1499,12 +1500,16 @@
 
     var _width = 1,
         _height = 1;
+    var regions_data = {};
     return {
       // 擦除
       "erase": function erase() {
         _painter2.config({
           fillStyle: 'rgb(255,255,255)'
-        }).fillRect(0, 0, _width, _height);
+        }).fillRect(0, 0, _width, _height); // 清空记录的数据
+
+
+        regions_data = {};
       },
       // 更新大小
       "updateSize": function updateSize(width, height) {
@@ -1517,7 +1522,7 @@
       /**
        * region_id：区域唯一标识（一个标签上可以维护多个区域）
        */
-      "painter": function painter(region_id) {
+      "painter": function painter(region_id, data) {
         if (regions[region_id] == undefined) regions[region_id] = {
           'r': function r() {
             rgb[0] += 1;
@@ -1539,8 +1544,10 @@
         _painter2.config({
           fillStyle: regions[region_id],
           strokeStyle: regions[region_id]
-        });
+        }); // 记录数据
 
+
+        regions_data[region_id] = data;
         return _painter2;
       },
       // 获取此刻鼠标所在区域
@@ -1552,12 +1559,12 @@
 
         for (var i in regions) {
           if ("rgb(" + currentRGBA[0] + "," + currentRGBA[1] + "," + currentRGBA[2] + ")" == regions[i]) {
-            return [i, pos.x, pos.y];
+            return [i, pos.x, pos.y, regions_data[i]];
           }
         } // 说明当前不在任何区域
 
 
-        return [null, pos.x, pos.y];
+        return [null, pos.x, pos.y, null];
       }
     };
   }
@@ -2399,9 +2406,12 @@
 
         if (region) {
           var _loop2 = function _loop2(regionName) {
-            region[regionName](function (subName) {
-              subName = subName || "default";
-              return _this.__regionManager.painter(i + "@" + regionName + "::" + subName);
+            var that = _this;
+            region[regionName](function (subName, data) {
+              // 如果传递了子区域名称
+              if (arguments.length > 0) subName = subName + ""; // 如果没有传递
+              else subName = "default";
+              return that.__regionManager.painter(i + "@" + regionName + "::" + subName, data);
             }, attr);
           };
 
@@ -2860,7 +2870,8 @@
               subRegion: regionSplit[1],
               attr: attr,
               left: region[1],
-              top: region[2]
+              top: region[2],
+              data: region[3]
             });
           }
         }
@@ -2891,14 +2902,20 @@
             series: curSeires.name,
             region: regionNameSplit[1],
             subRegion: regionSplit[1],
-            attr: attr
+            attr: attr,
+            left: region[1],
+            top: region[2],
+            data: region[3]
           };
         } else {
           callbackValue = {
             series: null,
             region: null,
             subRegion: null,
-            attr: {}
+            attr: {},
+            left: -1,
+            top: -1,
+            data: null
           };
         }
 

@@ -57,9 +57,15 @@ export function updateMixin(Clunch) {
             if (region) {
                 for (let regionName in region) {
 
-                    region[regionName](subName => {
-                        subName = subName || "default";
-                        return this.__regionManager.painter(i + "@" + regionName + "::" + subName);
+                    let that = this;
+                    region[regionName](function (subName, data) {
+
+                        // 如果传递了子区域名称
+                        if (arguments.length > 0) subName = subName + "";
+                        // 如果没有传递
+                        else subName = "default";
+
+                        return that.__regionManager.painter(i + "@" + regionName + "::" + subName, data);
                     }, attr);
 
                 }

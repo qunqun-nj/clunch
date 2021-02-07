@@ -1,7 +1,7 @@
 <template>
     <div class='doc-view'>
         <header id='fixed-top'>
-            开始使用
+            环境搭建和基本使用
         </header>
         <h1 id='fixed-environment'>
             环境搭建
@@ -186,7 +186,8 @@ new Clunch({
             当然，一切都在探索中，我们会根据反馈不断迭代更新。
         </p>
         <div class="bottom-link">
-            <a href="#/course/install?fixed=top" target="_blank" class='left'>上一节：说明</a>
+            <a href="#/course/install?fixed=top" target="_blank" class='left'>上一节：基本说明</a>
+            <a href="#/course/event?fixed=top" target="_blank" class='right'>下一节：如何添加图形交互事件</a>
         </div>
     </div>
 </template>

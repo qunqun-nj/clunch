@@ -82,7 +82,8 @@ Clunch.prototype.$mount = function (el) {
                         subRegion: regionSplit[1],
                         attr,
                         left: region[1],
-                        top: region[2]
+                        top: region[2],
+                        data: region[3]
                     });
                 }
             }
@@ -111,14 +112,20 @@ Clunch.prototype.$mount = function (el) {
                     series: curSeires.name,
                     region: regionNameSplit[1],
                     subRegion: regionSplit[1],
-                    attr
+                    attr,
+                    left: region[1],
+                    top: region[2],
+                    data: region[3]
                 };
             } else {
                 callbackValue = {
                     series: null,
                     region: null,
                     subRegion: null,
-                    attr: {}
+                    attr: {},
+                    left: -1,
+                    top: -1,
+                    data: null
                 };
             }
 

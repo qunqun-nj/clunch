@@ -21,7 +21,7 @@
             <h2>基础</h2>
             <ul>
                 <li>
-                    <h3 @click='openRouter("install")' class='menu-2 install'>说明</h3>
+                    <h3 @click='openRouter("install")' class='menu-2 install'>基本说明</h3>
                     <ul>
                         <li>
                             <ul>
@@ -55,7 +55,7 @@
                     </ul>
                 </li>
                 <li>
-                    <h3 @click='openRouter("introduce")' class='menu-2 introduce'>开始使用</h3>
+                    <h3 @click='openRouter("introduce")' class='menu-2 introduce'>环境搭建和基本使用</h3>
                     <ul>
                         <li>
                             <h4 @click='doScroll("environment")'>环境搭建</h4>
@@ -93,6 +93,56 @@
                         </li>
                         <li>
                             <h4 @click='doScroll("simple-example-end")'>小结</h4>
+                        </li>
+                    </ul>
+                </li>
+                <li>
+                    <h3 @click='openRouter("event")' class='menu-2 event'>如何添加图形交互事件</h3>
+                    <ul>
+                        <li>
+                            <h4 @click='doScroll("no-event")'>一个柱状图</h4>
+                        </li>
+                        <li>
+                            <h4 @click='doScroll("event")'>添加点击事件</h4>
+                            <ul>
+                                <li>
+                                    <h5 @click='doScroll("bind")'>使用c-on指令明确绑定的组件</h5>
+                                </li>
+                                <li>
+                                    <h5 @click='doScroll("methods")'>添加回调方法</h5>
+                                </li>
+                            </ul>
+                        </li>
+                    </ul>
+                </li>
+                <li>
+                    <h3 @click='openRouter("series")' class='menu-2 series'>自定义图形组件</h3>
+                    <ul>
+                        <li>
+                            <h4 @click='doScroll("what")'>需求分析</h4>
+                        </li>
+                        <li>
+                            <h4 @click='doScroll("define")'>定义组件</h4>
+                            <ul>
+                                <li>
+                                    <h5 @click='doScroll("define-frame")'>基本结构</h5>
+                                </li>
+                                <li>
+                                    <h5 @click='doScroll("define-attrs")'>定义属性</h5>
+                                </li>
+                                <li>
+                                    <h5 @click='doScroll("define-line")'>具体的绘制方法</h5>
+                                </li>
+                                <li>
+                                    <h5 @click='doScroll("define-region")'>定义区域或子区域</h5>
+                                </li>
+                            </ul>
+                        </li>
+                        <li>
+                            <h4 @click='doScroll("use")'>使用组件</h4>
+                        </li>
+                        <li>
+                            <h4 @click='doScroll("series-end")'>小结</h4>
                         </li>
                     </ul>
                 </li>

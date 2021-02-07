@@ -76,6 +76,7 @@ region: "default"
 series: "arc"
 subRegion: "default"
 top: 305
+data:"来自子区域的第二个参数data"
         </pre>
         <ul>
             <li>

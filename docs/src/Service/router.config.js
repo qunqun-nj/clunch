@@ -61,6 +61,12 @@ const pages = {
         "introduce": {
             "content": () => import('../pages/course/introduce.paper')
         },
+        "event": {
+            "content": () => import('../pages/course/event.paper')
+        },
+        "series": {
+            "content": () => import('../pages/course/series.paper')
+        },
         "_default_": "introduce"
     },
 

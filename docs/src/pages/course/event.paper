@@ -1,0 +1,192 @@
+<template>
+    <div class='doc-view'>
+        <header id='fixed-top'>
+            如何添加图形交互事件
+        </header>
+        <p>
+            上一节我们说明了如何使用内置组件绘制一个图形，后续修改数据的时候自动触发绘图更新。如果我们希望和图表交互怎么办？
+        </p>
+        <h1 id='fixed-no-event'>
+            一个柱状图
+        </h1>
+        <p>
+            为了方便说明，我们先来绘制一个柱状图，先看看运行效果：
+        </p>
+        <div id='canvas-3' style='height:360px;'></div>
+        <p>
+            我们就是通过
+            <a class="important" target="_blank" href='#/api/directive?fixed=c-for'>
+                c-for
+            </a>
+            指令，根据数据来循环出需要的矩形，并添加一个刻度尺组件来辅助显示。下面是
+            <span class="important">.clunch文件</span>
+            的内容：
+        </p>
+        <pre q-code='html'>
+<group c-for='(value,index) in values'>
+
+    <!-- 背景灰色 -->
+    <rect :x="( _width - 100 ) / values.length * ( index + 0.1 ) + 50" :y="_height - 50"
+        :width="( _width - 100 ) / values.length * 0.8" :height='-1 * ( _height - 100 )'
+        fill-color='rgba(220, 220, 220, 0.8)' type='fill' />
+
+    <!-- 值红色 -->
+    <rect :x="( _width - 100 ) / values.length * ( index + 0.1 ) + 50" :y="_height - 50"
+        :width="( _width - 100 ) / values.length * 0.8" :height='-0.005 * value * ( _height - 100 )'
+        fill-color='red' type='fill' />
+
+</group>
+
+<!-- 横坐标 -->
+<ruler x="50" :y="_height - 50" :length="_width - 100"
+    value='["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"]' value-position='between' />
+
+        </pre>
+        <p>
+            可以发现，使用最基本的一些图形绘制大部分的图形也是非常容易的。
+        </p>
+        <p>
+            上面用到的数据
+            <span class="public">
+                values
+            </span>
+            内容如下：
+        </p>
+        <pre q-code>
+            values: [120, 200, 150, 80, 70, 110, 130]
+        </pre>
+        <h1 id='fixed-event'>
+            添加点击事件
+        </h1>
+        <p>
+            所有的事件都依赖指令
+            <a href="#/api/directive?fixed=c-on" target="_blank">c-on</a>
+            实现，这里也是一样的。
+        </p>
+        <h3 id='fixed-bind'>
+            使用c-on指令明确绑定的组件
+        </h3>
+        <p>
+            我们这里需要给红色的矩形添加交互点击反馈，来看看
+            <span class="important">
+                .clunch文件
+            </span>
+            中如何修改：
+        </p>
+        <pre q-code='html'>
+ <!-- 值红色 -->
+ <rect ... c-on:click='doit'/>
+        </pre>
+        <p>
+            我们上面只给出了修改的部分。可以看到，就是给需要交互的图形添加了
+            <span class="public">
+                c-on:click='doit'
+            </span>
+            这个属性。这表示，点击这个组件的时候，会触发这个回调方法
+            <span class="important">
+                doit
+            </span>
+            。
+        </p>
+        <h3 id='fixed-methods'>
+            添加回调方法
+        </h3>
+        <p>
+            那么，上面那个
+            <span class="important">
+                doit
+            </span>
+            方法在哪里定义？
+        </p>
+        <pre q-code>
+new Clunch({
+    // ......
+    methods:{
+        doit(target){
+            console.log(target);
+        }
+    }
+});
+        </pre>
+        <p>
+            没错，在创建
+            <span class="important">Clunch对象</span>
+            的时候配置。
+        </p>
+        <p>
+            下面是运行效果：
+        </p>
+        <div id='canvas-4' style='height:360px;'></div>
+        <p>
+            打开控制台，点击的时候就会打印你点击结点的信息：
+        </p>
+        <pre q-code>
+attr: {fill-color: "red", stroke-color: "black", line-width: 1, dash: Array(0), type: "fill", …}
+data: undefined
+id: 6
+left: 601.5
+region: "default"
+series: "rect"
+subRegion: "default"
+top: 195
+__proto__: Object
+        </pre>
+        <p>
+            打印的信息每项具体什么意思，你可以
+            <a href="#/api/directive?fixed=c-on" target="_blank">点击此处</a>
+            进行查阅，这里就不再赘述了。
+        </p>
+        <div class="bottom-link">
+            <a href="#/course/introduce?fixed=top" target="_blank" class='left'>上一节：环境搭建和基本使用</a>
+            <a href="#/course/series?fixed=top" target="_blank" class='right'>下一节：自定义图形组件</a>
+        </div>
+    </div>
+</template>
+<script>
+    import changeActive from '../../Service/changeActive.js';
+    import fixedScroll from '../../Service/fixedScroll.js';
+
+    import Clunch from 'clunch';
+
+    import demo3 from './demos/demo3.clunch';
+    import demo4 from './demos/demo4.clunch';
+
+    export default {
+        created() {
+            changeActive('menu-2', 'event');
+        },
+        mounted() {
+            fixedScroll(document.getElementById('course-id'), 44);
+
+            // 例子3
+            new Clunch({
+                el: document.getElementById('canvas-3'),
+                render: demo3,
+                data() {
+                    return {
+                        values: [120, 200, 150, 80, 70, 110, 130]
+                    };
+                }
+            });
+
+
+            // 例子4
+            new Clunch({
+                el: document.getElementById('canvas-4'),
+                render: demo4,
+                data() {
+                    return {
+                        values: [120, 200, 150, 80, 70, 110, 130]
+                    };
+                },
+                methods: {
+                    doit(target) {
+                        console.log(target);
+                    }
+                }
+            });
+
+        }
+    };
+
+</script>
