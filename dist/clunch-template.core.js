@@ -4,12 +4,12 @@
  *
  * author 你好2007 < https://hai2007.gitee.io/sweethome >
  *
- * version 1.4.1
+ * version 1.4.2
  *
  * Copyright (c) 2020-2021 hai2007 走一步，再走一步。
  * Released under the MIT license
  *
- * Date:Sun Feb 07 2021 16:50:02 GMT+0800 (GMT+08:00)
+ * Date:Sun Feb 14 2021 16:14:22 GMT+0800 (GMT+08:00)
  */
 (function () {
   'use strict';
@@ -2668,9 +2668,7 @@
         for (var i = 0; i < renderAOP.length; i++) {
           // 继承scope
           for (var scopeKey in pScope) {
-            if (!(scopeKey in renderAOP[i].scope)) {
-              renderAOP[i].scope[scopeKey] = pScope[scopeKey];
-            }
+            renderAOP[i].scope[scopeKey] = pScope[scopeKey];
           } // id可以采用默认的计算机制，也可以由用户自定义
 
 
@@ -2705,10 +2703,8 @@
 
             for (var forKey in data_for) {
               renderAOP[i].scope[cFor.value] = data_for[forKey];
-              if (cFor.key != null) renderAOP[i].scope[cFor.key] = isArray(data_for) ? +forKey : forKey; // 考虑到子组件会修改scope，目前没有好的方法恢复
-              // 后续找到更好的方法会替换这里
-
-              var temp = doit([JSON.parse(JSON.stringify(renderAOP[i]))], {}, isSubAttrs, id + "for" + forKey + "-", true);
+              if (cFor.key != null) renderAOP[i].scope[cFor.key] = isArray(data_for) ? +forKey : forKey;
+              var temp = doit([renderAOP[i]], {}, isSubAttrs, id + "for" + forKey + "-", true);
 
               if (isSubAttrs) {
                 for (var j = 0; j < temp.length; j++) {
@@ -2755,10 +2751,7 @@
 
               if (isSubAttrs) subRenderSeries.push(seriesItem);else renderSeries.push(seriesItem);
             }
-          } // 完成了恢复scope
-
-
-          renderAOP[i].scope = {};
+          }
         }
 
         return subRenderSeries;
