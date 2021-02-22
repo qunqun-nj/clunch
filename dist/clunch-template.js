@@ -4,12 +4,12 @@
  *
  * author 你好2007 < https://hai2007.gitee.io/sweethome >
  *
- * version 1.4.2
+ * version 1.4.3
  *
  * Copyright (c) 2020-2021 hai2007 走一步，再走一步。
  * Released under the MIT license
  *
- * Date:Sun Feb 14 2021 16:14:22 GMT+0800 (GMT+08:00)
+ * Date:Mon Feb 22 2021 15:06:12 GMT+0800 (GMT+08:00)
  */
 (function () {
   'use strict';
@@ -970,14 +970,22 @@
   }; // 刻度计算
 
 
-  function ruler(cormax, cormin, cornumber) {
-    var tmpstep;
-    cornumber = 5; //先判断所有数据都相等的情况
+  function ruler(cormax, cormin) {
+    var cornumber = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : 5;
+    var tmpstep, corstep, temp; //先判断所有数据都相等的情况
 
     if (cormax == cormin) {
+      //在数据相等的情况下先计算所有数为正数
+      if (cormin > 0) {
+        //直接求出初始间隔
+        corstep = cormax / cornumber;
+      } else if (cormin < 0) {
+        //当所有数为负数且相等时
+        corstep = cormax / cornumber; //因为间隔为负影响下面的计算，所以直接取反
 
+        corstep = -corstep;
+      } //求间隔corstep的数量级temp (10,100,1000)
 
-      var temp;
 
       if (Math.pow(10, Math_trunc(Math.log(corstep) / Math.log(10))) == corstep) {
         temp = Math.pow(10, Math_trunc(Math.log(corstep) / Math.log(10)));
@@ -1010,19 +1018,16 @@
       cornumber = (cormax - cormin) / tmpstep;
     } else if (cormax != cormin) {
       //根据传入的数据初步求出刻度数之间的间隔corstep
-      var _corstep3 = (cormax - cormin) / cornumber; //求间隔corstep的数量级temp (10,100,1000)
+      corstep = (cormax - cormin) / cornumber; //求间隔corstep的数量级temp (10,100,1000)
 
-
-      var _temp;
-
-      if (Math.pow(10, Math_trunc(Math.log(_corstep3) / Math.log(10))) == _corstep3) {
-        _temp = Math.pow(10, Math_trunc(Math.log(_corstep3) / Math.log(10)));
+      if (Math.pow(10, Math_trunc(Math.log(corstep) / Math.log(10))) == corstep) {
+        temp = Math.pow(10, Math_trunc(Math.log(corstep) / Math.log(10)));
       } else {
-        _temp = Math.pow(10, Math_trunc(Math.log(_corstep3) / Math.log(10)) + 1);
+        temp = Math.pow(10, Math_trunc(Math.log(corstep) / Math.log(10)) + 1);
       } //将间隔corstep进行归一化，求出tmpstep(tpmstep在0.1 0.2 0.25 0.5 1之间取值)
 
 
-      tmpstep = _corstep3 / _temp;
+      tmpstep = corstep / temp;
 
       if (tmpstep >= 0 && tmpstep <= 0.1) {
         tmpstep = 0.1;
@@ -1037,7 +1042,7 @@
       } //将间隔恢复，求出实际间隔距离
 
 
-      tmpstep = tmpstep * _temp; //调整刻度尺的最小刻度
+      tmpstep = tmpstep * temp; //调整刻度尺的最小刻度
 
       if (Math_trunc(cormin / tmpstep) != cormin / tmpstep) {
         if (cormin < 0) {
