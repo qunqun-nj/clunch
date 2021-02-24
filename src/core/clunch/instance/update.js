@@ -58,7 +58,7 @@ export function updateMixin(Clunch) {
                 for (let regionName in region) {
 
                     let that = this;
-                    region[regionName](function (subName, data) {
+                    region[regionName].call(that, function (subName, data) {
 
                         // 如果传递了子区域名称
                         if (arguments.length > 0) subName = subName + "";

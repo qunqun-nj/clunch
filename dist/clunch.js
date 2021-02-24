@@ -4,12 +4,12 @@
  *
  * author 你好2007 < https://hai2007.gitee.io/sweethome >
  *
- * version 1.4.3
+ * version 1.4.4
  *
  * Copyright (c) 2020-2021 hai2007 走一步，再走一步。
  * Released under the MIT license
  *
- * Date:Mon Feb 22 2021 15:06:12 GMT+0800 (GMT+08:00)
+ * Date:Wed Feb 24 2021 17:34:00 GMT+0800 (GMT+08:00)
  */
 (function () {
   'use strict';
@@ -2622,7 +2622,7 @@
         if (region) {
           var _loop2 = function _loop2(regionName) {
             var that = _this;
-            region[regionName](function (subName, data) {
+            region[regionName].call(that, function (subName, data) {
               // 如果传递了子区域名称
               if (arguments.length > 0) subName = subName + ""; // 如果没有传递
               else subName = "default";
