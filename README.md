@@ -87,11 +87,6 @@ new Clunch({
 
 具体的请查看[在线文档](https://hai2007.gitee.io/clunch/)了解详情！
 
-## 联系我们
-
-- QQ: 2501482523
-- Email: 2501482523@qq.com
-
 开源协议
 ---------------------------------------
 [MIT](https://github.com/hai2007/clunch/blob/master/LICENSE)
