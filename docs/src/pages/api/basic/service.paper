@@ -59,8 +59,8 @@
             </span>
         </h1>
         <pre q-code>var cardinal = $cardinal({
-    // 可选，设置张弛系数，默认1，分水岭0，值越大，曲线走势调整的越严重
-    rate:number
+    // 该参数用于调整曲线走势，默认数值t=0，分水岭t=-1，|t-(-1)|的值越大，曲线走势调整的越严重
+    "t": number
 });</pre>
         <p>
             <span class="important">插值函数</span>
