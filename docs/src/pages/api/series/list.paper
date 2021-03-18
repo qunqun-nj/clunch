@@ -25,6 +25,7 @@
             <li><span class="important">type</span>：string，弧形类型，默认'fill'，还有二种类型可选：'stroke'和'full';</li>
             <li><span class="important">begin</span>：number，弧度开始角度，默认0。</li>
         </ul>
+        <button ui-goto-example='arc'>查看用例>>></button>
         <h3 id="fixed-circle">
             圆
             <span class='sub-title'>
