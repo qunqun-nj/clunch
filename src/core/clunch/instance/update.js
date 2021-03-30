@@ -4,6 +4,7 @@ import { isFunction, isArray, isNumber } from '@hai2007/tool/type';
 import calcDeepSeries from '../../../tool/calcDeepSeries';
 import painter from '../../painter/index';
 import getStyle from '../../../tool/get-style';
+import { initPainterConfig } from '../../painter/config';
 
 // 数据更新或画布改变需要进行的更新处理方法
 
@@ -50,6 +51,7 @@ export function updateMixin(Clunch) {
             }
 
             // 绘制
+            this.__painter.config(initPainterConfig);
             this.__defineSerirs[this.__renderSeries[i].name].link.call(this, this.__painter, attr);
 
             // 记录区域

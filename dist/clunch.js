@@ -4,12 +4,12 @@
  *
  * author 你好2007 < https://hai2007.gitee.io/sweethome >
  *
- * version 1.4.4
+ * version 1.5.0
  *
  * Copyright (c) 2020-2021 hai2007 走一步，再走一步。
  * Released under the MIT license
  *
- * Date:Wed Feb 24 2021 17:34:00 GMT+0800 (GMT+08:00)
+ * Date:Tue Mar 30 2021 14:44:13 GMT+0800 (GMT+08:00)
  */
 (function () {
   'use strict';
@@ -1366,6 +1366,29 @@
     doback(beginA, beginA + rotateA, temp[0] + cx, temp[1] + cy, temp[4] + cx, temp[5] + cy, temp[2] + cx, temp[3] + cy, temp[6] + cx, temp[7] + cy, (r2 - r1) * 0.5);
   }
 
+  var initPainterConfig = {
+    // 填充色或图案
+    "fillStyle": 'black',
+    // 轮廓色或图案
+    "strokeStyle": 'black',
+    // 线条宽度(单位px，下同)
+    "lineWidth": 1,
+    // 文字水平对齐方式（"left"左对齐、"center"居中和"right"右对齐）
+    "textAlign": 'left',
+    // 文字垂直对齐方式（"middle"垂直居中、"top"上对齐和"bottom"下对齐）
+    "textBaseline": 'middle',
+    // 文字大小
+    "font-size": 16,
+    // 字体，默认"sans-serif"
+    "font-family": "sans-serif",
+    // 圆弧开始端闭合方式（"butt"直线闭合、"round"圆帽闭合）
+    "arc-start-cap": 'butt',
+    // 圆弧结束端闭合方式，和上一个类似
+    "arc-end-cap": 'butt',
+    // 设置线条虚线，应该是一个数组[number,...]
+    "lineDash": []
+  }; // 文字统一设置方法
+
   var initText = function initText(painter, config, x, y, deg) {
     painter.beginPath();
     painter.translate(x, y);
@@ -1460,20 +1483,10 @@
     canvas.setAttribute('width', width * 2);
     canvas.setAttribute('height', height * 2); // 通过缩放实现模糊问题
 
-    painter.scale(2, 2);
-    painter.textBaseline = 'middle';
-    painter.textAlign = 'left'; // 默认配置
+    painter.scale(2, 2); // 用于记录配置
+    // 因为部分配置的设置比较特殊，只先记录意图
 
-    var config = {
-      "font-size": "16",
-      // 文字大小
-      "font-family": "sans-serif",
-      // 字体
-      "arc-start-cap": "butt",
-      // 弧开始闭合方式
-      "arc-end-cap": "butt" // 弧结束闭合方式
-
-    }; // 配置生效方法
+    var config = {}; // 配置生效方法
 
     var useConfig = function useConfig(key, value) {
       /**
@@ -1490,7 +1503,7 @@
        * -----------------------------
        */
       // 如果已经存在默认配置中，说明只需要缓存起来即可
-      else if (config[key]) {
+      else if (["font-size", "font-family", "arc-start-cap", "arc-end-cap"].indexOf(key) > -1) {
           config[key] = value;
         } // 其它情况直接生效即可
         else {
@@ -1756,7 +1769,7 @@
           }
         }[p]();
 
-        _painter2.config({
+        _painter2.config(initPainterConfig).config({
           fillStyle: regions[region_id],
           strokeStyle: regions[region_id]
         }); // 记录数据
@@ -2613,6 +2626,8 @@
           attr._subAttr.push(subSeries);
         } // 绘制
 
+
+        _this.__painter.config(initPainterConfig);
 
         _this.__defineSerirs[_this.__renderSeries[i].name].link.call(_this, _this.__painter, attr); // 记录区域
 
