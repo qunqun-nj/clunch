@@ -34,7 +34,13 @@
     "arc-end-cap":string,
 
     // 设置线条虚线，应该是一个数组[number,...]，默认[]
-    "lineDash":array
+    "lineDash":array,
+
+    // 阴影的模糊系数，默认0，也就是无阴影
+    "shadowBlur": 0,
+
+    // 阴影的颜色，默认'black'
+    "shadowColor": "black"
 
 });</pre>
         <p>

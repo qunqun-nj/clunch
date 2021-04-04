@@ -30,7 +30,13 @@ export let initPainterConfig = {
     "arc-end-cap": 'butt',
 
     // 设置线条虚线，应该是一个数组[number,...]
-    "lineDash": []
+    "lineDash": [],
+
+    // 阴影的模糊系数，默认0，也就是无阴影
+    "shadowBlur": 0,
+
+    // 阴影的颜色
+    "shadowColor": "black"
 
 };
 

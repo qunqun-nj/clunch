@@ -1,5 +1,6 @@
 import { initText, initArc, initCircle, initRect } from './config';
 import { linearGradient, radialGradient } from './Gradient';
+import { initPainterConfig } from './config';
 
 // 画笔对象，具体的绘制方法
 
@@ -51,8 +52,13 @@ export default function (canvas, width, height) {
         }
 
         // 其它情况直接生效即可
-        else {
+        else if (key in initPainterConfig) {
             painter[key] = value;
+        }
+
+        // 如果属性未被定义
+        else {
+            throw new Error('Illegal configuration item of painter : ' + key + " !");
         }
     };
 

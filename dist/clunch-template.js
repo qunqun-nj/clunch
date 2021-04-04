@@ -4,12 +4,12 @@
  *
  * author 你好2007 < https://hai2007.gitee.io/sweethome >
  *
- * version 1.5.0
+ * version 1.5.1
  *
  * Copyright (c) 2020-2021 hai2007 走一步，再走一步。
  * Released under the MIT license
  *
- * Date:Tue Mar 30 2021 14:44:13 GMT+0800 (GMT+08:00)
+ * Date:Sun Apr 04 2021 22:59:59 GMT+0800 (GMT+08:00)
  */
 (function () {
   'use strict';
@@ -1267,6 +1267,8 @@
           for (var _attrKey in render.attrs) {
             if (/^c\-/.test(_attrKey)) ; else if (_attrKey == '_id') {
               aopRender._id = render.attrs._id;
+            } else if (_attrKey == '_animation') {
+              aopRender._animation = render.attrs._animation;
             } else if (!(_attrKey in curSeries.attrs)) {
               console.warn("attrs." + _attrKey + ' is not defined for ' + (pName ? pName + " > " + render.name : render.name) + '!');
             }
@@ -1386,7 +1388,11 @@
     // 圆弧结束端闭合方式，和上一个类似
     "arc-end-cap": 'butt',
     // 设置线条虚线，应该是一个数组[number,...]
-    "lineDash": []
+    "lineDash": [],
+    // 阴影的模糊系数，默认0，也就是无阴影
+    "shadowBlur": 0,
+    // 阴影的颜色
+    "shadowColor": "black"
   }; // 文字统一设置方法
 
   var initText = function initText(painter, config, x, y, deg) {
@@ -1506,9 +1512,12 @@
       else if (["font-size", "font-family", "arc-start-cap", "arc-end-cap"].indexOf(key) > -1) {
           config[key] = value;
         } // 其它情况直接生效即可
-        else {
+        else if (key in initPainterConfig) {
             painter[key] = value;
-          }
+          } // 如果属性未被定义
+          else {
+              throw new Error('Illegal configuration item of painter : ' + key + " !");
+            }
     }; // 画笔
 
 
@@ -2581,7 +2590,12 @@
             subAttr: subAttr,
             attr: attr
           });
-        }
+        } // 如果在旧的组件列表里面不存在对照
+        else {
+            if (newRenderSeries[i].animation == 'quick') {
+              renderSeries.push(newRenderSeries[i]);
+            }
+          }
       }
 
       return renderSeries;
@@ -2731,6 +2745,15 @@
             id = renderAOP[i]._id.isBind ? evalExpress(that, renderAOP[i]._id.express, renderAOP[i].scope) : renderAOP[i]._id.express;
           } else {
             id = pid + renderAOP[i].index;
+          } // _animation用于设置组件参与动画的方式
+
+
+          var animationHow = void 0;
+
+          if ('_animation' in renderAOP[i]) {
+            animationHow = renderAOP[i]._animation.isBind ? evalExpress(that, renderAOP[i]._animation.express, renderAOP[i].scope) : renderAOP[i]._animation.express;
+          } else {
+            animationHow = 'lazy';
           } // c-for指令
           // 由于此指令修改局部scope，因此优先级必须最高
 
@@ -2780,7 +2803,8 @@
                 attr: {},
                 subAttr: [],
                 subText: renderAOP[i].text,
-                id: id
+                id: id,
+                animation: animationHow
               }; // 计算属性
 
               for (var attrKey in renderAOP[i].attrs) {
@@ -2979,6 +3003,10 @@
   function initGlobal(Clunch) {
     // 组件图形复用
     Clunch.prototype.$reuseSeriesLink = function (seriesName, _attrs) {
+      // 画笔配置重置，防止副作用
+      this.__painter.config(initPainterConfig); // 获取需要复用的组件实体
+
+
       var reuseSeries = this.__defineSerirs[seriesName];
       var attrs = {
         _subAttr: [],
