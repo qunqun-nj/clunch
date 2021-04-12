@@ -71,6 +71,14 @@ const pages = {
     },
 
     /**
+     * 常见问题
+     */
+
+    "qa": {
+        "content": () => import('../pages/qa/index.paper')
+    },
+
+    /**
      * 用例
      */
 
