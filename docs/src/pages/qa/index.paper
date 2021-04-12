@@ -155,7 +155,7 @@ this.radiusArray[0]= 10;
 </script>
 <style>
     .qa-view {
-        height: calc(100vh - 1.41rem);
+        height: calc(100vh - 0.44rem);
         overflow: auto;
         padding: 50px 100px;
         background-color: rgb(236, 232, 232);
