@@ -46,9 +46,6 @@
                         <li>
                             <h3 active="yes" @click='doScroll("skill-hover")'>如何更好的添加悬浮提示？</h3>
                         </li>
-                        <li>
-                            <h3 active="yes" @click='doScroll("skill-tree_animation")'>如何优化树图数据改变导致的动画效果？</h3>
-                        </li>
                     </ul>
                 </div>
             </div>
@@ -123,14 +120,24 @@ this.radiusArray[0]= 10;
 
             <h3 id='fixed-skill-hover' @click='doScroll("skill-hover")'>如何更好的添加悬浮提示？</h3>
             <p>
-
+                假设我们现在根据数据绘制了若干个矩形条目，你可以
+                <button ui-goto-example='hover'>点击此处查看用例>>></button>
+                ，鼠标悬浮在对应的矩形条目上会悬浮提示对应条目的数值（具体的悬浮可以自定义更好看的组件，这里只是为了说明问题就用文字代替）。
             </p>
-
-            <h3 id='fixed-skill-tree_animation' @click='doScroll("skill-tree_animation")'>如何优化树图数据改变导致的动画效果？</h3>
             <p>
-
+                你会发现，鼠标需要停留一段时间才可以触发悬浮提示，这非常的不友好！
             </p>
-
+            <p>
+                对于悬浮的场景，发生这样的结果并不是我们期望的，不过为了兼容大多数情况，我们不得已这样设计。幸运的是，我们提供了配置项来修改默认的动画机制：
+                <a href="#/api/series?fixed=inner-attr" target="_blank">内置属性 / _animation</a>
+                ，通过把这个配置项设置为
+                <span class="warn">
+                    quick
+                </span>
+                就可以获得更好的悬浮效果：
+                <button ui-goto-example='hover-enhance'>点击此处查看用例>>></button>
+                。
+            </p>
         </div>
     </div>
 </template>
@@ -214,6 +221,13 @@ this.radiusArray[0]= 10;
     h5:hover {
         color: #2396b9 !important;
         font-weight: 800 !important;
+        text-decoration: underline;
+    }
+
+    button {
+        margin: 0 !important;
+        background: none !important;
+        color: blue !important;
         text-decoration: underline;
     }
 </style>
