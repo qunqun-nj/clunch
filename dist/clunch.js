@@ -4,12 +4,12 @@
  *
  * author 你好2007 < https://hai2007.gitee.io/sweethome >
  *
- * version 1.5.1
+ * version 1.5.2
  *
  * Copyright (c) 2020-2021 hai2007 走一步，再走一步。
  * Released under the MIT license
  *
- * Date:Sun Apr 04 2021 22:59:59 GMT+0800 (GMT+08:00)
+ * Date:Thu Apr 29 2021 14:08:32 GMT+0800 (GMT+08:00)
  */
 (function () {
   'use strict';
@@ -1480,8 +1480,10 @@
   function painter (canvas, width, height) {
     // 获取canvas2D画笔
     var painter = canvas.getContext("2d"); //  如果画布隐藏或大小为0
-
-    if (width == 0 || height == 0) throw new Error('Canvas is hidden or size is zero!'); // 设置显示大小
+    // 对于这种情况，修改为直接在前置拦截
+    // by 你好2007 (2021年4月29日)
+    // if (width == 0 || height == 0) throw new Error('Canvas is hidden or size is zero!');
+    // 设置显示大小
 
     canvas.style.width = width + "px";
     canvas.style.height = height + "px"; // 设置画布大小（画布大小设置为显示的二倍，使得显示的时候更加清晰）
@@ -2678,13 +2680,23 @@
 
       this.$$lifecycle('beforeResize');
       var width = this.__el.clientWidth - (getStyle(this.__el, 'padding-left') + "").replace('px', '') - (getStyle(this.__el, 'padding-right') + "").replace('px', '');
-      var height = this.__el.clientHeight - (getStyle(this.__el, 'padding-top') + "").replace('px', '') - (getStyle(this.__el, 'padding-bottom') + "").replace('px', ''); // 更新画布
-
-      this.__painter = painter(this.__canvas, width, height);
+      var height = this.__el.clientHeight - (getStyle(this.__el, 'padding-top') + "").replace('px', '') - (getStyle(this.__el, 'padding-bottom') + "").replace('px', '');
       this._width = width;
       this._height = height;
       this._max = width > height ? width : height;
-      this._min = width < height ? width : height; // 重置区域
+      this._min = width < height ? width : height;
+
+      if (width == 0 || height == 0) {
+        // 画布大小标记为0
+        this.__canvas.style.width = "0px";
+        this.__canvas.style.height = "0px"; // 提前结束更新
+
+        this.$$lifecycle('resized');
+        return;
+      } // 更新画布
+
+
+      this.__painter = painter(this.__canvas, width, height); // 重置区域
 
       this.__regionManager.updateSize(width, height);
 

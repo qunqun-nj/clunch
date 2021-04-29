@@ -10,7 +10,9 @@ export default function (canvas, width, height) {
     let painter = canvas.getContext("2d");
 
     //  如果画布隐藏或大小为0
-    if (width == 0 || height == 0) throw new Error('Canvas is hidden or size is zero!');
+    // 对于这种情况，修改为直接在前置拦截
+    // by 你好2007 (2021年4月29日)
+    // if (width == 0 || height == 0) throw new Error('Canvas is hidden or size is zero!');
 
     // 设置显示大小
     canvas.style.width = width + "px";
