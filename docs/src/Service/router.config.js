@@ -42,6 +42,11 @@ const pages = {
             "content": () => import('../pages/api/series/reuse.paper')
         },
 
+        // 进阶
+        "enhance-platform": {
+            "content": () => import('../pages/api/enhance/platform.paper')
+        },
+
         "_default_": "object"
 
     },

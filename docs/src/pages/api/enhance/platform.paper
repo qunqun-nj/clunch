@@ -1,0 +1,48 @@
+<template>
+    <div class='doc-view'>
+        <header id='fixed-top'>
+            兼容更多平台
+        </header>
+        <h1 id="fixed-uni-app">uni-app</h1>
+        <p>
+            我们提供的是一个uni-app组件，引入以后需要进行注册：
+        </p>
+        <pre q-code='javascript'>
+import uiClunch from 'clunch/platform/uni-app/index.vue';
+
+export default {
+    components:{
+        uiClunch
+    }
+};
+        </pre>
+        <p>
+            注册完毕就可以在页面中使用了：
+        </p>
+        <pre q-code='html'>
+            <ui-clunch ref='clunch' width='' height=''></ui-clunch>
+        </pre>
+        <p>
+            最后，启动绘图：
+        </p>
+        <pre q-code='javascript'>
+this.$refs.clunch.new({
+    template:``,
+    // ......
+});
+        </pre>
+    </div>
+</template>
+<script>
+    import changeActive from '../../../Service/changeActive.js';
+    import fixedScroll from '../../../Service/fixedScroll.js';
+    export default {
+        created() {
+            changeActive('menu-2', 'enhance-platform');
+        },
+        mounted() {
+            fixedScroll(document.getElementById('api-id'), 44);
+        }
+    };
+
+</script>

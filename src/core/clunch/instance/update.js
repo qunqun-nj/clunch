@@ -74,6 +74,15 @@ export function updateMixin(Clunch) {
             }
         }
 
+        // 对于非默认平台，最后需要绘制一下才会显示
+
+        if (this._platform != 'default') {
+            this.__platform_painter.draw();
+            if (this.__regionManager != null) {
+                this.__regionManager.draw();
+            }
+        }
+
         this.$$lifecycle('drawed');
     };
 
@@ -103,7 +112,7 @@ export function updateMixin(Clunch) {
         }
 
         // 更新画布
-        this.__painter = painter(this.__canvas, width, height);
+        this.__painter = painter(this._platform,this.__canvas, width, height);
 
         // 重置区域
         this.__regionManager.updateSize(width, height);
