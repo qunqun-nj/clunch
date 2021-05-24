@@ -4,12 +4,12 @@
  *
  * author 你好2007 < https://hai2007.gitee.io/sweethome >
  *
- * version 1.6.0-alpha.0
+ * version 1.6.0
  *
  * Copyright (c) 2020-2021 hai2007 走一步，再走一步。
  * Released under the MIT license
  *
- * Date:Mon May 24 2021 00:03:35 GMT+0800 (GMT+08:00)
+ * Date:Mon May 24 2021 09:43:31 GMT+0800 (GMT+08:00)
  */
 (function () {
   'use strict';
@@ -1450,6 +1450,7 @@
     return enhanceGradient;
   };
 
+  var unSupportAttr = {};
   function painter (platform, canvas, width, height) {
     var painter;
 
@@ -1486,8 +1487,16 @@
         try {
           painter['set' + key[0].toUpperCase() + key.substr(1)](value);
         } catch (e) {
-          // 部分属性可能一些平台设置方法不兼容，这里进行调试提示
-          console.error("[" + key + "] " + e);
+          if (!unSupportAttr[platform]) {
+            unSupportAttr[platform] = {};
+          } // 为了友好，我们只对第一次进行提示
+
+
+          if (!unSupportAttr[platform][key]) {
+            // 部分属性可能一些平台设置方法不兼容，这里进行调试提示
+            unSupportAttr[platform][key] = true;
+            console.warn("Clunch内置画笔的" + key + "属性在" + platform + "平台上不支持！");
+          }
         }
       }
     } : // 默认环境

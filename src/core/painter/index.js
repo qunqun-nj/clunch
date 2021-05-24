@@ -4,6 +4,8 @@ import { initPainterConfig } from './config';
 
 // 画笔对象，具体的绘制方法
 
+let unSupportAttr = {};
+
 export default function (platform, canvas, width, height) {
 
     let painter
@@ -52,8 +54,17 @@ export default function (platform, canvas, width, height) {
                 try {
                     painter['set' + key[0].toUpperCase() + key.substr(1)](value);
                 } catch (e) {
-                    // 部分属性可能一些平台设置方法不兼容，这里进行调试提示
-                    console.error("[" + key + "] " + e);
+
+                    if (!unSupportAttr[platform]) {
+                        unSupportAttr[platform] = {};
+                    }
+
+                    // 为了友好，我们只对第一次进行提示
+                    if (!unSupportAttr[platform][key]) {
+                        // 部分属性可能一些平台设置方法不兼容，这里进行调试提示
+                        unSupportAttr[platform][key] = true;
+                        console.warn("Clunch内置画笔的" + key + "属性在" + platform + "平台上不支持！");
+                    }
                 }
             }
 

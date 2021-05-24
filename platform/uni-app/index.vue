@@ -48,7 +48,7 @@ import toPx from "./toPx";
 let clunchObject = null;
 
 /**
- * clunch 图形框架clunch在uni-app中的兼容组件
+ * 图形框架clunch在uni-app中的兼容组件
  * @description clunch相关文档地址 https://hai2007.gitee.io/clunch/
  * @property {String,Number} width 画布的宽
  * @property {String,Number} height 画布的高
@@ -79,7 +79,7 @@ export default {
   methods: {
     new(config, seriesList) {
       // 添加自定义组件
-      Clunch.series(seriesList);
+      if (seriesList) Clunch.series(seriesList);
 
       // 对参数进行补充
       config.platform = "uni-app";
@@ -113,7 +113,6 @@ export default {
       return clunchObject;
     },
     doit(event) {
-
       // 如果没有创建就不需要处理
       if (!clunchObject) return;
 
