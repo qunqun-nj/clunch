@@ -152,6 +152,9 @@ cardinal.setP([[X1,Y1],[X2,Y2],...,[Xn, Yn]]);
             给定任意一个合法的css颜色字符串，把颜色统一转变成rgba格式，返回一个数组[r,g,b,a]：
         </p>
         <pre q-code>$formatColor(colorString);</pre>
+        <p class="warn">
+            温馨提示：目前只在H5平台有效（比如使用uniapp开发，如果编译的产物是小程序就会失败），未来可能会进行升级改造。
+        </p>
         <h1 id="fixed-getRandomColors">
             随机颜色
             <span class='sub-title'>
