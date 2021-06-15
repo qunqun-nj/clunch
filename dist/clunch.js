@@ -4,12 +4,12 @@
  *
  * author 你好2007 < https://hai2007.gitee.io/sweethome >
  *
- * version 1.6.0
+ * version 1.7.0
  *
  * Copyright (c) 2020-2021 hai2007 走一步，再走一步。
  * Released under the MIT license
  *
- * Date:Mon May 24 2021 09:43:31 GMT+0800 (GMT+08:00)
+ * Date:Tue Jun 15 2021 13:48:15 GMT+0800 (中国标准时间)
  */
 (function () {
   'use strict';
@@ -965,127 +965,73 @@
     return map;
   }
 
-  var Math_trunc = function Math_trunc(value) {
-    return value < 0 ? Math.ceil(value) : Math.floor(value);
-  }; // 刻度计算
+  /*!
+   * 💡 - 刻度尺刻度求解
+   * https://github.com/hai2007/tool.js/blob/master/ruler.js
+   *
+   * author hai2007 < https://hai2007.gitee.io/sweethome >
+   *
+   * Copyright (c) 2021-present hai2007 走一步，再走一步。
+   * Released under the MIT license
+   */
+  // 需要注意的是，实际的间距个数可能是 num-1 或 num 或 num+1 或 1
+  function ruler (maxValue, minValue, num) {
+    // 如果最大值最小值反了
+    if (maxValue < minValue) {
+      var temp = minValue;
+      minValue = maxValue;
+      maxValue = temp;
+    } // 如果相等
+    else if (maxValue == minValue) {
+        return [maxValue];
+      } // 为了变成 -100 ~ 100 需要放大或者缩小的倍数
 
 
-  function ruler(cormax, cormin) {
-    var cornumber = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : 5;
-    var tmpstep, corstep, temp; //先判断所有数据都相等的情况
-
-    if (cormax == cormin) {
-      //在数据相等的情况下先计算所有数为正数
-      if (cormin > 0) {
-        //直接求出初始间隔
-        corstep = cormax / cornumber;
-      } else if (cormin < 0) {
-        //当所有数为负数且相等时
-        corstep = cormax / cornumber; //因为间隔为负影响下面的计算，所以直接取反
-
-        corstep = -corstep;
-      } //求间隔corstep的数量级temp (10,100,1000)
+    var times100 = function (_value) {
+      // 先确定基调，是放大还是缩小
+      var _times100_base = _value < 100 && _value > -100 ? 10 : 0.1; // 记录当前缩放倍数
 
 
-      if (Math.pow(10, Math_trunc(Math.log(corstep) / Math.log(10))) == corstep) {
-        temp = Math.pow(10, Math_trunc(Math.log(corstep) / Math.log(10)));
-      } else {
-        temp = Math.pow(10, Math_trunc(Math.log(corstep) / Math.log(10)) + 1);
-      } //将间隔corstep进行归一化，求出tmpstep(tpmstep在0.1 0.2 0.25 0.5 1之间取值)
+      var _times100 = 1,
+          _tiemsValue = _value;
 
-
-      tmpstep = corstep / temp;
-
-      if (tmpstep >= 0 && tmpstep <= 0.1) {
-        tmpstep = 0.1;
-      } else if (tmpstep >= 0.100001 && tmpstep <= 0.2) {
-        tmpstep = 0.2;
-      } else if (tmpstep >= 0.200001 && tmpstep <= 0.25) {
-        tmpstep = 0.25;
-      } else if (tmpstep >= 0.250001 && tmpstep <= 0.5) {
-        tmpstep = 0.5;
-      } else {
-        tmpstep = 1;
-      } //将间隔恢复，求出实际间隔距离
-
-
-      tmpstep = tmpstep * temp; //刻度尺最小必须从0开始
-
-      cormin = 0; //调整刻度尺的最大刻度
-
-      cormax = Math_trunc(cormax / tmpstep + 1) * tmpstep; //求出刻度尺的间隔
-
-      cornumber = (cormax - cormin) / tmpstep;
-    } else if (cormax != cormin) {
-      //根据传入的数据初步求出刻度数之间的间隔corstep
-      corstep = (cormax - cormin) / cornumber; //求间隔corstep的数量级temp (10,100,1000)
-
-      if (Math.pow(10, Math_trunc(Math.log(corstep) / Math.log(10))) == corstep) {
-        temp = Math.pow(10, Math_trunc(Math.log(corstep) / Math.log(10)));
-      } else {
-        temp = Math.pow(10, Math_trunc(Math.log(corstep) / Math.log(10)) + 1);
-      } //将间隔corstep进行归一化，求出tmpstep(tpmstep在0.1 0.2 0.25 0.5 1之间取值)
-
-
-      tmpstep = corstep / temp;
-
-      if (tmpstep >= 0 && tmpstep <= 0.1) {
-        tmpstep = 0.1;
-      } else if (tmpstep >= 0.100001 && tmpstep <= 0.2) {
-        tmpstep = 0.2;
-      } else if (tmpstep >= 0.200001 && tmpstep <= 0.25) {
-        tmpstep = 0.25;
-      } else if (tmpstep >= 0.250001 && tmpstep <= 0.5) {
-        tmpstep = 0.5;
-      } else {
-        tmpstep = 1;
-      } //将间隔恢复，求出实际间隔距离
-
-
-      tmpstep = tmpstep * temp; //调整刻度尺的最小刻度
-
-      if (Math_trunc(cormin / tmpstep) != cormin / tmpstep) {
-        if (cormin < 0) {
-          cormin = -1 * Math.ceil(Math.abs(cormin / tmpstep)) * tmpstep;
-        } else {
-          cormin = Math_trunc(Math.abs(cormin / tmpstep)) * tmpstep;
-        }
-      } //调整刻度尺的最大刻度
-
-
-      cormax = Math_trunc(cormax / tmpstep + 1) * tmpstep; //求新的cornumber、cormax、cormin
-
-      var tmpnumber = (cormax - cormin) / tmpstep;
-
-      if (tmpnumber < cornumber) {
-        var extranumber = cornumber - tmpnumber;
-        tmpnumber = cornumber;
-
-        if (extranumber % 2 == 0) {
-          cormax = cormax + tmpstep * Math_trunc(extranumber / 2);
-        } else {
-          cormax = cormax + tmpstep * Math_trunc(extranumber / 2 + 1);
-        }
-
-        cormin = cormin - tmpstep * Math_trunc(extranumber / 2);
+      while (_times100_base == 10 ? // 如果是放大，超过 -100 ~ 100 就应该停止
+      _tiemsValue >= -100 && _tiemsValue <= 100 : // 如果是缩小，进入 -100 ~ 100 就应该停止
+      _tiemsValue <= -100 || _tiemsValue >= 100) {
+        _times100 *= _times100_base;
+        _tiemsValue *= _times100_base;
       }
 
-      cornumber = tmpnumber;
+      return _times100;
+    }( // 根据差值来缩放
+    maxValue - minValue); // 求解出 -100 ~ 100 的最佳间距值 后直接转换原来的倍数
+
+
+    var distance = Math.ceil((maxValue - minValue) * times100 / num) / times100; // 最小值，也就是起点
+
+    var begin = Math.floor(minValue / distance) * distance;
+    var rulerArray = [],
+        index; // 获取最终的刻度尺数组
+
+    rulerArray.push(begin);
+
+    for (index = 1; rulerArray[rulerArray.length - 1] < maxValue; index++) {
+      rulerArray.push(begin + distance * index);
     }
 
-    var resultData = {
-      min: cormin,
-      max: cormax,
-      distance: tmpstep,
-      num: cornumber,
-      ruler: []
-    }; // 得出最终的刻度数组
+    return rulerArray;
+  }
 
-    for (var i = 0; i <= cornumber; i++) {
-      resultData.ruler.push(cormin + tmpstep * i);
-    }
-
-    return resultData;
+  function ruler$1 (maxValue, minValue) {
+    var num = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : 5;
+    var rulerArray = ruler(maxValue, minValue, num);
+    return {
+      min: rulerArray[0],
+      max: rulerArray[rulerArray.length - 1],
+      distance: rulerArray[1] - rulerArray[0],
+      num: rulerArray.length - 1,
+      ruler: rulerArray
+    };
   }
 
   // 引入第三方提供的服务
@@ -1133,7 +1079,7 @@
             "$scale": _scale,
             "$map": map,
             "$getLoopColors": getLoopColors,
-            "$ruler": ruler
+            "$ruler": ruler$1
           }[inputArray[i]]);
         }
     };
@@ -3730,7 +3676,7 @@
   }];
 
   // 直线刻度尺
-  var ruler$1 = ['number', "json", 'string', 'color', '$dot', function ($number, $json, $string, $color, $dot) {
+  var ruler$2 = ['number', "json", 'string', 'color', '$dot', function ($number, $json, $string, $color, $dot) {
     return {
       attrs: {
         // 刻度尺的起点位置
@@ -3903,7 +3849,7 @@
     path: path,
     "polar-ruler": polarRuler,
     rect: rect,
-    ruler: ruler$1,
+    ruler: ruler$2,
     text: text
   }); // 对外暴露调用接口
 
