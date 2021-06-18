@@ -111,7 +111,7 @@ this.radiusArray[0]= 10;
                 对象实现的，由于IE浏览器不支持，因此，你需要引入对应的polyfill进行兼容。
             </p>
             <p>
-                如果你知道画布合适改变大小，也可以通过
+                如果你知道画布何时改变大小，也可以通过
                 <a href="#/api?fixed=resize" target="_blank">主动通知</a>
                 的方式进行兼容。
             </p>
